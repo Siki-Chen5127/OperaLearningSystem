@@ -1,0 +1,181 @@
+@{
+    ViewData["Title"] = "戏台打卡";
+    var authed = User.Identity?.IsAuthenticated == true;
+    var qsYsl = string.Equals(Context.Request.Query["yueshilouReturn"].ToString(), "1", StringComparison.Ordinal);
+}
+
+@section Styles {
+    <style>
+        body { background-color: #f5f2ea; }
+    </style>
+    <link rel="stylesheet" href="~/css/pages/Community/yaji-forum.css" asp-append-version="true" />
+}
+
+<div class="yaji-forum-body-wrap">
+    <div class="yaji-page">
+        <header class="yaji-hero" data-aos="fade-down">
+            <div class="yaji-hero-badge">阅是楼 · 福台互通</div>
+            <h1>戏台打卡</h1>
+            <p class="yaji-hero-sub">记录戏台行迹、馆阁见闻 — 与同好共绘梨园地图</p>
+            <div class="yaji-hero-links">
+                @if (qsYsl)
+                {
+                    <a asp-controller="Home" asp-action="Index" asp-route-yueshilouReturn="1" class="yaji-link-pill yaji-link-pill--primary"><i class="fas fa-book-open"></i> 返回阅是楼</a>
+                }
+                <a asp-controller="Community" asp-action="Index" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">戏词雅集</a>
+                <a asp-controller="Community" asp-action="Works" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">百宝阁</a>
+                <a asp-controller="Home" asp-action="Index" class="yaji-link-pill">梨园正门</a>
+            </div>
+        </header>
+
+        <section class="yaji-checkin-map-panel" data-aos="fade-up">
+            <h2 class="yaji-checkin-map-title">戏台地图</h2>
+            <svg viewBox="0 0 400 250" class="yaji-checkin-map-svg" aria-label="示意戏台分布">
+                <rect width="400" height="250" fill="#f5e6c8" rx="8" />
+                <circle cx="200" cy="125" r="5" fill="#9E2A2F" />
+                <text x="200" y="143" text-anchor="middle" fill="#5a3a1a" font-size="9">故宫畅音阁</text>
+                <circle cx="120" cy="85" r="5" fill="#d4af37" />
+                <text x="120" y="103" text-anchor="middle" fill="#5a3a1a" font-size="9">颐和园德和园</text>
+                <circle cx="310" cy="95" r="5" fill="#d4af37" />
+                <text x="310" y="113" text-anchor="middle" fill="#5a3a1a" font-size="9">承德清音阁</text>
+                <circle cx="160" cy="180" r="4" fill="#8b6914" />
+                <text x="160" y="196" text-anchor="middle" fill="#5a3a1a" font-size="8">苏州虎丘</text>
+                <circle cx="280" cy="175" r="4" fill="#8b6914" />
+                <text x="280" y="191" text-anchor="middle" fill="#5a3a1a" font-size="8">广州粤剧院</text>
+            </svg>
+        </section>
+
+        <div class="yaji-toolbar-wrap" data-aos="fade-up">
+            <div class="yaji-toolbar">
+                <div class="yaji-sort-group" id="yajiSortGroup" role="tablist" aria-label="排序">
+                    <button type="button" class="yaji-sort-btn active" data-sort="smart">智能</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="time">最新</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="hot">热议</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="region">地域序</button>
+                </div>
+                <div class="yaji-search-wrap">
+                    <input type="search" id="yajiSearch" autocomplete="off" placeholder="搜标题、正文、标签…" aria-label="搜索" />
+                    <span class="yaji-search-icon"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" id="yajiRegion" placeholder="地域" title="筛选地域" style="display:none;max-width:110px;border:none;border-bottom:2px solid #ddd;padding:8px 4px;font-size:0.85rem;background:transparent;" />
+                <button type="button" class="yaji-toolbar-compose" id="btnOpenCheckinCompose"><i class="fas fa-camera-retro"></i> 发布打卡</button>
+                <div class="yaji-toolbar-actions">
+                    <button type="button" class="yaji-icon-btn" id="yajiToggleRegion" title="地域筛选"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="yaji-icon-btn" id="yajiRefresh" title="刷新"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <section class="yaji-wc-panel" data-aos="fade-up" data-aos-delay="80">
+            <div class="yaji-wc-head">
+                <h2 class="yaji-wc-title"><i class="fas fa-cloud"></i> 打卡词云</h2>
+                <span class="yaji-wc-hint">点击词语筛帖；再点取消</span>
+            </div>
+            <div class="yaji-wc-tags" id="yajiWordCloud">载入词云…</div>
+        </section>
+
+        <div id="yajiFeedHost" class="yaji-feed" data-aos="fade-up" data-aos-delay="120">
+            <div class="yaji-loading"><i class="fas fa-circle-notch fa-spin"></i> 载入…</div>
+        </div>
+    </div>
+</div>
+
+<div id="yajiCheckinModal" class="yaji-modal-root" aria-hidden="true">
+    <div class="yaji-modal-backdrop" onclick="yajiCloseModal('yajiCheckinModal')"></div>
+    <div class="yaji-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="yajiCheckinTitle">
+        <div class="yaji-modal-head">
+            <h3 id="yajiCheckinTitle">发布打卡</h3>
+            <button type="button" class="yaji-modal-close" onclick="yajiCloseModal('yajiCheckinModal')" aria-label="关闭">&times;</button>
+        </div>
+        <div class="yaji-modal-body-scroll">
+            <input type="text" id="ci-title" class="yaji-field" placeholder="标题" />
+            <textarea id="ci-body" class="yaji-field" placeholder="游览感悟"></textarea>
+            <input type="text" id="ci-tags" class="yaji-field" placeholder="话题标签，如：昆曲、戏台建筑" />
+            <input type="text" id="ci-region" class="yaji-field" placeholder="地域 / 戏台名称" />
+            <p class="yaji-media-hint mb-0">可选：上传图片或短视频</p>
+            <input type="file" id="ci-media-file" class="yaji-field" accept="image/*,video/*" multiple />
+            <div id="ci-media-list" class="yaji-media-chips"></div>
+            <div class="yaji-modal-actions">
+                <button type="button" class="yaji-btn-secondary" onclick="yajiCloseModal('yajiCheckinModal')">取消</button>
+                <button type="button" class="yaji-submit" id="ci-submit">提交打卡</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/yaji-compose-modal.js" asp-append-version="true"></script>
+    <script src="~/js/community-yaji-feed.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var authed = @authed.ToString().ToLowerInvariant();
+            var checkinUploadUrls = [];
+
+            initYajiFeed({
+                postKind: 1,
+                reactionSet: 'checkin',
+                showMediaInFeed: true,
+                authed: authed,
+                emptyHtml: '<div class="yaji-empty" data-aos="fade-in"><i class="far fa-map"></i>暂无符合条件的打卡<br/><small>换词云或排序试试，或点击「发布打卡」。</small></div>'
+            });
+
+            document.getElementById('btnOpenCheckinCompose').addEventListener('click', function () {
+                if (!authed) {
+                    window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                yajiOpenModal('yajiCheckinModal');
+            });
+
+            document.getElementById('ci-media-file').addEventListener('change', async function () {
+                var input = this;
+                var listEl = document.getElementById('ci-media-list');
+                if (!input.files || !input.files.length) return;
+                if (!authed) { alert('请先登录'); input.value = ''; return; }
+                listEl.textContent = '上传中…';
+                checkinUploadUrls = [];
+                for (var i = 0; i < input.files.length; i++) {
+                    var fd = new FormData();
+                    fd.append('file', input.files[i]);
+                    var r = await fetch('/api/community-feed/upload-media', { method: 'POST', body: fd, credentials: 'same-origin' });
+                    if (r.ok) {
+                        var j = await r.json();
+                        if (j && j.url) checkinUploadUrls.push(j.url);
+                    }
+                }
+                listEl.textContent = checkinUploadUrls.length ? checkinUploadUrls.join(' · ') : '上传失败或未选择文件';
+            });
+
+            document.getElementById('ci-submit').addEventListener('click', async function () {
+                if (!authed) return;
+                var body = {
+                    title: document.getElementById('ci-title').value.trim(),
+                    content: document.getElementById('ci-body').value.trim(),
+                    categoryId: 0,
+                    topicTags: document.getElementById('ci-tags').value.trim(),
+                    regionLabel: document.getElementById('ci-region').value.trim(),
+                    mediaUrlsJson: JSON.stringify(checkinUploadUrls)
+                };
+                if (!body.title || !body.content) { alert('请填写标题与正文'); return; }
+                var r = await fetch('/api/community-feed/checkin', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (r.ok) {
+                    checkinUploadUrls = [];
+                    document.getElementById('ci-title').value = '';
+                    document.getElementById('ci-body').value = '';
+                    document.getElementById('ci-tags').value = '';
+                    document.getElementById('ci-region').value = '';
+                    document.getElementById('ci-media-file').value = '';
+                    document.getElementById('ci-media-list').textContent = '';
+                    yajiCloseModal('yajiCheckinModal');
+                    if (window.yajiReloadFeed) window.yajiReloadFeed();
+                    alert('打卡已发布');
+                } else alert((await r.text()) || '发布失败');
+            });
+        })();
+    </script>
+}

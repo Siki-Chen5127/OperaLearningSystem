@@ -1,0 +1,212 @@
+﻿@using OperaLearningSystem.Web.Areas.Admin.ViewModels
+@model PagedResult<PlayIndexViewModel>
+@{
+    ViewData["Title"] = "剧目管理";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+    var searchString = ViewData["CurrentFilter"] as string;
+
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+    <link rel="stylesheet" href="~/css/admin/play.css" asp-append-version="true" />
+
+
+<div id="play-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-collection-play text-muted" style="font-size: 1.5rem;"></i> 剧目管理
+    </div>
+
+    <div class="top-action-bar">
+        <form asp-action="Index" method="get" style="margin: 0;">
+            <div class="search-input-group">
+                <input type="text" name="searchString" placeholder="输入剧目名称搜索..." value="@searchString">
+                <button type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+
+        <a asp-action="Create" class="btn-create">
+            <i class="bi bi-plus"></i> 新建剧目
+        </a>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="table-wrapper">
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">封面图</th>
+                        <th style="width: 20%;">剧目名称</th>
+                        <th style="width: 15%;">所属剧种</th>
+                        <th>关联名家</th>
+                        <th style="width: 120px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int rowIndex = 0;
+                    }
+                    @foreach (var item in Model.Items)
+                    {
+                        var delay = rowIndex * 0.05;
+
+                        <tr class="table-row" style="animation-delay: @(delay)s;">
+                            <td>
+                                <div class="img-container">
+                                    <img src="@(item.ImageUrl ?? "/images/default-play.jpg")" alt="@item.Title" />
+                                </div>
+                            </td>
+                            <td><strong>@item.Title</strong></td>
+                            <td><span style="color: #8C5E18;">@item.CategoryName</span></td>
+                            <td>
+                                <div class="stats-tags">
+                                    @if (item.MasterNames.Any())
+                                    {
+                                        foreach (var masterName in item.MasterNames.Take(3))
+                                        {
+                                            <span class="stat-badge">@masterName</span>
+                                        }
+                                        if (item.MasterNames.Count > 3)
+                                        {
+                                            <span class="stat-badge" title="@string.Join(", ", item.MasterNames)">...</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">暂无名家</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="action-link link-edit">编辑</a>
+                                <button data-id="@item.Id" data-name="@item.Title" class="action-link link-delete delete-btn">删除</button>
+                            </td>
+                        </tr>
+                        rowIndex++;
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #999;">暂无数据</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container">
+            <ul class="pagination">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="1" asp-route-searchString="@searchString" class="page-link">首页</a>
+                </li>
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-searchString="@searchString" class="page-link">上一页</a>
+                </li>
+
+                @for (var i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@i" asp-route-searchString="@searchString" class="page-link">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-searchString="@searchString" class="page-link">下一页</a>
+                </li>
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@totalPages" asp-route-searchString="@searchString" class="page-link">尾页</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 系统消息提示 (带高光动画)
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                var firstRow = document.querySelector('.table-row');
+                if(firstRow) {
+                    setTimeout(function() {
+                        firstRow.classList.add('highlight-new');
+                    }, 400);
+                }
+
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#FAF6F7',
+                    color: '#333'
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: successMsgEl.innerText
+                });
+            }
+
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '操作失败',
+                    text: errorMsgEl.innerText,
+                    confirmButtonColor: '#B5495B',
+                    background: '#FAF6F7'
+                });
+            }
+
+            // 删除确认 (防飘红安全版)
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var playId = $(this).data('id');
+                var playName = $(this).data('name');
+                var form = $('#deleteForm');
+
+                form.attr('action', "@Url.Action("Delete", "Play")/" + playId);
+
+                Swal.fire({
+                    title: '确认删除剧目？',
+                    html: '您即将删除 <strong>' + playName + '</strong>。此操作不可逆。',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '确认删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

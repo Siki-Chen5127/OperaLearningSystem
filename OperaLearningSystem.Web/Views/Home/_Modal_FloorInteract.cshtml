@@ -1,0 +1,98 @@
+﻿<style>
+    /* 第一层：卷轴列表弹窗 */
+    #floor3-scrolls-backdrop {
+        z-index: 1000 !important;
+    }
+
+    #floor3-scrolls-modal {
+        z-index: 1010 !important;
+    }
+
+    /* 第二层：戏台详情弹窗 */
+    #floor3-stage-detail-backdrop {
+        z-index: 1100 !important;
+    }
+
+    #floor3-stage-detail {
+        z-index: 1110 !important;
+    }
+</style>
+
+<!--三楼牌匾-->
+<div id="floor2-paibian-backdrop" class="floor2-paibian-backdrop" style="display:none;" aria-hidden="true"></div>
+<div id="floor2-paibian-modal" class="floor2-paibian-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="floor2-paibian-title">
+    <h2 id="floor2-paibian-title" class="visually-hidden">牌匾</h2>
+    <button type="button" class="floor2-paibian-close fenmo-close" onclick="closeFloor2PaibianModal()" aria-label="关闭"><i class="fas fa-times"></i></button>
+    <img src="~/images/entrance/stage_second_floor_paibian.png" alt="禄台牌匾" class="floor2-paibian-img" />
+</div>
+
+<div id="floor3-paibian-backdrop" class="floor2-paibian-backdrop" style="display:none;" aria-hidden="true"></div>
+<div id="floor3-paibian-modal" class="floor2-paibian-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="floor3-paibian-title">
+    <h2 id="floor3-paibian-title" class="visually-hidden">福台牌匾</h2>
+    <button type="button" class="floor2-paibian-close fenmo-close" onclick="closeFloor3PaibianModal()" aria-label="关闭"><i class="fas fa-times"></i></button>
+    <img src="~/images/entrance/stage_third_floor_paibian.png" alt="福台牌匾" class="floor2-paibian-img"
+         onerror="this.onerror=null;this.src='@Url.Content("~/images/entrance/stage_second_floor_paibian.png")'" />
+</div>
+
+<div id="yueshilou-paibian-backdrop" class="floor2-paibian-backdrop" style="display:none;" aria-hidden="true"></div>
+<div id="yueshilou-paibian-modal" class="floor2-paibian-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="yueshilou-paibian-title">
+    <h2 id="yueshilou-paibian-title" class="visually-hidden">阅是楼牌匾</h2>
+    <button type="button" class="floor2-paibian-close fenmo-close" onclick="closeYueshilouPaibianModal()" aria-label="关闭"><i class="fas fa-times"></i></button>
+    <img src="~/images/entrance/yueshilou_paibian.png" alt="阅是楼牌匾" class="floor2-paibian-img" />
+</div>
+
+<!--福台卷轴-->
+<div id="floor3-scrolls-backdrop" class="floor3-scrolls-backdrop" style="display:none;" aria-hidden="true"></div>
+<div id="floor3-scrolls-modal" class="floor3-scrolls-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="floor3-scrolls-title">
+    <div class="floor3-scrolls-inner">
+        <button type="button" class="floor2-paibian-close fenmo-close floor3-scrolls-close" onclick="closeFloor3ScrollsModal()" aria-label="关闭"><i class="fas fa-times"></i></button>
+        <h2 id="floor3-scrolls-title" class="floor3-scrolls-heading">戏楼卷轴 · 分区览胜</h2>
+        <p class="floor3-scrolls-sub">分区以「一摞卷轴」表示；点开某一摞，即展开该分区下的戏楼卷轴列表，再点条目查看详情。</p>
+        <div id="floor3-blinds-row" class="floor3-blinds-row" role="tablist" aria-label="戏楼分区"></div>
+        <div id="floor3-region-panel" class="floor3-region-panel"></div>
+        <p id="floor3-scrolls-loading" class="floor3-scrolls-loading">载入中…</p>
+        <p id="floor3-scrolls-empty" class="floor3-scrolls-empty" style="display:none;">暂无戏台数据，请在管理后台「戏台知识」中维护分区与条目。</p>
+    </div>
+</div>
+
+<div id="floor3-stage-detail-backdrop" class="floor3-stage-detail-backdrop" style="display:none;" aria-hidden="true"></div>
+<div id="floor3-stage-detail" class="floor3-unroll" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="floor3-stage-detail-name">
+    <div class="floor3-unroll__row">
+        <div class="floor3-unroll__roller floor3-unroll__roller--left" aria-hidden="true"></div>
+        <div class="floor3-unroll__sheet-wrap">
+            <div id="floor3-unroll-sheet" class="floor3-unroll__sheet">
+                <div id="floor3-stage-detail-inner" class="floor3-unroll__inner">
+                    <button type="button" class="floor3-unroll__close fenmo-close" onclick="closeFloor3StageDetail(true)" aria-label="卷回并返回"><i class="fas fa-arrow-left"></i></button>
+                    <div class="floor3-unroll__content">
+                        <img id="floor3-stage-detail-img" class="floor3-unroll__img" src="" alt="" />
+                        <h3 id="floor3-stage-detail-name" class="floor3-unroll__title"></h3>
+                        <div id="floor3-stage-detail-intro" class="floor3-unroll__intro"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="floor3-unroll__roller floor3-unroll__roller--right" aria-hidden="true"></div>
+    </div>
+</div>
+
+<!-- 寿台 · 戏折子 -->
+<div id="floor1-book-dim" class="floor1-book-dim" style="display:none;" aria-hidden="true"></div>
+<div id="floor1-book-modal" class="floor1-book-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="floor1-book-modal-title">
+    <h2 id="floor1-book-modal-title" class="visually-hidden">戏折子</h2>
+    <div id="floor1-book-menu" class="floor1-book-menu">
+        <div class="floor1-book-frame" style="background-image:url('@Url.Content("~/images/entrance/book_window.png")')">
+            <button type="button" class="floor1-book-close fenmo-close" onclick="closeFloor1BookModal()" aria-label="关闭"><i class="fas fa-times"></i></button>
+            <div class="floor1-book-actions floor1-book-artlines" role="group" aria-label="戏折子目录">
+                <button type="button" class="floor1-book-line" onclick="openFloor1BookEmbed('/Category?entranceEmbed=1')">探索剧种</button>
+                <button type="button" class="floor1-book-line" onclick="openFloor1BookEmbed('/Play?entranceEmbed=1')">品鉴剧目</button>
+                <button type="button" class="floor1-book-line" onclick="openFloor1BookEmbed('/Master?entranceEmbed=1')">名家风采</button>
+            </div>
+        </div>
+    </div>
+    <div id="floor1-book-embed-wrap" class="floor1-book-embed-wrap" style="display:none;">
+        <iframe id="floor1-book-iframe" class="floor1-book-iframe" title="戏折子内容" src="about:blank"></iframe>
+    </div>
+</div>
+
+<!-- 笔刷光标 -->
+<img id="brush-cursor" src="~/images/entrance/brush.png" class="brush-cursor" style="display:none;" />

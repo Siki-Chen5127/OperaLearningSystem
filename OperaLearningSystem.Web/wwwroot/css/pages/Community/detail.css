@@ -1,0 +1,293 @@
+﻿/* --- 1. 背景：延续茶馆氛围 --- */
+body {
+    background-color: #f7f3e8; /* 米黄暖色 */
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4c5b0' fill-opacity='0.2' fill-rule='evenodd'%3E%3Cpath d='M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z'/%3E%3C/g%3E%3C/svg%3E");
+    font-family: 'Noto Serif SC', serif;
+}
+
+.detail-page-container {
+    padding-top: 120px;
+    padding-bottom: 80px;
+    min-height: 100vh;
+}
+
+/* --- 2. 主帖：花笺信纸 (Flower Note Paper) --- */
+.paper-card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 60px 80px; /* 宽敞的内边距 */
+    border-radius: 4px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+    position: relative;
+    /* 信纸横线纹理 */
+    background-image: repeating-linear-gradient(transparent, transparent 29px, #f5f5f5 30px);
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+}
+
+    /* 顶部装饰条 */
+    .paper-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: #9E2A2F;
+    }
+
+/* 装饰印章 */
+.seal-decoration {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 4rem;
+    color: rgba(158, 42, 47, 0.08);
+    border: 3px solid rgba(158, 42, 47, 0.08);
+    border-radius: 8px;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(15deg);
+    pointer-events: none;
+}
+
+/* 头部信息 */
+.post-header {
+    text-align: center;
+    margin-bottom: 40px;
+    background: #fff; /* 遮挡横线 */
+    padding: 20px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.post-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 3rem;
+    color: #3e2723;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+.post-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.meta-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #D4AF37;
+    object-fit: cover;
+}
+
+.meta-author {
+    font-weight: bold;
+    color: #9E2A2F;
+}
+
+/* 正文内容 */
+.post-content {
+    font-size: 1.15rem;
+    line-height: 30px; /* 与背景横线对齐 */
+    color: #333;
+    text-align: justify;
+    min-height: 200px;
+    margin-bottom: 40px;
+}
+
+/* 操作按钮栏 */
+.post-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    background: #fff;
+    padding: 10px 0;
+    border-top: 1px solid #f0f0f0;
+}
+
+.action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn-edit {
+    color: #5d4037;
+    border-color: #d7ccc8;
+}
+
+    .btn-edit:hover {
+        background: #efebe9;
+        color: #3e2723;
+    }
+
+.btn-delete {
+    color: #c62828;
+    border-color: #ffcdd2;
+}
+
+    .btn-delete:hover {
+        background: #ffebee;
+        color: #b71c1c;
+    }
+
+/* --- 3. 评论区：茶桌议事 --- */
+.comments-container {
+    max-width: 900px;
+    margin: 50px auto 0 auto;
+}
+
+.comments-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2rem;
+    color: #5d4037;
+    margin-bottom: 20px;
+    border-left: 5px solid #9E2A2F;
+    padding-left: 15px;
+}
+
+/* 评论输入框 */
+.comment-input-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0;
+}
+
+.comment-textarea {
+    width: 100%;
+    border: 2px dashed #d7ccc8;
+    border-radius: 4px;
+    padding: 15px;
+    font-family: inherit;
+    transition: all 0.3s;
+    background: #fafafa;
+    resize: vertical;
+}
+
+    .comment-textarea:focus {
+        outline: none;
+        border-color: #9E2A2F;
+        background: #fff;
+    }
+
+.btn-submit {
+    background: #9E2A2F;
+    color: #fff;
+    border: none;
+    padding: 8px 30px;
+    border-radius: 50px;
+    margin-top: 10px;
+    float: right;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+    .btn-submit:hover {
+        background: #b53036;
+    }
+
+/* 评论列表样式*/
+.comment-list-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    padding: 0 20px;
+}
+
+.comment-item {
+    display: flex;
+    padding: 20px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+    .comment-item:last-child {
+        border-bottom: none;
+    }
+
+.comment-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    margin-right: 15px;
+}
+
+.comment-content-box {
+    flex: 1;
+}
+
+.comment-user-name {
+    font-weight: bold;
+    color: #3e2723;
+    font-size: 0.95rem;
+}
+
+.comment-time {
+    font-size: 0.8rem;
+    color: #999;
+    margin-left: 10px;
+}
+
+.comment-text {
+    margin-top: 8px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* 弹窗美化 */
+.modal-content {
+    border: none;
+    border-radius: 8px;
+    font-family: 'Noto Serif SC', serif;
+}
+
+.modal-header {
+    background-color: #f7f3e8;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-title {
+    color: #9E2A2F;
+    font-weight: bold;
+}
+
+.modal-footer {
+    border-top: none;
+    background-color: #fafafa;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .paper-card {
+        padding: 40px 20px;
+    }
+
+    .post-title {
+        font-size: 2rem;
+    }
+
+    .seal-decoration {
+        display: none;
+    }
+}
+

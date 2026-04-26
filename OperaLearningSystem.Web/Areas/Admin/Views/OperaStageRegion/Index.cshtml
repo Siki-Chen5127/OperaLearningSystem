@@ -1,0 +1,164 @@
+@using System.Linq
+@model IReadOnlyList<OperaLearningSystem.Core.Entities.OperaStageRegion>
+@{
+    ViewData["Title"] = "戏台分区管理";
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+
+<link rel="stylesheet" href="~/css/admin/operastageregion.css" asp-append-version="true" />
+
+<div id="region-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-geo-alt text-muted" style="font-size: 1.5rem;"></i> 戏台分区管理
+    </div>
+    <p class="text-muted" style="margin-top: -15px; margin-bottom: 20px; font-size: 0.95rem; padding-left: 5px;">
+        对应前台「古建戏台库」的省份/地理区域划分，每个区域下可维护多座戏台。
+    </p>
+
+    <div class="top-action-bar">
+        <div class="left-actions">
+            <a asp-action="Create" class="btn-create">
+                <i class="bi bi-plus"></i> 新建分区
+            </a>
+        </div>
+        <div class="right-actions">
+            <a asp-controller="OperaStage" asp-action="Index" class="btn-outline-custom">
+                <i class="bi bi-list-ul"></i> 管理全部戏台条目
+            </a>
+        </div>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="table-wrapper">
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">展示排序</th>
+                        <th>区域名称</th>
+                        <th style="width: 250px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int rowIndex = 0;
+                    }
+                    @foreach (var r in Model.OrderBy(x => x.SortOrder).ThenBy(x => x.Id))
+                    {
+                        var delay = rowIndex * 0.05;
+
+                        <tr class="table-row" style="animation-delay: @(delay)s;">
+                            <td>
+                                <span class="sort-badge">@r.SortOrder</span>
+                            </td>
+                            <td><strong style="font-size: 1.1rem; color: #4A312C;">@r.Name</strong></td>
+                            <td>
+                                <a asp-controller="OperaStage" asp-action="Index" asp-route-regionId="@r.Id" class="action-link link-view">
+                                    <i class="bi bi-grid-3x3"></i> 辖下戏台
+                                </a>
+                                <span class="divider">|</span>
+                                <a asp-action="Edit" asp-route-id="@r.Id" class="action-link link-edit">编辑</a>
+                                <span class="divider">|</span>
+                                <button data-id="@r.Id" data-name="@r.Name" class="action-link link-delete delete-btn">删除</button>
+                            </td>
+                        </tr>
+                        rowIndex++;
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 40px; color: #999;">暂无分区数据，请先新建。</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 系统消息提示
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                var firstRow = document.querySelector('.table-row');
+                if(firstRow) {
+                    setTimeout(function() {
+                        firstRow.classList.add('highlight-new');
+                    }, 400);
+                }
+
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#FAF6F7',
+                    color: '#333'
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: successMsgEl.innerText
+                });
+            }
+
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '操作被驳回',
+                    text: errorMsgEl.innerText,
+                    confirmButtonColor: '#B5495B',
+                    background: '#FAF6F7'
+                });
+            }
+
+            // 拦截删除按钮，使用国风 SweetAlert 弹窗
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var regionId = $(this).data('id');
+                var regionName = $(this).data('name');
+                var form = $('#deleteForm');
+
+                form.attr('action', "@Url.Action("Delete", "OperaStageRegion")/" + regionId);
+
+                Swal.fire({
+                    title: '确认删除分区？',
+                    html: '即将删除区域：<strong>' + regionName + '</strong>。<br><span style="color:#C94A4A; font-size: 0.9em;">注意：必须先清空该区域下的所有戏台，否则无法删除。</span>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '确认删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

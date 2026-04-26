@@ -1,0 +1,161 @@
+@model OperaLearningSystem.Core.Entities.Master
+@{
+    ViewData["Title"] = Model.Name + " - 名家列传";
+    bool isLiked = ViewBag.IsLikedByCurrentUser ?? false;
+    bool isFavorited = ViewBag.IsFavoritedByCurrentUser ?? false;
+}
+
+<link rel="stylesheet" href="~/css/pages/Master/detail.css" asp-append-version="true" />
+
+<div class="master-detail-container">
+
+    <div class="detail-grid">
+
+        <div class="info-column" data-aos="fade-right">
+
+            <div class="info-header">
+                <h1 class="master-name">@Model.Name</h1>
+                @if (Model.Category != null)
+                {
+                    <span class="category-badge">
+                        @Model.Category.Name
+                    </span>
+                }
+            </div>
+
+            <div class="meta-info-row">
+                <div class="meta-item">
+                    <span class="meta-label">艺术成就</span>
+                    <div class="star-rating-box">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <i class="bi @(i < Model.Rating ? "bi-star-fill" : "bi-star") star-icon"></i>
+                        }
+                        <span class="rating-score">@Model.Rating.ToString("0.0")</span>
+                    </div>
+                </div>
+
+                <div class="vertical-divider"></div>
+
+                <div class="meta-item">
+                    <span class="meta-label">代表剧目</span>
+                    <span class="meta-value">
+                        @(Model.PlayMasters != null && Model.PlayMasters.Any() ? Model.PlayMasters.Count + " 部" : "暂无收录")
+                    </span>
+                </div>
+            </div>
+
+            <div class="bio-paper">
+                <div class="bio-title">
+                    <i class="bi bi-journal-text"></i> 生平纪事
+                </div>
+                <div class="bio-content">
+                    @Html.Raw(Model.Introduction?.Replace("\n", "<br/>"))
+                </div>
+            </div>
+
+            <div class="back-action">
+                <a asp-action="Index" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> 返回全部名录
+                </a>
+            </div>
+        </div>
+
+        <div class="portrait-column" data-aos="fade-left">
+
+            <div class="bg-watermark">
+                @(string.IsNullOrEmpty(Model.Name) ? "" : Model.Name.Substring(0, 1))
+            </div>
+
+            <div class="portrait-wrapper">
+                <div class="portrait-inner-frame">
+                    <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? $"/images/default-master.png" : Model.ImageUrl)"
+                         alt="@Model.Name" class="portrait-img">
+                </div>
+
+                <form id="interactionForm">
+                    @Html.AntiForgeryToken()
+                    <div class="interaction-bar">
+                        <button id="likeButton" class="btn-action btn-like @(isLiked ? "active" : "")" data-master-id="@Model.Id">
+                            <i class="bi @(isLiked ? "bi-heart-fill" : "bi-heart")"></i>
+                            <span>点赞 <span id="likeCount">@Model.Likes.Count</span></span>
+                        </button>
+
+                        <button id="favoriteButton" class="btn-action btn-fav @(isFavorited ? "active" : "")" data-master-id="@Model.Id">
+                            <i class="bi @(isFavorited ? "bi-star-fill" : "bi-star")"></i>
+                            <span>收藏 <span id="favoriteCount">@Model.Favorites.Count</span></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const handleAjaxError = (xhr) => {
+                if (xhr.status === 401) {
+                    alert('请先登录后方可操作！');
+                    window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                } else {
+                    alert('请求失败，请稍后重试。');
+                }
+            };
+
+            const formParamByDataAttr = { 'master-id': 'masterId' };
+
+            const interactionHandler = (buttonSelector, url, idAttribute, countSelector, stateProp, activeClass) => {
+                $(buttonSelector).on('click', function (e) {
+                    e.preventDefault();
+                    let button = $(this);
+                    if (button.data('reqBusy')) return;
+
+                    let entityId = button.attr('data-' + idAttribute);
+                    if (!entityId) return;
+
+                    let token = $('#interactionForm input[name="__RequestVerificationToken"]').val();
+                    let postData = { __RequestVerificationToken: token };
+                    postData[formParamByDataAttr[idAttribute]] = entityId;
+
+                    button.data('reqBusy', true);
+                    // 添加点击小动画
+                    button.find('i').css('transform', 'scale(1.3)');
+                    setTimeout(() => button.find('i').css('transform', 'scale(1)'), 200);
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: postData,
+                        complete: function () { button.data('reqBusy', false); },
+                        success: function (response) {
+                            if (response && response.success) {
+                                let totalCount = response.totalLikes ?? response.totalFavorites ?? 0;
+                                $(countSelector).text(totalCount);
+
+                                let isInteracted = !!response[stateProp];
+                                let icon = button.find('i');
+
+                                if (isInteracted) {
+                                    button.addClass(activeClass);
+                                    if(button.hasClass('btn-like')) icon.removeClass('bi-heart').addClass('bi-heart-fill');
+                                    if(button.hasClass('btn-fav')) icon.removeClass('bi-star').addClass('bi-star-fill');
+                                } else {
+                                    button.removeClass(activeClass);
+                                    if(button.hasClass('btn-like')) icon.removeClass('bi-heart-fill').addClass('bi-heart');
+                                    if(button.hasClass('btn-fav')) icon.removeClass('bi-star-fill').addClass('bi-star');
+                                }
+                            }
+                        },
+                        error: handleAjaxError
+                    });
+                });
+            };
+
+            interactionHandler('#likeButton', '@Url.Action("ToggleMasterLike", "Interaction")', 'master-id', '#likeCount', 'isLiked', 'active');
+            interactionHandler('#favoriteButton', '@Url.Action("ToggleMasterFavorite", "Interaction")', 'master-id', '#favoriteCount', 'isFavorited', 'active');
+        });
+    </script>
+}

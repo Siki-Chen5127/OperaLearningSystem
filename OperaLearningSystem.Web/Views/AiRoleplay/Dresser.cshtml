@@ -1,0 +1,415 @@
+@model IEnumerable<OperaLearningSystem.Core.Entities.AiCharacter>
+@{
+    ViewData["Title"] = "梨园梦境 · 梳妆入戏";
+    var defaultPlayUrl = Url.Content("~/images/default-play.jpg");
+}
+@section Styles {
+    <style>
+        body { background: #0d0806; margin: 0; overflow-x: hidden; }
+        .dresser-page {
+            min-height: 100vh; position: relative;
+            background: url('/images/entrance/xiweifang.png') center/cover no-repeat;
+            padding: 80px 16px 40px;
+        }
+        .dresser-page::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(13,8,6,0.7) 0%, rgba(13,8,6,0.5) 40%, rgba(13,8,6,0.85) 100%);
+        }
+        .dresser-stage { max-width: 920px; margin: 0 auto; position: relative; z-index: 1; }
+
+        .dresser-header {
+            text-align: center; margin-bottom: 12px;
+        }
+        .dresser-header h1 {
+            font-family: 'Ma Shan Zheng', cursive; font-size: 2.4rem; color: #f5e6c8;
+            letter-spacing: 8px; text-shadow: 0 3px 15px rgba(0,0,0,0.6); margin: 0 0 6px;
+        }
+        .dresser-quote {
+            text-align: center; color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.3rem;
+            margin-bottom: 24px; text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+            animation: quoteBreath 3s ease-in-out infinite alternate;
+        }
+        @@keyframes quoteBreath {
+            from { opacity: 0.7; text-shadow: 0 0 5px rgba(226,192,121,0.2); }
+            to { opacity: 1; text-shadow: 0 0 20px rgba(226,192,121,0.6); }
+        }
+
+        /* 铜镜 */
+        .mirror-wrap {
+            position: relative; width: min(320px, 80vw); margin: 0 auto 32px;
+            aspect-ratio: 1; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.12), transparent 50%),
+                linear-gradient(145deg, #4a3a32, #2a201c);
+            border: 5px solid #6b5344; box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 0 0 2px rgba(212,175,55,0.2), 0 15px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        .mirror-wrap::after {
+            content: ''; position: absolute; inset: 0; border-radius: 50%; z-index: 4;
+            background: radial-gradient(circle, transparent 55%, rgba(0,0,0,0.5) 100%);
+            pointer-events: none;
+        }
+        .mirror-highlight {
+            position: absolute; top: 12%; left: 18%; width: 35%; height: 25%;
+            background: radial-gradient(ellipse, rgba(255,255,255,0.15), transparent);
+            border-radius: 50%; pointer-events: none; transform: rotate(-30deg); z-index: 1;
+        }
+        .mirror-ripple { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; opacity: 0; z-index: 2; }
+        .mirror-ripple.active { animation: mirrorRipple 1.2s ease-out; }
+        @@keyframes mirrorRipple {
+            0% { opacity: 0.8; box-shadow: inset 0 0 0 0 rgba(100,180,255,0.5); }
+            100% { opacity: 0; box-shadow: inset 0 0 0 140px rgba(100,180,255,0); }
+        }
+        .mirror-portrait {
+            position: absolute; left: 8%; top: 8%; width: 84%; height: 84%;
+            border-radius: 50%; object-fit: cover; z-index: 0;
+            opacity: 0; transform: scale(0.92);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+            pointer-events: none;
+        }
+        .mirror-portrait.is-visible { opacity: 1; transform: scale(1); }
+        .mirror-label {
+            position: absolute; bottom: 16%; left: 0; right: 0; text-align: center;
+            color: rgba(255,255,255,0.3); font-size: 0.8rem; font-family: 'Ma Shan Zheng', cursive;
+            letter-spacing: 4px; z-index: 3;
+        }
+
+        /* 角色卡片滑动 */
+        .role-strip-wrap { position: relative; margin-bottom: 24px; }
+        .role-strip {
+            display: flex; gap: 16px; overflow-x: auto; padding: 12px 8px 20px;
+            scroll-snap-type: x mandatory; scrollbar-width: thin;
+            scrollbar-color: rgba(212,175,55,0.3) transparent;
+        }
+        .role-card {
+            flex: 0 0 160px; scroll-snap-align: start;
+            background: rgba(30,20,15,0.9); backdrop-filter: blur(8px);
+            border: 1px solid rgba(212,175,55,0.2); border-radius: 14px;
+            padding: 16px; cursor: pointer; transition: all 0.35s cubic-bezier(0.25,1,0.5,1);
+            position: relative; overflow: hidden;
+        }
+        .role-card::before {
+            content: ''; position: absolute; inset: 0; border-radius: 14px;
+            background: linear-gradient(135deg, transparent 40%, rgba(212,175,55,0.06));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .role-card:hover::before, .role-card.selected::before { opacity: 1; }
+        .role-card:hover { transform: translateY(-6px); border-color: rgba(212,175,55,0.4); }
+        .role-card.selected {
+            transform: translateY(-6px); border-color: #d4af37;
+            box-shadow: 0 8px 24px rgba(212,175,55,0.2);
+        }
+        .role-card h4 {
+            color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.15rem;
+            margin: 0 0 8px; position: relative;
+        }
+        .role-card p { color: rgba(255,255,255,0.5); font-size: 0.78rem; margin: 0; line-height: 1.5; position: relative; }
+        .role-empty { color: rgba(245,230,200,0.35); text-align: center; padding: 24px; width: 100%; font-size: 0.9rem; }
+
+        /* 入梦按钮 */
+        .dresser-actions { text-align: center; margin-top: 8px; }
+        .dresser-enter {
+            padding: 14px 44px; border-radius: 30px; border: none; cursor: pointer;
+            background: linear-gradient(180deg, #9E2A2F 0%, #6e1d21 100%);
+            color: #f5e6c8; font-family: 'Ma Shan Zheng', cursive; font-size: 1.25rem;
+            letter-spacing: 3px;
+            box-shadow: 0 8px 28px rgba(158,42,47,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .dresser-enter:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 12px 36px rgba(158,42,47,0.6); }
+        .dresser-enter:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        /* 入梦：截屏就绪后再显示层，避免先黑屏；WebGL 画布铺滿，失败再走兜底 */
+        .dream-transition {
+            position: fixed; inset: 0; z-index: 999999; pointer-events: none;
+            overflow: hidden; opacity: 0; visibility: hidden; background: transparent;
+        }
+        /* 截图进行中：仅挡住操作，不挡住画面 */
+        .dream-transition.is-precapture {
+            pointer-events: auto; opacity: 0; visibility: visible; background: transparent;
+        }
+        .dream-transition.is-active {
+            pointer-events: auto; opacity: 1; visibility: visible; background: transparent;
+        }
+        .dream-transition.is-active.is-fallback { background: #030101; }
+        .dream-vortex-canvas {
+            position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+            display: block; object-fit: fill; background: transparent;
+        }
+        .dream-transition.is-fallback .dream-vortex-canvas { display: none; }
+        .dream-fallback-veil {
+            position: absolute; inset: 0; display: none;
+            background: radial-gradient(
+                circle at var(--dream-x, 50%) var(--dream-y, 50%),
+                rgba(0,0,0,0) 0%,
+                rgba(0,0,0,0.35) 35%,
+                rgba(5, 2, 2, 0.98) 100%
+            );
+            opacity: 0;
+        }
+        .dream-transition.is-fallback .dream-fallback-veil {
+            display: block;
+            animation: dreamVeilFb 1.7s ease-out 0.08s forwards;
+        }
+        @@keyframes dreamVeilFb {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .dream-transition .dream-text {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.85rem;
+            letter-spacing: 10px; opacity: 0; text-shadow: 0 0 24px rgba(0,0,0,0.9);
+            z-index: 3; white-space: nowrap; pointer-events: none;
+        }
+        .dream-transition.is-active .dream-text {
+            animation: dreamTextIn 0.7s ease 0.95s forwards;
+        }
+        @@keyframes dreamTextIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .dresser-back { text-align: center; margin-top: 20px; }
+        .dresser-back a {
+            color: rgba(245,230,200,0.4); text-decoration: none; font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+        .dresser-back a:hover { color: #d4af37; }
+    </style>
+}
+
+<div class="dresser-page">
+    <div class="dresser-stage">
+        <div class="dresser-header">
+            <h1>梨园梦境</h1>
+        </div>
+        <p class="dresser-quote">不知阁下今日想入哪一出戏？</p>
+
+        <div class="mirror-wrap" id="dresserMirror" data-default-avatar="@defaultPlayUrl">
+            <img id="mirrorPortrait" class="mirror-portrait" alt="" decoding="async" />
+            <div class="mirror-highlight"></div>
+            <div class="mirror-ripple" id="mirrorRipple"></div>
+            <div class="mirror-label">菱花铜镜</div>
+        </div>
+
+        <div class="role-strip-wrap">
+            <div class="role-strip" id="roleStrip">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var ch in Model)
+                    {
+                        <div class="role-card" data-id="@ch.Id" data-name="@ch.Name" data-avatar="@(string.IsNullOrEmpty(ch.AvatarUrl) ? defaultPlayUrl : Url.Content(ch.AvatarUrl))">
+                            <h4>@ch.Name</h4>
+                            <p>@(ch.Description ?? ch.SystemPrompt?.Substring(0, Math.Min(ch.SystemPrompt?.Length ?? 0, 60)) + "…")</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="role-empty">暂无角色数据，请在数据库中添加 AI 角色。</div>
+                }
+            </div>
+        </div>
+
+        <div class="dresser-actions">
+            <button type="button" class="dresser-enter" id="btnEnterDream" disabled>对镜入梦</button>
+        </div>
+
+        <div class="dresser-back">
+            <a href="/"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        </div>
+    </div>
+</div>
+
+<div class="dream-transition" id="dreamTransition" aria-hidden="true">
+    <canvas id="dreamVortexCanvas" class="dream-vortex-canvas" aria-hidden="true"></canvas>
+    <div class="dream-fallback-veil" aria-hidden="true"></div>
+    <div class="dream-text">入梦中…</div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/html2canvas/html2canvas.min.js" asp-append-version="true"></script>
+    <script src="~/js/dream-vortex.js" asp-append-version="true"></script>
+    <script>
+        var selectedId = null;
+        var cards = document.querySelectorAll('.role-card');
+        var btnEnter = document.getElementById('btnEnterDream');
+        var mirror = document.getElementById('dresserMirror');
+        var mirrorPortrait = document.getElementById('mirrorPortrait');
+        var dreamOverlay = document.getElementById('dreamTransition');
+        var dreamCanvas = document.getElementById('dreamVortexCanvas');
+        var defaultAvatarUrl = mirror.getAttribute('data-default-avatar') || '';
+
+        function updateMirrorPortrait(avatarUrl) {
+            mirrorPortrait.classList.remove('is-visible');
+            var url = (avatarUrl || '').trim() || defaultAvatarUrl;
+            if (!url) {
+                mirrorPortrait.removeAttribute('src');
+                return;
+            }
+            var img = mirrorPortrait;
+            var triedFallback = false;
+            function show() { img.classList.add('is-visible'); }
+            img.onload = show;
+            img.onerror = function () {
+                if (!triedFallback && defaultAvatarUrl && url !== defaultAvatarUrl) {
+                    triedFallback = true;
+                    img.src = defaultAvatarUrl;
+                    return;
+                }
+                img.classList.remove('is-visible');
+                img.removeAttribute('src');
+            };
+            img.src = url;
+            if (img.complete && img.naturalWidth > 0) show();
+        }
+
+        cards.forEach(function (c) {
+            c.addEventListener('click', function () {
+                cards.forEach(function (x) { x.classList.remove('selected'); });
+                c.classList.add('selected');
+                selectedId = c.getAttribute('data-id');
+                btnEnter.disabled = false;
+
+                var rect = c.getBoundingClientRect();
+                var ghost = c.cloneNode(true);
+                ghost.style.cssText = 'position:fixed;left:' + rect.left + 'px;top:' + rect.top + 'px;width:' + rect.width + 'px;height:' + rect.height + 'px;z-index:99999;pointer-events:none;border-radius:12px;';
+                document.body.appendChild(ghost);
+                var mRect = mirror.getBoundingClientRect();
+                var tx = mRect.left + mRect.width / 2 - rect.left - rect.width / 2;
+                var ty = mRect.top + mRect.height / 2 - rect.top - rect.height / 2;
+                requestAnimationFrame(function () {
+                    ghost.style.transition = 'transform 0.65s cubic-bezier(0.22,1,0.36,1), opacity 0.65s, border-radius 0.65s';
+                    ghost.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(0.15)';
+                    ghost.style.opacity = '0';
+                    ghost.style.borderRadius = '50%';
+                });
+                setTimeout(function () {
+                    ghost.remove();
+                    var url = c.getAttribute('data-avatar') || '';
+                    updateMirrorPortrait(url);
+                }, 700);
+
+                var rip = document.getElementById('mirrorRipple');
+                rip.classList.remove('active');
+                setTimeout(function () { void rip.offsetWidth; rip.classList.add('active'); }, 500);
+            });
+        });
+
+        function goRoleplay() {
+            window.location.href = '/AiRoleplay?characterId=' + encodeURIComponent(selectedId);
+        }
+
+        btnEnter.addEventListener('click', function () {
+            if (!selectedId) return;
+            btnEnter.disabled = true;
+
+            try { new Audio('/audio/bangzi.mp3').play(); } catch (e) {}
+
+            var mRect = mirror.getBoundingClientRect();
+            var cxCss = mRect.left + mRect.width / 2;
+            var cyCss = mRect.top + mRect.height / 2;
+            dreamOverlay.style.setProperty('--dream-x', cxCss + 'px');
+            dreamOverlay.style.setProperty('--dream-y', cyCss + 'px');
+
+            var capRoot = document.querySelector('.dresser-page') || document.body;
+            var hasH2c = typeof html2canvas === 'function';
+            var canSwirl = typeof runDreamVortex === 'function' || typeof runDreamSwirl2d === 'function';
+
+            function runFallback() {
+                dreamOverlay.classList.remove('is-precapture');
+                dreamOverlay.setAttribute('aria-hidden', 'false');
+                dreamOverlay.classList.add('is-active', 'is-fallback');
+                setTimeout(goRoleplay, 2800);
+            }
+
+            if (!hasH2c || !canSwirl) {
+                runFallback();
+                return;
+            }
+
+            dreamOverlay.classList.remove('is-active', 'is-fallback');
+            dreamOverlay.classList.add('is-precapture');
+            dreamOverlay.setAttribute('aria-hidden', 'false');
+
+            function stripCrossOriginCss(clonedDoc) {
+                var head = clonedDoc.head;
+                if (!head) return;
+                var links = head.querySelectorAll('link[rel="stylesheet"]');
+                var i, link, href;
+                for (i = links.length - 1; i >= 0; i--) {
+                    link = links[i];
+                    href = (link.getAttribute('href') || '').toLowerCase();
+                    if (href.indexOf('fonts.googleapis') >= 0 || href.indexOf('fonts.gstatic') >= 0) head.removeChild(link);
+                    else if (href.indexOf('cdnjs.cloudflare.com') >= 0) head.removeChild(link);
+                    else if (href.indexOf('unpkg.com') >= 0) head.removeChild(link);
+                }
+                var st = clonedDoc.createElement('style');
+                st.textContent = 'html,body{font-family:system-ui,\"Segoe UI\",\"Microsoft YaHei\",sans-serif!important;}';
+                head.appendChild(st);
+            }
+
+            function capturePage(allowTaint) {
+                return html2canvas(capRoot, {
+                    scale: Math.min(0.88, (window.devicePixelRatio || 1) * 0.58),
+                    useCORS: true,
+                    logging: false,
+                    allowTaint: !!allowTaint,
+                    backgroundColor: '#0d0806',
+                    onclone: stripCrossOriginCss
+                });
+            }
+
+            function startSwirlFromSnap(snap) {
+                if (!snap.width || !snap.height) {
+                    dreamOverlay.classList.remove('is-precapture');
+                    runFallback();
+                    return;
+                }
+                dreamOverlay.classList.remove('is-precapture');
+                dreamOverlay.classList.add('is-active');
+                dreamOverlay.classList.remove('is-fallback');
+
+                var rr = capRoot.getBoundingClientRect();
+                var scaleX = snap.width / rr.width;
+                var scaleY = snap.height / rr.height;
+                var cx = (cxCss - rr.left) * scaleX;
+                var cy = (cyCss - rr.top) * scaleY;
+
+                dreamCanvas.width = snap.width;
+                dreamCanvas.height = snap.height;
+
+                var started = false;
+                if (typeof runDreamVortex === 'function') {
+                    try {
+                        started = runDreamVortex(dreamCanvas, snap, cx, cy, 2600, goRoleplay);
+                    } catch (ex1) {
+                        started = false;
+                    }
+                }
+                if (!started && typeof runDreamSwirl2d === 'function') {
+                    try {
+                        started = runDreamSwirl2d(dreamCanvas, snap, cx, cy, 2600, goRoleplay);
+                    } catch (ex2) {
+                        started = false;
+                    }
+                }
+                if (!started) {
+                    dreamOverlay.classList.remove('is-active');
+                    runFallback();
+                }
+            }
+
+            capturePage(false)
+                .catch(function () {
+                    return capturePage(true);
+                })
+                .then(function (snap) {
+                    startSwirlFromSnap(snap);
+                })
+                .catch(function () {
+                    dreamOverlay.classList.remove('is-precapture');
+                    runFallback();
+                });
+        });
+    </script>
+}

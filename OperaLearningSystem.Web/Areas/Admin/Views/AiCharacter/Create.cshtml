@@ -1,0 +1,102 @@
+@model OperaLearningSystem.Web.Areas.Admin.ViewModels.AiCharacterFormViewModel
+
+@{
+    ViewData["Title"] = "新建 AI 角色";
+}
+
+<link rel="stylesheet" href="~/css/admin/aicharacter.css" asp-append-version="true" />
+
+<div id="ai-edit-container">
+
+    <div class="page-title">
+        <i class="bi bi-plus-square text-muted"></i> 新建 AI 角色档案
+    </div>
+
+    <div class="edit-card">
+        <form asp-action="Create" enctype="multipart/form-data" method="post" style="display: flex; flex-direction: column; height: 100%;">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="padding: 10px 25px 0;"></div>
+
+            <input type="hidden" asp-for="AvatarUrl" value="" />
+            <input type="hidden" asp-for="BackgroundUrl" value="" />
+
+            <div class="form-grid">
+
+                <div class="left-column">
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">角色名称 <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" placeholder="例如：梅尚青 (旦角)" />
+                        <span asp-validation-for="Name" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label">设定简介</label>
+                        <textarea asp-for="Description" class="form-control" style="min-height: 80px;" placeholder="一句简短的话概括角色设定，用于列表展示..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label asp-for="SortOrder" class="control-label">展示排序</label>
+                            <input asp-for="SortOrder" class="form-control" type="number" placeholder="默认: 0" />
+                        </div>
+                        <div class="col-md-6 form-group d-flex align-items-end mb-3">
+                            <div class="form-check form-switch custom-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="IsActive" id="activeSwitch" checked />
+                                <label class="form-check-label" for="activeSwitch">启用该角色</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-md-6 form-group">
+                            <label class="control-label">角色头像 (正方形)</label>
+                            <div class="image-preview-box avatar-preview">
+                                <div class="image-preview-placeholder">
+                                    <i class="bi bi-person-bounding-box"></i>
+                                </div>
+                            </div>
+                            <input asp-for="AvatarFile" type="file" class="form-control" accept="image/*" style="padding: 6px; font-size: 0.8rem;" />
+                        </div>
+
+                        <div class="col-md-6 form-group">
+                            <label class="control-label">对话背景 (横版)</label>
+                            <div class="image-preview-box landscape-preview">
+                                <div class="image-preview-placeholder">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            </div>
+                            <input asp-for="BackgroundFile" type="file" class="form-control" accept="image/*" style="padding: 6px; font-size: 0.8rem;" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-column" style="display: flex; flex-direction: column;">
+                    <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+                        <label asp-for="SystemPrompt" class="control-label">系统提示词 (System Prompt) <span class="text-danger">*</span></label>
+                        <p class="text-muted" style="font-size: 0.8rem; margin-bottom: 8px;">此设定将作为大模型的系统级约束。请详细描述角色的性格、说话口吻、掌握的戏曲知识储备，以及回答规则。</p>
+                        <textarea asp-for="SystemPrompt" class="form-control" style="flex: 1; min-height: 250px; font-family: monospace;" placeholder="你是一位京剧青衣名家，性格温婉..."></textarea>
+                        <span asp-validation-for="SystemPrompt" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0; margin-top: 20px;">
+                        <label asp-for="GreetingMessage" class="control-label">默认开场白</label>
+                        <p class="text-muted" style="font-size: 0.8rem; margin-bottom: 8px;">用户点开角色时，角色主动发送的第一句话。</p>
+                        <textarea asp-for="GreetingMessage" class="form-control" rows="3" placeholder="小友可是来听戏的？..."></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-cancel">取消返回</a>
+                <button type="submit" class="btn-save"><i class="bi bi-check2-circle"></i> 确认创建</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

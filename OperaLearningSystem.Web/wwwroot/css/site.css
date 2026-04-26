@@ -1,0 +1,882 @@
+/* Logo 容器 */
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+/* 1. 印章部分 */
+.logo-seal {
+    width: 44px;
+    height: 44px;
+    background-color: #9E2A2F; /* 胭脂红 */
+    border-radius: 8px; /* 微圆角，不像公章那么死板 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 2px 2px 0 #D4AF37; /* 金色硬投影，增加立体感 */
+    transition: transform 0.3s;
+}
+
+    .logo-seal span {
+        font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+        font-size: 28px;
+        color: #fff; /* 白文阴刻效果 */
+        line-height: 1;
+        margin-top: -2px; /* 微调视觉中心 */
+    }
+
+    /* 内部装饰线 */
+    .logo-seal::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        right: 3px;
+        bottom: 3px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 5px;
+    }
+
+/* 2. 文字部分 */
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+    .logo-text .main-title {
+        font-family: 'Ma Shan Zheng', cursive;
+        font-size: 1.6rem;
+        color: #9E2A2F; /* 默认红色 */
+        letter-spacing: 2px;
+    }
+
+/* 配合首页透明导航栏的变色逻辑 */
+.navbar-transparent .logo-text .main-title {
+    color: #f8f8f8;
+}
+
+.navbar-solid .logo-text .main-title {
+    color: #9E2A2F;
+}
+
+.logo-text .sub-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.6rem;
+    color: #D4AF37; /* 金色 */
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.detail-interaction-bar {
+    background-color: rgba(255,255,255,0.9);
+    backdrop-filter: blur(12px); /* 毛玻璃效果 */
+    padding: 1rem 1.5rem;
+    border-radius: 50px; /* 胶囊形状 */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    display: inline-block; /* 让宽度自适应内容 */
+}
+
+/* 悬停动效 */
+.logo-wrapper:hover .logo-seal {
+    transform: rotate(-10deg) scale(1.1); /* 像盖章一样动一下 */
+}
+
+
+/* --- 基础防御样式 --- */
+:root, html {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+    zoom: 1 !important;
+}
+
+:root {
+    /* 色彩 (低饱和度) */
+    --background-color: #FAF6F7; /* 浅粉白，作为底色 */
+    --primary-color: #B5495B; /* 玫瑰红，用于标题和强调 */
+    --text-color: #4A4A4A; /* 暖墨灰，用于主要文本 */
+    --secondary-text-color: #9B9B9B; /* 浅灰，用于次要信息 */
+    --accent-color: #E6C585; /* 淡雅金，用于点缀和高光 */
+    --border-color: #EAEAEA; /* 边框颜色 */
+    /* 字体 */
+    --font-heading: 'ZCOOL XiaoWei', serif; /* 标题字体：秀丽、清晰 */
+    --font-body: 'Noto Serif SC', serif; /* 正文字体：优雅、可读 */
+}
+
+root {
+    /* 色彩 (低饱和度) */
+    --background-color: #FAF6F7; /* 浅粉白，作为底色 */
+    --primary-color: #B5495B; /* 玫瑰红，用于标题和强调 */
+    --text-color: #4A4A4A; /* 暖墨灰，用于主要文本 */
+    --secondary-text-color: #9B9B9B; /* 浅灰，用于次要信息 */
+    --accent-color: #E6C585; /* 淡雅金，用于点缀和高光 */
+    --border-color: #EAEAEA; /* 边框颜色 */
+    /* 字体 */
+    --font-heading: 'ZCOOL XiaoWei', serif; /* 标题字体：秀丽、清晰 */
+    --font-body: 'Noto Serif SC', serif; /* 正文字体：优雅、可读 */
+}
+
+/* --- 2. 应用全局样式到 body --- */
+body {
+    background-color: var(--background-color);
+    font-family: var(--font-body);
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 400; 
+
+}
+
+/* --- 3. 重新定义标题样式 --- */
+h1, .h1 {
+    font-size: 2.5rem;
+}
+
+h2, .h2 {
+    font-size: 2rem;
+}
+
+h3, .h3 {
+    font-size: 1.75rem;
+}
+
+h4, .h4 {
+    font-size: 1.25rem;
+}
+/* 减小标题尺寸 */
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: var(--font-heading);
+    color: var(--primary-color);
+    font-weight: normal;
+}
+
+body {
+    font-family: 'Noto Serif SC', serif !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    overflow-x: hidden;
+    margin: 0 !important;
+}
+
+/* --- 导航栏 --- */
+.navbar {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1030;
+}
+
+.navbar-brand {
+    font-family: 'Ma Shan Zheng', serif !important;
+    font-size: 1.8rem;
+    transition: color 0.3s;
+}
+
+.nav-link {
+    font-weight: 500;
+    margin: 0 0.5rem;
+    position: relative;
+    transition: color 0.3s;
+}
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: #9E2A2F;
+        transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+        width: 100%;
+    }
+
+.navbar-transparent {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+    .navbar-transparent .navbar-brand {
+        color: #f8f8f8 !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .navbar-transparent .nav-link {
+        color: rgba(255,255,255,0.95) !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+        .navbar-transparent .nav-link:hover {
+            color: #fff !important;
+            text-shadow: 0 0 10px rgba(255,255,255,0.6);
+        }
+
+        .navbar-transparent .nav-link::after {
+            background-color: #D4AF37;
+        }
+
+    .navbar-transparent .btn-outline-custom {
+        color: #D4AF37;
+        border-color: #D4AF37;
+    }
+
+        .navbar-transparent .btn-outline-custom:hover {
+            background-color: #D4AF37;
+            color: #333;
+        }
+
+.navbar-solid {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+    .navbar-solid .navbar-brand {
+        color: #9E2A2F !important;
+    }
+
+    .navbar-solid .nav-link {
+        color: #555 !important;
+    }
+
+        .navbar-solid .nav-link:hover {
+            color: #9E2A2F !important;
+        }
+
+.btn-outline-custom {
+    color: #9E2A2F;
+    border: 1px solid #9E2A2F;
+    border-radius: 50px;
+    padding: 0.25rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+}
+
+.navbar-solid .btn-outline-custom:hover {
+    background-color: #9E2A2F;
+    color: #fff;
+}
+
+body.transparent-nav-body .hero-section-v2 {
+    padding-top: 120px !important;
+}
+
+footer {
+    background-color: #f9f9f9 !important;
+}
+
+    footer a {
+        color: #666;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        footer a:hover {
+            color: #9E2A2F;
+        }
+
+/* 梨园书童 UI (固定版) */
+.companion-widget {
+    position: fixed;
+    bottom: -10px;
+    right: 20px;
+    z-index: 200100;
+}
+
+.companion-avatar {
+    width: 160px;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.15));
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.companion-widget:hover .companion-avatar {
+    transform: translateY(-5px) scale(1.02);
+    filter: drop-shadow(0 5px 20px rgba(158, 42, 47, 0.3));
+}
+
+.chat-bubble-container {
+    position: absolute;
+    bottom: 100%;
+    right: 10px;
+    width: 320px;
+    height: 450px;
+    margin-bottom: -20px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.8) inset;
+    display: flex;
+    flex-direction: column;
+    transform-origin: bottom right;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+    visibility: hidden;
+    pointer-events: none;
+}
+
+    .chat-bubble-container.active {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+.chat-header {
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #fff 0%, #fff0f0 100%);
+    border-radius: 25px 25px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(158, 42, 47, 0.05);
+}
+
+.chat-title {
+    font-weight: bold;
+    color: #9E2A2F;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 1.1rem;
+}
+
+.chat-close {
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    background: #f5f5f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+    .chat-close:hover {
+        background: #ffcdd2;
+        color: #9E2A2F;
+        transform: rotate(90deg);
+    }
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+    .chat-messages::-webkit-scrollbar {
+        display: none;
+    }
+
+.msg-row {
+    display: flex;
+    margin-bottom: 12px;
+    animation: fadeIn 0.3s;
+}
+
+    .msg-row.bot {
+        justify-content: flex-start;
+    }
+
+    .msg-row.user {
+        justify-content: flex-end;
+    }
+
+.msg-content {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    word-wrap: break-word; /* 确保长文换行 */
+}
+    /* [Markdown 样式优化] */
+    .msg-content p {
+        margin-bottom: 0.5em;
+    }
+
+        .msg-content p:last-child {
+            margin-bottom: 0;
+        }
+
+    .msg-content strong {
+        color: #9E2A2F;
+    }
+
+    .msg-content ul, .msg-content ol {
+        padding-left: 20px;
+        margin-bottom: 0.5em;
+    }
+
+.msg-row.bot .msg-content {
+    background: #fff;
+    color: #333;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.msg-row.user .msg-content {
+    background: linear-gradient(135deg, #9E2A2F, #c62828);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 10px rgba(158, 42, 47, 0.2);
+}
+
+.chat-input-area {
+    padding: 15px;
+    background: transparent;
+}
+
+.input-capsule {
+    background: #fff;
+    border-radius: 50px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    padding: 5px 5px 5px 20px;
+    display: flex;
+    align-items: center;
+}
+
+.chat-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 0.9rem;
+    outline: none;
+    color: #333;
+}
+
+.chat-send {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #9E2A2F;
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-left: 5px;
+}
+
+    .chat-send:hover {
+        transform: scale(1.1);
+        background: #b53036;
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================== 全局玉佩 BGM 播放器  ================== */
+#bgm-container {
+    position: fixed !important;
+    top: 75px !important; /* 调低一点，给召唤按钮腾位置 */
+    right: 30px !important;
+    z-index: 200100 !important;
+    cursor: pointer;
+    width: 55px !important;
+    height: auto !important;
+    transform-origin: top center;
+    transition: opacity 1s ease;
+}
+
+#bgm-yupei {
+    width: 100% !important;
+    height: auto !important;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+    transition: transform 0.3s ease;
+}
+
+#bgm-container:hover #bgm-yupei {
+    transform: scale(1.1);
+}
+
+.yupei-swing {
+    animation: swing 2.5s ease-in-out infinite;
+}
+
+@keyframes swing {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    20% {
+        transform: rotate(15deg);
+    }
+
+    50% {
+        transform: rotate(-10deg);
+    }
+
+    80% {
+        transform: rotate(5deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* ================== 右上角召唤按钮 ================== */
+.nav-summon-btn {
+    position: fixed;
+    top: 18px;
+    right: 25px;
+    z-index: 200100;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2px solid rgba(226, 192, 121, 0.6);
+    background: rgba(30, 20, 15, 0.8);
+    backdrop-filter: blur(10px);
+    color: #e2c079;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 18px rgba(226, 192, 121, 0.25);
+}
+
+    .nav-summon-btn::before {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid rgba(226, 192, 121, 0.4);
+        animation: navSummonPulse 1.8s infinite ease-out;
+    }
+
+@keyframes navSummonPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+.nav-summon-btn:hover {
+    transform: rotate(90deg) scale(1.15);
+    background: rgba(158, 42, 47, 0.9);
+    border-color: #e2c079;
+    box-shadow: 0 0 30px rgba(226, 192, 121, 0.5);
+}
+
+/* ================== 全屏覆盖式导航面板 ================== */
+.nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 200000;
+    background: rgba(10, 5, 5, 0.92);
+    backdrop-filter: blur(25px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+    .nav-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+.nav-overlay-inner {
+    text-align: center;
+    transform: translateY(30px);
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.nav-overlay.active .nav-overlay-inner {
+    transform: translateY(0);
+}
+
+.nav-overlay-close {
+    position: absolute;
+    top: 50px;
+    right: 0px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+    .nav-overlay-close:hover {
+        color: #d4af37;
+        transform: rotate(90deg);
+    }
+
+.nav-overlay-brand {
+    margin-bottom: 50px;
+}
+
+.nav-overlay-seal {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    background: #9E2A2F;
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.2rem;
+    line-height: 60px;
+    text-align: center;
+    box-shadow: 3px 3px 0 #d4af37;
+    margin-right: 15px;
+    vertical-align: middle;
+}
+
+.nav-overlay-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.5rem;
+    color: #e2c079;
+    letter-spacing: 4px;
+    vertical-align: middle;
+}
+
+.nav-overlay-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 40px;
+}
+
+.nav-overlay-link {
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.8rem;
+    letter-spacing: 3px;
+    padding: 10px 30px;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+    .nav-overlay-link:hover {
+        color: #d4af37;
+        background: rgba(212, 175, 55, 0.1);
+        transform: translateX(10px);
+    }
+
+    .nav-overlay-link i {
+        width: 35px;
+        text-align: center;
+        margin-right: 8px;
+        font-size: 1.2rem;
+    }
+
+.nav-overlay-user {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.nav-overlay-user-link {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+    .nav-overlay-user-link:hover {
+        color: #d4af37;
+    }
+
+.nav-overlay-logout {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.5);
+    padding: 5px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+    .nav-overlay-logout:hover {
+        border-color: #c62828;
+        color: #ef5350;
+        background: rgba(198, 40, 40, 0.1);
+    }
+
+/* ================== 左上角面包屑 ================== */
+#global-top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 42px;
+    z-index: 99990;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    background: rgba(20, 15, 10, 0.65);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+#breadcrumb-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.breadcrumb-link {
+    color: rgba(212, 175, 55, 0.7);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-family: 'Ma Shan Zheng', cursive;
+    transition: color 0.2s;
+    letter-spacing: 1px;
+}
+
+    .breadcrumb-link:hover {
+        color: #d4af37;
+    }
+
+.breadcrumb-sep {
+    color: rgba(255,255,255,0.3);
+    margin: 0 8px;
+    font-size: 0.8rem;
+}
+
+.breadcrumb-current {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.85rem;
+    font-family: 'Ma Shan Zheng', cursive;
+    letter-spacing: 1px;
+}
+
+/* 寿台戏折内嵌页：无顶栏/导航，仅保留返回戏折 */
+body.entrance-embed-body {
+    min-height: 100vh;
+}
+
+.entrance-embed-back-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 100050;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    background: rgba(20, 15, 10, 0.88);
+    color: #e2c079;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+    .entrance-embed-back-btn:hover {
+        background: rgba(158, 42, 47, 0.9);
+        border-color: #e2c079;
+        color: #fff;
+    }
+
+    .entrance-embed-back-btn i {
+        margin-right: 6px;
+    }
+
+/* 留言赞/踩与楼中楼（课程/剧目/社区共用 _CommentPartial） */
+.comment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.comment-vote-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.comment-vote-btn {
+    border: none;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.45);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    line-height: 1.2;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+    .comment-vote-btn:hover {
+        color: rgba(0, 0, 0, 0.75);
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    .comment-vote-btn.is-active.comment-vote-up {
+        color: #1565c0;
+    }
+
+    .comment-vote-btn.is-active.comment-vote-down {
+        color: #c62828;
+    }
+
+.comment-vote-count {
+    font-size: 0.8rem;
+    margin-left: 0.2rem;
+    min-width: 1rem;
+    display: inline-block;
+}
+
+.comment-item-nested .comment-content-box {
+    border-left: 2px solid rgba(0, 0, 0, 0.08);
+    padding-left: 0.65rem;
+    margin-top: 0.35rem;
+}
+
+.comment-replies .comment-item-nested .comment-avatar {
+    width: 32px;
+    height: 32px;
+}

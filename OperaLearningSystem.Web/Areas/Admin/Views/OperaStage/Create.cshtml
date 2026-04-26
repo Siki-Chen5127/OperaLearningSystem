@@ -1,0 +1,75 @@
+@model OperaLearningSystem.Web.Areas.Admin.ViewModels.OperaStageViewModel
+@{
+    ViewData["Title"] = "新建戏台";
+}
+
+<link rel="stylesheet" href="~/css/admin/operastage.css" asp-append-version="true" />
+
+<div id="stage-edit-container">
+
+    <div class="page-title">
+        <i class="bi bi-plus-square text-muted"></i> 新建古建戏台档案
+    </div>
+
+    <div class="edit-card">
+        <form asp-action="Create" enctype="multipart/form-data" method="post" style="display: flex; flex-direction: column; height: 100%;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="RegionId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="padding: 10px 25px 0;"></div>
+
+            <div class="form-grid">
+
+                <div class="left-column">
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">戏台名称 <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" placeholder="例如：畅音阁大戏台" />
+                        <span asp-validation-for="Name" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="RegionId" class="control-label">所属分区 <span class="text-danger">*</span></label>
+                        <select asp-for="RegionId" asp-items="Model.RegionOptions" class="form-select custom-select"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="SortOrder" class="control-label">展示排序</label>
+                        <input asp-for="SortOrder" class="form-control" type="number" placeholder="数字越小越靠前" />
+                        <span class="text-muted" style="font-size: 0.8rem; margin-top: 4px; display: block;">决定在同一分区下的展示顺序</span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 25px;">
+                        <label class="control-label">戏台实景照片</label>
+                        <div class="image-preview-box landscape-preview">
+                            <div class="image-preview-placeholder">
+                                <i class="bi bi-camera" style="font-size: 2rem; color: #ddd;"></i>
+                                <span>等待上传照片</span>
+                            </div>
+                        </div>
+                        <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" style="padding: 6px;" />
+                        <span asp-validation-for="ImageFile" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+                <div class="right-column" style="display: flex; flex-direction: column;">
+                    <div class="form-group" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
+                        <label asp-for="Introduction" class="control-label">历史背景与建筑特色</label>
+                        <textarea asp-for="Introduction" class="form-control" style="flex: 1; min-height: 350px;" placeholder="详细记录该戏台的建造年份、建筑结构、楹联匾额及历史轶事..."></textarea>
+                        <span asp-validation-for="Introduction" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" asp-route-regionId="@Model.RegionId" class="btn-cancel">取消返回</a>
+                <button type="submit" class="btn-save"><i class="bi bi-check2-circle"></i> 确认创建</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

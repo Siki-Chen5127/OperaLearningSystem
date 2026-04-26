@@ -1,0 +1,130 @@
+@* 需在页面放置 .comment-thread-root，并设置 data-antiforgery-source / data-vote-url / data-add-url 及 data-course-id、data-play-id、data-post-id 之一 *@
+<script>
+(function () {
+    function getRoot() {
+        return $('.comment-thread-root').first();
+    }
+    function antiForgeryToken() {
+        var sel = getRoot().data('antiforgery-source');
+        if (!sel) return '';
+        return $(sel).find('input[name="__RequestVerificationToken"]').val() || '';
+    }
+    function topicPayload() {
+        var $r = getRoot();
+        var d = {};
+        var cid = $r.data('course-id');
+        if (cid !== undefined && cid !== '') d.courseId = cid;
+        var pid = $r.data('play-id');
+        if (pid !== undefined && pid !== '') d.playId = pid;
+        var postid = $r.data('post-id');
+        if (postid !== undefined && postid !== '') d.postId = postid;
+        return d;
+    }
+    function handleAuthFail(xhr) {
+        if (xhr.status === 401) {
+            alert('请先登录后再操作。');
+            window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+        alert('请求失败，请稍后重试。');
+    }
+    function bumpCommentCount() {
+        var el = $('#commentSectionCount');
+        if (!el.length) return;
+        var n = parseInt(el.text(), 10) || 0;
+        el.text(n + 1);
+    }
+
+    $(document).on('click', '.comment-vote-btn', function (e) {
+        e.preventDefault();
+        var btn = $(this);
+        if (btn.data('busy')) return;
+        var commentId = btn.data('comment-id');
+        var value = parseInt(btn.data('comment-vote'), 10);
+        var voteUrl = getRoot().data('vote-url');
+        if (!voteUrl || !commentId) return;
+        var tok = antiForgeryToken();
+        if (!tok) {
+            alert('页面缺少验证令牌，请刷新后重试。');
+            return;
+        }
+        btn.data('busy', true);
+        $.ajax({
+            url: voteUrl,
+            type: 'POST',
+            data: { commentId: commentId, value: value, __RequestVerificationToken: tok },
+            complete: function () { btn.data('busy', false); }
+        }).done(function (res) {
+            if (!res || !res.success) return;
+            var card = $('#comment-' + res.commentId);
+            if (!card.length) return;
+            card.find('.comment-up-count').text(res.up);
+            card.find('.comment-down-count').text(res.down);
+            var upBtn = card.find('.comment-vote-up');
+            var downBtn = card.find('.comment-vote-down');
+            upBtn.toggleClass('is-active', res.userVote === 1);
+            downBtn.toggleClass('is-active', res.userVote === -1);
+        }).fail(handleAuthFail);
+    });
+
+    $(document).on('click', '.comment-reply-toggle', function () {
+        var id = $(this).data('reply-for');
+        $('[data-reply-box="' + id + '"]').toggleClass('d-none');
+    });
+    $(document).on('click', '.cancel-reply-btn', function () {
+        var id = $(this).data('reply-for');
+        var box = $('[data-reply-box="' + id + '"]');
+        box.addClass('d-none');
+        box.find('.reply-body').val('');
+    });
+
+    $(document).on('click', '.submit-reply-btn', function () {
+        var btn = $(this);
+        if (btn.data('busy')) return;
+        var parentId = btn.data('parent-id');
+        var box = $('[data-reply-box="' + parentId + '"]');
+        var content = box.find('.reply-body').val().trim();
+        if (!content) {
+            alert('请输入回复内容。');
+            return;
+        }
+        var addUrl = getRoot().data('add-url');
+        if (!addUrl) return;
+        var tok = antiForgeryToken();
+        if (!tok) {
+            alert('页面缺少验证令牌，请刷新后重试。');
+            return;
+        }
+        var data = $.extend({}, topicPayload(), {
+            content: content,
+            parentCommentId: parentId,
+            __RequestVerificationToken: tok
+        });
+        btn.data('busy', true);
+        $.ajax({
+            url: addUrl,
+            type: 'POST',
+            data: data
+        }).done(function (r) {
+            if (r && typeof r === 'object' && r.success === false) {
+                alert(r.message || '发表失败');
+                return;
+            }
+            var $parent = $('#comment-' + parentId);
+            if (!$parent.length) return;
+            var $contentBox = $parent.children('.comment-content-box');
+            var $replies = $contentBox.children('.comment-replies');
+            if ($replies.length === 0) {
+                $replies = $('<div class="comment-replies mt-2"></div>');
+                $contentBox.append($replies);
+            }
+            $replies.append(r);
+            box.addClass('d-none');
+            box.find('.reply-body').val('');
+            bumpCommentCount();
+        }).fail(handleAuthFail).always(function () {
+            btn.data('busy', false);
+        });
+    });
+})();
+</script>

@@ -1,0 +1,150 @@
+@using Microsoft.AspNetCore.Identity
+@using OperaLearningSystem.Core.Entities
+@model OperaLearningSystem.Core.Entities.CommunityPost
+@inject UserManager<User> UserManager
+
+@{
+    ViewData["Title"] = Model.Title;
+    var currentUserId = UserManager.GetUserId(User);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Community/detail.css" />
+}
+
+<div class="detail-page-container">
+
+    <!-- 1. 主帖：花笺展示 -->
+    <div class="paper-card" data-aos="fade-up">
+
+        <!-- 装饰印章 -->
+        <div class="seal-decoration">茶</div>
+
+        <!-- 头部信息 -->
+        <header class="post-header">
+            <h1 class="post-title">@Model.Title</h1>
+            <div class="post-meta">
+                <img src="@(Model.Author?.AvatarUrl ?? "/images/default_avatar.png")" class="meta-avatar" alt="Avatar">
+                <div>
+                    <span class="meta-author">@Model.Author?.Nickname</span>
+                    <span class="mx-2">&middot;</span>
+                    <span>@Model.CreatedTime.ToString("yyyy年MM月dd日 HH:mm")</span>
+                    <span class="mx-2">&middot;</span>
+                    <span class="badge bg-light text-dark">@Model.Category?.Name</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 正文 -->
+        <article class="post-content">
+            @Html.Raw(Model.Content?.Replace("\n", "<br />"))
+        </article>
+
+        <!-- 操作按钮 (仅作者或管理员) -->
+        @if (User.Identity.IsAuthenticated && (Model.AuthorId.ToString() == currentUserId || User.IsInRole("Admin")))
+        {
+            <div class="post-actions">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="action-link btn-edit">
+                    <i class="fas fa-edit"></i> 润色
+                </a>
+
+                <!--
+                    [优化]
+                    1. 移除了 onsubmit="confirm"
+                    2. 改为 type="button" 并添加 data-bs-toggle 触发模态框
+                -->
+                <button type="button" class="action-link btn-delete" style="background:none; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                    <i class="fas fa-trash-alt"></i> 撤回
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- 2. 评论区：茶桌议事 -->
+    <div class="comments-container comment-thread-root" data-aos="fade-up" data-aos-delay="100"
+         data-antiforgery-source="#commentThreadAntiForgery"
+         data-vote-url="@Url.Action("Vote", "Comment")"
+         data-add-url="@Url.Action("Add", "Comment")"
+         data-post-id="@Model.Id">
+        <h3 class="comments-title">
+            茶客高论 <span style="font-size:1rem; font-weight:normal; color:#999;">(<span id="commentSectionCount">@Model.Comments.Count</span>)</span>
+        </h3>
+
+        <form id="commentThreadAntiForgery" method="post" class="d-none">
+            @Html.AntiForgeryToken()
+        </form>
+
+        <!-- 发表评论 -->
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="comment-input-card">
+                <form id="communityCommentForm" asp-action="AddComment" method="post" class="clearfix">
+                    <input type="hidden" name="postId" value="@Model.Id" />
+                    <textarea name="content" class="comment-textarea" rows="3" placeholder="看官，请留下您的妙评，与大家共赏..." required></textarea>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i> 发表高论
+                    </button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center" style="background:#fff3cd; border-color:#ffeeba; color:#856404;">
+                <i class="fas fa-lock"></i> 欲参与讨论，请先 <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" style="text-decoration:underline; font-weight:bold;">入座 (登录)</a>
+            </div>
+        }
+
+        <!-- 评论列表 -->
+        <div class="comment-list-wrapper">
+            @if (Model.Comments != null && Model.Comments.Any())
+            {
+                foreach (var comment in Model.Comments.Where(c => c.ParentCommentId == null).OrderByDescending(c => c.CreatedAt))
+                {
+                    <partial name="_CommentPartial" model="comment" />
+                }
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-coffee mb-2" style="font-size:2rem; opacity:0.5;"></i>
+                    <p>茶尚温，座尚虚，静候高论。</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a asp-action="Index" class="btn btn-link" style="color:#8d6e63; text-decoration:none;">
+            <i class="fas fa-arrow-left"></i> 返回茶馆大厅
+        </a>
+    </div>
+
+</div>
+
+<!-- [新增] 删除确认模态框 -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">撤回确认</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-circle text-danger mb-3" style="font-size: 3rem;"></i>
+                <p class="mb-0 fs-5">您确定要撤回这篇戏文吗？</p>
+                <p class="text-muted small mt-2">撤回后将无法恢复，且所有评论也会一并消失。</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">容我三思</button>
+                <!-- 真正的删除表单放在这里 -->
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-danger">确认撤回</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_CommentThreadScripts" />
+}

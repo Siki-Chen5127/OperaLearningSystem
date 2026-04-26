@@ -1,0 +1,161 @@
+@{
+    ViewData["Title"] = "百宝阁";
+    var authed = User.Identity?.IsAuthenticated == true;
+    var qsYsl = string.Equals(Context.Request.Query["yueshilouReturn"].ToString(), "1", StringComparison.Ordinal);
+}
+
+@section Styles {
+    <style>
+        body { background-color: #f5f2ea; }
+    </style>
+    <link rel="stylesheet" href="~/css/pages/Community/yaji-forum.css" asp-append-version="true" />
+}
+
+<div class="yaji-forum-body-wrap">
+    <div class="yaji-page">
+        <header class="yaji-hero" data-aos="fade-down">
+            <div class="yaji-hero-badge">阅是楼 · 作品分享</div>
+            <h1>百宝阁</h1>
+            <p class="yaji-hero-sub">晒出习作与珍藏 — 鲜花、喝彩、点赞、收藏与茶叙</p>
+            <div class="yaji-hero-links">
+                @if (qsYsl)
+                {
+                    <a asp-controller="Home" asp-action="Index" asp-route-yueshilouReturn="1" class="yaji-link-pill yaji-link-pill--primary"><i class="fas fa-book-open"></i> 返回阅是楼</a>
+                }
+                <a asp-controller="Community" asp-action="Index" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">戏词雅集</a>
+                <a asp-controller="Community" asp-action="Checkin" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">戏台打卡</a>
+                <a asp-controller="Home" asp-action="Index" class="yaji-link-pill">梨园正门</a>
+            </div>
+        </header>
+
+        <div class="yaji-toolbar-wrap" data-aos="fade-up">
+            <div class="yaji-toolbar">
+                <div class="yaji-sort-group" id="yajiSortGroup" role="tablist" aria-label="排序">
+                    <button type="button" class="yaji-sort-btn active" data-sort="smart">智能</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="time">最新</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="hot">热议</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="region">地域序</button>
+                </div>
+                <div class="yaji-search-wrap">
+                    <input type="search" id="yajiSearch" autocomplete="off" placeholder="搜标题、正文、标签…" aria-label="搜索" />
+                    <span class="yaji-search-icon"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" id="yajiRegion" placeholder="地域" title="筛选地域" style="display:none;max-width:110px;border:none;border-bottom:2px solid #ddd;padding:8px 4px;font-size:0.85rem;background:transparent;" />
+                <button type="button" class="yaji-toolbar-compose" id="btnOpenWorksCompose"><i class="fas fa-gem"></i> 投稿作品</button>
+                <div class="yaji-toolbar-actions">
+                    <button type="button" class="yaji-icon-btn" id="yajiToggleRegion" title="地域筛选"><i class="fas fa-map-marker-alt"></i></button>
+                    <button type="button" class="yaji-icon-btn" id="yajiRefresh" title="刷新"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <section class="yaji-wc-panel" data-aos="fade-up" data-aos-delay="80">
+            <div class="yaji-wc-head">
+                <h2 class="yaji-wc-title"><i class="fas fa-cloud"></i> 作品词云</h2>
+                <span class="yaji-wc-hint">点击词语筛帖；再点取消</span>
+            </div>
+            <div class="yaji-wc-tags" id="yajiWordCloud">载入词云…</div>
+        </section>
+
+        <div id="yajiFeedHost" class="yaji-feed" data-aos="fade-up" data-aos-delay="120">
+            <div class="yaji-loading"><i class="fas fa-circle-notch fa-spin"></i> 载入…</div>
+        </div>
+    </div>
+</div>
+
+<div id="yajiWorksModal" class="yaji-modal-root" aria-hidden="true">
+    <div class="yaji-modal-backdrop" onclick="yajiCloseModal('yajiWorksModal')"></div>
+    <div class="yaji-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="yajiWorksTitle">
+        <div class="yaji-modal-head">
+            <h3 id="yajiWorksTitle">投稿作品</h3>
+            <button type="button" class="yaji-modal-close" onclick="yajiCloseModal('yajiWorksModal')" aria-label="关闭">&times;</button>
+        </div>
+        <div class="yaji-modal-body-scroll">
+            <input type="text" id="wk-title" class="yaji-field" placeholder="标题" />
+            <textarea id="wk-body" class="yaji-field" placeholder="作品说明或唱词"></textarea>
+            <input type="text" id="wk-tags" class="yaji-field" placeholder="标签" />
+            <p class="yaji-media-hint mb-0">可选：上传图片或短视频</p>
+            <input type="file" id="wk-media-file" class="yaji-field" accept="image/*,video/*" multiple />
+            <div id="wk-media-list" class="yaji-media-chips"></div>
+            <div class="yaji-modal-actions">
+                <button type="button" class="yaji-btn-secondary" onclick="yajiCloseModal('yajiWorksModal')">取消</button>
+                <button type="button" class="yaji-submit" id="wk-submit">发布作品</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/yaji-compose-modal.js" asp-append-version="true"></script>
+    <script src="~/js/community-yaji-feed.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var authed = @authed.ToString().ToLowerInvariant();
+            var workUploadUrls = [];
+
+            initYajiFeed({
+                postKind: 2,
+                reactionSet: 'full',
+                showMediaInFeed: true,
+                authed: authed,
+                emptyHtml: '<div class="yaji-empty" data-aos="fade-in"><i class="far fa-gem"></i>暂无作品展示<br/><small>换词云或排序试试，或点击「投稿作品」。</small></div>'
+            });
+
+            document.getElementById('btnOpenWorksCompose').addEventListener('click', function () {
+                if (!authed) {
+                    window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                yajiOpenModal('yajiWorksModal');
+            });
+
+            document.getElementById('wk-media-file').addEventListener('change', async function () {
+                var input = this;
+                var listEl = document.getElementById('wk-media-list');
+                if (!input.files || !input.files.length) return;
+                if (!authed) { alert('请先登录'); input.value = ''; return; }
+                listEl.textContent = '上传中…';
+                workUploadUrls = [];
+                for (var i = 0; i < input.files.length; i++) {
+                    var fd = new FormData();
+                    fd.append('file', input.files[i]);
+                    var r = await fetch('/api/community-feed/upload-media', { method: 'POST', body: fd, credentials: 'same-origin' });
+                    if (r.ok) {
+                        var j = await r.json();
+                        if (j && j.url) workUploadUrls.push(j.url);
+                    }
+                }
+                listEl.textContent = workUploadUrls.length ? workUploadUrls.join(' · ') : '上传失败或未选择文件';
+            });
+
+            document.getElementById('wk-submit').addEventListener('click', async function () {
+                if (!authed) return;
+                var body = {
+                    title: document.getElementById('wk-title').value.trim(),
+                    content: document.getElementById('wk-body').value.trim(),
+                    categoryId: 0,
+                    topicTags: document.getElementById('wk-tags').value.trim(),
+                    mediaUrlsJson: JSON.stringify(workUploadUrls)
+                };
+                if (!body.title || !body.content) { alert('请填写标题与正文'); return; }
+                var r = await fetch('/api/community-feed/work', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (r.ok) {
+                    workUploadUrls = [];
+                    document.getElementById('wk-title').value = '';
+                    document.getElementById('wk-body').value = '';
+                    document.getElementById('wk-tags').value = '';
+                    document.getElementById('wk-media-file').value = '';
+                    document.getElementById('wk-media-list').textContent = '';
+                    yajiCloseModal('yajiWorksModal');
+                    if (window.yajiReloadFeed) window.yajiReloadFeed();
+                    alert('作品已发布');
+                } else alert((await r.text()) || '发布失败');
+            });
+        })();
+    </script>
+}

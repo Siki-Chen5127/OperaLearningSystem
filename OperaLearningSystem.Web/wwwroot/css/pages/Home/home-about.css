@@ -1,0 +1,320 @@
+﻿/* --- 页面背景：雅致书房 --- */
+body {
+    background-color: #fcf9f2;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239e2a2f' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    font-family: 'Noto Serif SC', serif;
+}
+
+.about-container {
+    padding-top: 140px;
+    padding-bottom: 100px;
+}
+
+/* --- 1. 头部：名片区 --- */
+.profile-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    margin-bottom: 100px;
+}
+
+/* 头像/照片框 */
+.profile-img-box {
+    width: 300px;
+    height: 400px;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 20px 20px 0 rgba(158, 42, 47, 0.1); /* 红色错位投影 */
+    filter: sepia(20%);
+    transition: all 0.5s;
+}
+
+.profile-img-box:hover .profile-img {
+    filter: sepia(0%);
+    transform: translate(-10px, -10px);
+    box-shadow: 30px 30px 0 rgba(158, 42, 47, 0.2);
+}
+
+/* 装饰框 */
+.profile-img-box::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #D4AF37;
+    z-index: -1;
+}
+
+/* 文字介绍 */
+.profile-text {
+    max-width: 500px;
+}
+
+.hello-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 4rem;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1;
+}
+
+.role-badge {
+    display: inline-block;
+    background: #9E2A2F;
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
+.bio-desc {
+    font-size: 1.1rem;
+    line-height: 2;
+    color: #555;
+    margin-bottom: 30px;
+    text-align: justify;
+}
+
+/* 签名 */
+.signature {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2rem;
+    color: #9E2A2F;
+    text-align: right;
+    margin-top: 20px;
+    transform: rotate(-5deg);
+}
+
+/* --- 2. 技术栈 --- */
+.tech-section {
+    margin-bottom: 100px;
+    text-align: center;
+}
+
+.section-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.5rem;
+    color: #3e2723;
+    margin-bottom: 50px;
+    position: relative;
+    display: inline-block;
+}
+
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: #D4AF37;
+        margin: 10px auto 0;
+    }
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.tech-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+    border-top: 4px solid transparent;
+}
+
+    .tech-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+.tech-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.tech-name {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.tech-role {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+/* 不同的颜色装饰 */
+.tech-net {
+    border-top-color: #512bd4;
+}
+
+    .tech-net .tech-icon {
+        color: #512bd4;
+    }
+
+.tech-db {
+    border-top-color: #0078d4;
+}
+
+    .tech-db .tech-icon {
+        color: #0078d4;
+    }
+
+.tech-fe {
+    border-top-color: #e34c26;
+}
+
+    .tech-fe .tech-icon {
+        color: #e34c26;
+    }
+
+.tech-design {
+    border-top-color: #9E2A2F;
+}
+
+    .tech-design .tech-icon {
+        color: #9E2A2F;
+    }
+
+/* --- 3. 心路历程 --- */
+.story-section {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 60px;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    position: relative;
+    border: 1px solid #eee;
+}
+
+/* 装饰引号 */
+.quote-mark {
+    position: absolute;
+    font-family: serif;
+    font-size: 8rem;
+    color: rgba(212, 175, 55, 0.2);
+    line-height: 1;
+}
+
+.quote-left {
+    top: 20px;
+    left: 20px;
+}
+
+.quote-right {
+    bottom: -40px;
+    right: 40px;
+}
+
+.story-text {
+    font-size: 1.15rem;
+    line-height: 2;
+    color: #444;
+    text-indent: 2em;
+}
+
+    .story-text p {
+        margin-bottom: 20px;
+    }
+
+/* --- 4. 联系方式 (新增) --- */
+.contact-section {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.contact-methods {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.contact-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    color: #555;
+    text-decoration: none;
+    transition: all 0.3s;
+    group: contact;
+}
+
+    .contact-item i {
+        font-size: 2.2rem;
+        color: #8d6e63; /* 初始木色 */
+        padding: 20px;
+        border-radius: 50%;
+        border: 2px solid #e0e0e0;
+        background: #fff;
+        transition: all 0.3s;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .contact-item span {
+        font-size: 0.9rem;
+        font-weight: bold;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s;
+        font-family: 'Noto Serif SC', serif;
+    }
+
+    /* 悬停效果 */
+    .contact-item:hover i {
+        color: #fff;
+        background-color: #9E2A2F;
+        border-color: #9E2A2F;
+        transform: translateY(-8px);
+        box-shadow: 0 10px 25px rgba(158, 42, 47, 0.3);
+    }
+
+    .contact-item:hover span {
+        opacity: 1;
+        transform: translateY(0);
+        color: #9E2A2F;
+    }
+
+
+/* 响应式 */
+@media (max-width: 992px) {
+    .profile-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 40px;
+    }
+
+    .profile-img-box {
+        width: 260px;
+        height: 350px;
+    }
+
+    .signature {
+        text-align: center;
+    }
+
+    .story-section {
+        padding: 40px 30px;
+    }
+}
+
+

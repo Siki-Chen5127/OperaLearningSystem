@@ -1,0 +1,213 @@
+/* 天坛夜景背景 */
+body {
+    background-color: #030b14;
+    background-image: url('/images/community/temple_night.png');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center bottom;
+    font-family: 'Noto Serif SC', serif;
+}
+
+.create-page-container {
+    padding-top: 120px;
+    padding-bottom: 80px;
+    min-height: 100vh;
+    perspective: 1200px; /* 3D透视开启 */
+    position: relative;
+    overflow: hidden;
+}
+
+/* 纸张容器 */
+.paper-card {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 50px 60px;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    position: relative;
+    /* 纸张信笺纹理 (横线) */
+    background-image: repeating-linear-gradient(transparent, transparent 29px, #f0f0f0 30px);
+    border-top: 5px solid #3e2723; /* 顶部木条装饰 */
+}
+
+/* 标题 */
+.page-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.5rem;
+    color: #3e2723;
+    text-align: center;
+    margin-bottom: 10px;
+    background: #fff; /* 遮挡横线 */
+    display: inline-block;
+    padding: 0 20px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.page-subtitle {
+    text-align: center;
+    color: #888;
+    margin-bottom: 40px;
+    background: #fff;
+    display: inline-block;
+    padding: 0 10px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.95rem;
+}
+
+/* 输入框样式 */
+.form-group {
+    margin-bottom: 25px;
+    background: #fff; /* 遮挡背景横线，让输入区清晰 */
+    padding: 5px;
+}
+
+.form-label {
+    font-weight: bold;
+    color: #8d6e63;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control-custom {
+    width: 100%;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background: #fcfcfc;
+}
+
+    .form-control-custom:focus {
+        outline: none;
+        border-color: #9E2A2F;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(158, 42, 47, 0.1);
+    }
+
+textarea.form-control-custom {
+    line-height: 1.8;
+    min-height: 300px;
+}
+
+/* 按钮组 */
+.action-bar {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    background: #fff;
+    padding-top: 10px;
+}
+
+.btn-custom {
+    padding: 10px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cancel {
+    background: #efebe9;
+    color: #5d4037;
+}
+
+    .btn-cancel:hover {
+        background: #d7ccc8;
+        color: #3e2723;
+    }
+
+.btn-submit {
+    background: #9E2A2F;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(158, 42, 47, 0.3);
+}
+
+    .btn-submit:hover {
+        background: #b53036;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(158, 42, 47, 0.4);
+    }
+
+
+/* --- 3D 灯笼样式 --- */
+.lantern-wrapper {
+    position: absolute;
+    transform-style: preserve-3d;
+    z-index: 0; 
+}
+
+/* 根据景深使用不同的动画 */
+.lantern-far {
+    width: 60px;
+    animation: floatFar 8s ease-in-out infinite alternate, rotateY 15s linear infinite;
+    filter: blur(2px) drop-shadow(0 0 10px rgba(255, 0, 0, 0.8));
+    opacity: 0.7;
+}
+
+.lantern-mid {
+    width: 120px;
+    animation: floatMid 6s ease-in-out infinite alternate-reverse, rotateY 12s linear infinite;
+    filter: blur(1px) drop-shadow(0 0 15px rgba(255, 50, 0, 0.9));
+    opacity: 0.9;
+}
+
+.lantern-close {
+    width: 250px;
+    animation: floatClose 5s ease-in-out infinite alternate, rotateY 10s linear infinite;
+    filter: drop-shadow(0 0 30px rgba(255, 0, 0, 1));
+}
+
+.lantern-img {
+    width: 100%;
+    height: auto;
+    /* 如果自带白底，可用 mix-blend-mode: darken 尝试剥离，或提示用户更换透明图 */
+    border-radius: 20px; 
+}
+
+@keyframes floatFar {
+    0% { transform: translate3d(0, 0, -500px); }
+    100% { transform: translate3d(0, -30px, -500px); }
+}
+
+@keyframes floatMid {
+    0% { transform: translate3d(0, 0, -200px); }
+    100% { transform: translate3d(0, -50px, -200px); }
+}
+
+@keyframes floatClose {
+    0% { transform: translate3d(0, 0, 100px); }
+    100% { transform: translate3d(0, -80px, 150px); }
+}
+
+@keyframes rotateY {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}
+
+.paper-card {
+    z-index: 10; /* 表单层置于灯笼之上 */
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(5px);
+}
+
+.text-danger {
+    font-size: 0.85rem;
+    color: #d9534f;
+    margin-top: 5px;
+    display: block;
+}
+
+

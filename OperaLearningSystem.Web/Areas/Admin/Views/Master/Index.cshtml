@@ -1,0 +1,206 @@
+﻿@using OperaLearningSystem.Core.Entities
+@model PagedResult<Master>
+@{
+    ViewData["Title"] = "名家管理";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+    var searchString = ViewData["CurrentFilter"] as string;
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+<link rel="stylesheet" href="~/css/admin/master.css" asp-append-version="true" />
+
+<div id="master-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-person-badge text-muted" style="font-size: 1.5rem;"></i> 名家管理
+    </div>
+
+    <div class="top-action-bar">
+        <form asp-action="Index" method="get" style="margin: 0;">
+            <div class="search-input-group">
+                <input type="text" name="searchString" placeholder="输入名家姓名搜索..." value="@searchString">
+                <button type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+
+        <a asp-action="Create" class="btn-create">
+            <i class="bi bi-plus"></i> 新增名家
+        </a>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="table-wrapper">
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">照片</th>
+                        <th style="width: 20%;">姓名</th>
+                        <th style="width: 20%;">所属剧种</th>
+                        <th>推荐评级</th>
+                        <th style="width: 120px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int rowIndex = 0;
+                    }
+                    @foreach (var item in Model.Items)
+                    {
+                        var delay = rowIndex * 0.05;
+
+                        <tr class="table-row" style="animation-delay: @(delay)s;">
+                            <td>
+                                <div class="img-avatar">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div class="avatar-placeholder"><i class="bi bi-person"></i></div>
+                                    }
+                                </div>
+                            </td>
+                            <td><strong style="font-size: 1.1rem; color: #4A312C;">@item.Name</strong></td>
+                            <td><span style="color: #8C5E18;">@item.Category?.Name</span></td>
+                            <td>
+                                <div class="rating-stars">
+                                    @for (int i = 0; i < 5; i++)
+                                    {
+                                        <span class="star @(i < item.Rating ? "filled" : "")">&#9733;</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="action-link link-edit">编辑</a>
+                                <button data-id="@item.Id" data-name="@item.Name" class="action-link link-delete delete-btn">删除</button>
+                            </td>
+                        </tr>
+                        rowIndex++;
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #999;">暂无数据</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container">
+            <ul class="pagination">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="1" asp-route-searchString="@searchString" class="page-link">首页</a>
+                </li>
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-searchString="@searchString" class="page-link">上一页</a>
+                </li>
+
+                @for (var i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@i" asp-route-searchString="@searchString" class="page-link">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-searchString="@searchString" class="page-link">下一页</a>
+                </li>
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@totalPages" asp-route-searchString="@searchString" class="page-link">尾页</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 系统消息提示
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                var firstRow = document.querySelector('.table-row');
+                if(firstRow) {
+                    setTimeout(function() {
+                        firstRow.classList.add('highlight-new');
+                    }, 400);
+                }
+
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#FAF6F7',
+                    color: '#333'
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: successMsgEl.innerText
+                });
+            }
+
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '操作失败',
+                    text: errorMsgEl.innerText,
+                    confirmButtonColor: '#B5495B',
+                    background: '#FAF6F7'
+                });
+            }
+
+            // 删除确认 (防飘红安全版)
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var masterId = $(this).data('id');
+                var masterName = $(this).data('name');
+                var form = $('#deleteForm');
+
+                form.attr('action', "@Url.Action("Delete", "Master")/" + masterId);
+
+                Swal.fire({
+                    title: '确认删除名家？',
+                    html: '您即将删除 <strong>' + masterName + '</strong>。此操作不可逆。',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '确认删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

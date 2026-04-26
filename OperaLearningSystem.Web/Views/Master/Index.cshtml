@@ -1,0 +1,140 @@
+@using OperaLearningSystem.Core.DTOs
+@model PagedResult<OperaLearningSystem.Core.Entities.Master>
+
+@{
+    ViewData["Title"] = "名家风采";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+    var searchString = ViewData["CurrentFilter"] as string;
+    var categoryId = ViewData["CategoryId"] as int?;
+    var isEntranceEmbed = string.Equals(Context.Request.Query["entranceEmbed"].ToString(), "1", StringComparison.Ordinal);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Master/index.css" asp-append-version="true" />
+}
+
+<div class="master-page-container">
+
+    <header class="dense-header" data-aos="fade-down">
+        <h2>杏坛宗师</h2>
+    </header>
+
+    <div id="ajax-update-zone">
+
+        <div class="dense-toolbar" data-aos="fade-up">
+            <form asp-action="Index" method="get" class="dense-search-form" id="masterSearchForm">
+                @if (categoryId.HasValue && categoryId.Value > 0)
+                {
+                    <input type="hidden" name="categoryId" value="@categoryId.Value" />
+                }
+                <input type="text" name="searchString" class="dense-search-input" placeholder="寻访名家姓名..." value="@searchString">
+                <button type="submit" class="dense-search-btn"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="dense-master-grid">
+            @if (Model.Items.Any())
+            {
+                @foreach (var item in Model.Items)
+                {
+                    <a asp-action="Details" asp-route-id="@item.Id" class="master-list-item" data-aos="fade-up">
+                        <img src="@(item.ImageUrl ?? $"https://picsum.photos/100/100?random={item.Id}")" alt="@item.Name" class="master-avatar">
+                        <div class="master-info">
+                            <h4 class="master-name">@item.Name</h4>
+                            <p class="master-intro" title="@item.Introduction">
+                                @(string.IsNullOrWhiteSpace(item.Introduction) ? "暂无生平记载。" : item.Introduction)
+                            </p>
+                        </div>
+                    </a>
+                }
+            }
+            else
+            {
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #999;">
+                    <i class="far fa-file-alt fa-2x mb-2"></i>
+                    <p>未寻得相关名家。</p>
+                </div>
+            }
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Page navigation" class="mt-4" data-aos="fade-up">
+                <ul class="pagination justify-content-center pagination-sm" id="masterPagination">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="1" asp-route-searchString="@searchString" asp-route-categoryId="@categoryId" class="page-link"><i class="fas fa-angle-double-left"></i></a>
+                    </li>
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-searchString="@searchString" asp-route-categoryId="@categoryId" class="page-link"><i class="fas fa-angle-left"></i></a>
+                    </li>
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a asp-action="Index" asp-route-pageNumber="@i" asp-route-searchString="@searchString" asp-route-categoryId="@categoryId" class="page-link">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-searchString="@searchString" asp-route-categoryId="@categoryId" class="page-link"><i class="fas fa-angle-right"></i></a>
+                    </li>
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@totalPages" asp-route-searchString="@searchString" asp-route-categoryId="@categoryId" class="page-link"><i class="fas fa-angle-double-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        }
+
+    </div> @if (!isEntranceEmbed)
+    {
+        <div class="text-center mt-4">
+            @if (categoryId.HasValue && categoryId.Value > 0)
+            {
+                <a asp-controller="Category" asp-action="Details" asp-route-id="@categoryId.Value" class="btn btn-sm btn-outline-secondary me-2" style="border-radius: 50px;">
+                    <i class="fas fa-arrow-left"></i> 返回剧种方志
+                </a>
+            }
+            <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-secondary" style="border-radius: 50px;">返回首页</a>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 拦截分页按钮的点击事件 (使用事件委托，确保刷新后事件依然有效)
+            $(document).on('click', '#masterPagination a', function (e) {
+                e.preventDefault(); // 阻止浏览器跳转（防止黑闪）
+                var url = $(this).attr('href');
+                if (url && url !== '#') {
+                    fetchAndReplace(url);
+                }
+            });
+
+            // 拦截搜索表单的提交事件
+            $(document).on('submit', '#masterSearchForm', function (e) {
+                e.preventDefault(); // 阻止原生表单提交（防止黑闪）
+                var form = $(this);
+                // 拼接出完整的查询 URL (如 /Master/Index?searchString=XXX)
+                var url = form.attr('action') + '?' + form.serialize();
+                fetchAndReplace(url);
+            });
+
+            // 核心 AJAX 替换逻辑
+            function fetchAndReplace(url) {
+                // jQuery 的 load 方法，注意空格后的 '#ajax-update-zone > *'
+                // 它会自动请求 url，然后只提取新页面中对应元素的内容塞入当前容器
+                $('#ajax-update-zone').load(url + ' #ajax-update-zone > *', function(response, status, xhr) {
+                    if (status === "error") {
+                        alert("数据加载失败，请稍后重试。");
+                    } else {
+                        // 如果你使用了 AOS 动画库，局部刷新后需要重新初始化一下动画
+                        if (typeof AOS !== 'undefined') {
+                            AOS.init();
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

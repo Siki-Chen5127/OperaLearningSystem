@@ -1,0 +1,97 @@
+﻿@model OperaLearningSystem.Web.Areas.Admin.ViewModels.PlayViewModel
+@{
+    ViewData["Title"] = "新建剧目";
+}
+
+<link rel="stylesheet" href="~/css/admin/play.css" asp-append-version="true" />
+
+<div id="play-edit-container">
+
+    <div class="page-title">
+        <i class="bi bi-plus-square text-muted"></i> 新建剧目档案
+    </div>
+
+    <div class="edit-card">
+        <form asp-action="Create" enctype="multipart/form-data" style="display: flex; flex-direction: column; height: 100%;">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="padding: 10px 25px 0;"></div>
+
+            <div class="form-grid">
+
+                <div class="left-column">
+                    <div class="form-group">
+                        <label asp-for="Title" class="control-label">剧目名称 <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" placeholder="例如：锁麟囊" />
+                        <span asp-validation-for="Title" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="CategoryId" class="control-label">所属剧种 <span class="text-danger">*</span></label>
+                        <select asp-for="CategoryId" class="form-select custom-select" asp-items="@Model.CategoryOptions">
+                            <option value="">-- 请选择所属剧种 --</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">关联名家 (点击可多选)</label>
+                        <div class="master-tags-container">
+                            @if (Model.MasterOptions != null)
+                            {
+                                foreach (var master in Model.MasterOptions)
+                                {
+                                    var isSelected = Model.SelectedMasterIds != null && Model.SelectedMasterIds.Contains(int.Parse(master.Value));
+
+                                    <label class="master-tag @(isSelected ? "active" : "")">
+                                        <input type="checkbox" name="SelectedMasterIds" value="@master.Value" @(isSelected ? "checked" : "")
+                                               style="display: none;"
+                                               onchange="this.parentElement.classList.toggle('active', this.checked)" />
+                                        @master.Text
+                                    </label>
+                                }
+                            }
+                        </div>
+                        <span asp-validation-for="SelectedMasterIds" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 25px;">
+                        <label class="control-label">封面展示图</label>
+                        <div class="image-preview-box">
+                            <div class="image-preview-placeholder">
+                                <i class="bi bi-image" style="font-size: 2rem; color: #ddd;"></i>
+                                <span>等待上传图片</span>
+                            </div>
+                        </div>
+                        <input asp-for="ImageFile" type="file" class="form-control" style="padding: 6px;" />
+                        <span asp-validation-for="ImageFile" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+                <div class="right-column" style="display: flex; flex-direction: column;">
+                    <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+                        <label asp-for="Synopsis" class="control-label">剧情简介</label>
+                        <textarea asp-for="Synopsis" class="form-control" style="flex: 1; min-height: 200px;" placeholder="详细输入该剧目的剧情梗概..."></textarea>
+                        <span asp-validation-for="Synopsis" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0; margin-top: 20px;">
+                        <label asp-for="VideoUrl" class="control-label">B站视频链接</label>
+                        <input asp-for="VideoUrl" class="form-control" placeholder="输入相关演出视频的外部链接..." />
+                        <span asp-validation-for="VideoUrl" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-cancel">取消返回</a>
+                <button type="submit" class="btn-save"><i class="bi bi-check2-circle"></i> 确认创建</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

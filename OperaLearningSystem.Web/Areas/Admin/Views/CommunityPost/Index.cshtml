@@ -1,0 +1,172 @@
+﻿@model PagedResult<OperaLearningSystem.Core.Entities.CommunityPost>
+@{
+    ViewData["Title"] = "社区帖子管理";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+    var searchString = ViewData["CurrentFilter"] as string;
+
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+<link rel="stylesheet" href="~/css/admin/community.css" asp-append-version="true" />
+
+<div id="community-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-chat-square-text text-muted" style="font-size: 1.5rem;"></i> 社区交流管理
+    </div>
+    <p class="text-muted" style="margin-top: -15px; margin-bottom: 20px; font-size: 0.95rem; padding-left: 5px;">
+        管理前台用户发布的讨论、求助与心得帖子。
+    </p>
+
+    <div class="top-action-bar">
+        <form asp-action="Index" method="get" style="margin: 0;">
+            <div class="search-input-group">
+                <input type="text" name="searchString" placeholder="输入标题或作者搜索..." value="@searchString">
+                <button type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="table-wrapper">
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 35%; text-align: left; padding-left: 20px;">帖子标题</th>
+                        <th style="width: 15%;">作者</th>
+                        <th style="width: 15%;">所属版块</th>
+                        <th style="width: 15%;">发布时间</th>
+                        <th style="width: 150px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int rowIndex = 0;
+                    }
+                    @foreach (var item in Model.Items)
+                    {
+                        var delay = rowIndex * 0.05;
+
+                        <tr class="table-row" style="animation-delay: @(delay)s;">
+                            <td style="text-align: left; padding-left: 20px;">
+                                <strong style="font-size: 1.05rem; color: #4A312C;">@item.Title</strong>
+                            </td>
+                            <td>
+                                <span style="color: #666;"><i class="bi bi-person"></i> @item.Author?.UserName</span>
+                            </td>
+                            <td>
+                                <span class="category-badge">@item.Category?.Name</span>
+                            </td>
+                            <td>
+                                <span style="color: #888; font-size: 0.9rem;">@item.CreatedTime.ToString("yyyy-MM-dd HH:mm")</span>
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="action-link link-view"><i class="bi bi-eye"></i> 详情</a>
+                                <span class="divider">|</span>
+                                <button data-id="@item.Id" data-name="@item.Title" class="action-link link-delete delete-btn">删除</button>
+                            </td>
+                        </tr>
+                        rowIndex++;
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #999;">暂无帖子数据。</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container">
+            <ul class="pagination">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="1" asp-route-searchString="@searchString" class="page-link">首页</a>
+                </li>
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-searchString="@searchString" class="page-link">上一页</a>
+                </li>
+
+                @for (var i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@i" asp-route-searchString="@searchString" class="page-link">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-searchString="@searchString" class="page-link">下一页</a>
+                </li>
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@totalPages" asp-route-searchString="@searchString" class="page-link">尾页</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 系统消息提示
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                var firstRow = document.querySelector('.table-row');
+                if(firstRow) { setTimeout(function() { firstRow.classList.add('highlight-new'); }, 400); }
+                Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#FAF6F7', color: '#333' })
+                    .fire({ icon: 'success', title: successMsgEl.innerText });
+            }
+
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({ icon: 'error', title: '操作失败', text: errorMsgEl.innerText, confirmButtonColor: '#B5495B', background: '#FAF6F7' });
+            }
+
+            // 国风删除弹窗
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var postId = $(this).data('id');
+                var postName = $(this).data('name');
+                var form = $('#deleteForm');
+
+                form.attr('action', "/Admin/Community/Delete/" + postId);
+
+                Swal.fire({
+                    title: '确认删除帖子？',
+                    html: '即将删除帖子：<strong>' + postName + '</strong>。此操作不可逆。',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '确认删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) { form.submit(); }
+                });
+            });
+        });
+    </script>
+}

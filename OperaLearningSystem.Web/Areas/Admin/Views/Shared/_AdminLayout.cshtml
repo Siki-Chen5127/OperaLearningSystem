@@ -1,0 +1,114 @@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<OperaLearningSystem.Core.Entities.User> UserManager
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    @await RenderSectionAsync("Styles", required: false)
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+    <link href="~/lib/select2/css/select2-bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/admin-custom.css" asp-append-version="true" />
+</head>
+
+<body>
+    @{
+        // 动态高亮当前菜单项的方法
+        string IsActive(string controller)
+        {
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+            return controller == currentController ? "active" : "";
+        }
+    }
+
+    <div class="admin-wrapper">
+        <nav class="admin-sidebar">
+            <div class="sidebar-header">
+                <a asp-area="" asp-controller="Home" asp-action="Index" target="_blank" title="点击返回前台首页">
+                    <i class="bi bi-bank"></i> 畅音雅韵
+                </a>
+            </div>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                var currentUser = await UserManager.GetUserAsync(User);
+                <div class="user-info-sidebar">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="user-name">欢迎您, <strong>@(currentUser?.Nickname ?? (currentUser?.UserName ?? "管理员"))</strong></span>
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <span class="badge bg-danger">超管</span>
+                    }
+                </div>
+            }
+
+            <ul class="list-unstyled components">
+                <li class="@IsActive("Home")">
+                    <a asp-area="Admin" asp-controller="Home" asp-action="Index"><i class="bi bi-speedometer2"></i> 首页</a>
+                </li>
+
+                <li class="menu-divider"><span>资源集</span></li>
+                <li class="@IsActive("Category")">
+                    <a asp-area="Admin" asp-controller="Category" asp-action="Index"><i class="bi bi-palette"></i> 剧种大类</a>
+                </li>
+                <li class="@IsActive("Play")">
+                    <a asp-area="Admin" asp-controller="Play" asp-action="Index"><i class="bi bi-film"></i> 剧目典藏</a>
+                </li>
+                <li class="@IsActive("Master")">
+                    <a asp-area="Admin" asp-controller="Master" asp-action="Index"><i class="bi bi-person-badge"></i> 名家风采</a>
+                </li>
+                <li class="@((ViewContext.RouteData.Values["controller"]?.ToString() == "OperaStageRegion" || ViewContext.RouteData.Values["controller"]?.ToString() == "OperaStage") ? "active" : "")">
+                    <a asp-area="Admin" asp-controller="OperaStageRegion" asp-action="Index"><i class="bi bi-columns-gap"></i> 古建戏台库</a>
+                </li>
+
+
+                <li class="menu-divider"><span>传习与互动</span></li>
+                <li class="@IsActive("Course")">
+                    <a asp-area="Admin" asp-controller="Course" asp-action="Index"><i class="bi bi-journal-bookmark"></i> 私塾课程</a>
+                </li>
+                <li class="@IsActive("AiCharacter")">
+                    <a asp-area="Admin" asp-controller="AiCharacter" asp-action="Index"><i class="bi bi-stars"></i> 梦境AI角色</a>
+                </li>
+                <li class="@IsActive("Community")">
+                    <a asp-area="Admin" asp-controller="Community" asp-action="Index"><i class="bi bi-chat-left-dots"></i> 雅集帖子管控</a>
+                </li>
+                <li class="@IsActive("User")">
+                    <a asp-area="Admin" asp-controller="User" asp-action="Index"><i class="bi bi-people"></i> 用户管理</a>
+                </li>
+
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <li class="menu-divider"><span>最高权限</span></li>
+                    <li class="@IsActive("Audit")">
+                        <a asp-area="" asp-controller="Audit" asp-action="Index" class="text-warning">
+                            <i class="bi bi-envelope-exclamation"></i>审核大厅
+                        </a>
+                    </li>
+                }
+            </ul>
+
+            <div class="sidebar-footer">
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="m-0 text-center">
+                    <button type="submit" class="btn btn-logout w-100">
+                        <i class="bi bi-box-arrow-right"></i> 退出
+                    </button>
+                </form>
+            </div>
+        </nav>
+
+        <div class="admin-main-content p-0">
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery-3.7.1.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/select2/select2.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

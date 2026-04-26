@@ -1,0 +1,264 @@
+﻿/* 名家详情页专属样式 */
+.master-detail-container {
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 0 20px;
+    font-family: 'Microsoft YaHei', 'Noto Serif SC', sans-serif;
+    color: #333;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* 左侧文字区稍宽，右侧图片区稍窄 */
+    gap: 60px;
+    align-items: start;
+}
+
+/* ================= 左侧：列传信息 ================= */
+.info-header {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.master-name {
+    font-family: 'Noto Serif SC', 'KaiTi', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #5A1C20;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: 2px;
+}
+
+.category-badge {
+    background: rgba(158, 42, 47, 0.08);
+    color: #9E2A2F;
+    border: 1px solid rgba(158, 42, 47, 0.2);
+    font-size: 1.1rem;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-family: 'Noto Serif SC', serif;
+}
+
+/* 元数据栏 */
+.meta-info-row {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 1px solid rgba(238, 213, 183, 0.5);
+    margin-bottom: 40px;
+}
+
+.meta-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.meta-label {
+    font-size: 0.9rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.star-rating-box {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.star-icon {
+    color: #D4AF37;
+    font-size: 1.1rem;
+}
+
+.rating-score {
+    margin-left: 8px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #D4AF37;
+    font-family: 'Georgia', serif;
+}
+
+.meta-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4A312C;
+}
+
+.vertical-divider {
+    width: 1px;
+    height: 40px;
+    background: #EED5B7;
+    margin: 0 30px;
+    opacity: 0.6;
+}
+
+/* 生平纪事 (信笺风) */
+.bio-paper {
+    background-color: #FDFBF7; /* 极淡的米黄色 */
+    border-left: 4px solid #5A1C20; /* 左侧胭脂红粗线 */
+    padding: 30px;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    position: relative;
+}
+
+.bio-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #5A1C20;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bio-content {
+    font-size: 1.1rem;
+    line-height: 2;
+    color: #444;
+    text-align: justify;
+    letter-spacing: 0.5px;
+}
+
+.back-action {
+    margin-top: 40px;
+}
+
+.btn-back {
+    color: #888;
+    text-decoration: none;
+    font-size: 1.05rem;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-back:hover {
+        color: #5A1C20;
+        transform: translateX(-5px);
+    }
+
+/* ================= 右侧：肖像与互动 ================= */
+.portrait-column {
+    position: relative;
+    padding-top: 20px;
+}
+
+/* 背景大字水印 */
+.bg-watermark {
+    position: absolute;
+    top: -40px;
+    right: -20px;
+    font-family: 'KaiTi', serif;
+    font-size: 15rem;
+    color: rgba(90, 28, 32, 0.03); /* 极度透明的暗红色 */
+    line-height: 1;
+    z-index: -1;
+    user-select: none;
+    pointer-events: none;
+}
+
+.portrait-wrapper {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+    border: 1px solid rgba(238, 213, 183, 0.6);
+}
+
+.portrait-inner-frame {
+    width: 100%;
+    aspect-ratio: 3 / 4; /* 标准的肖像画幅比例 */
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.portrait-wrapper:hover .portrait-img {
+    transform: scale(1.03); /* 悬浮轻微放大 */
+}
+
+/* 交互按钮栏 */
+.interaction-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-action {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+    border-radius: 6px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    border: 1px solid #EAEAEA;
+    background: #fcfcfc;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+    .btn-action i {
+        font-size: 1.2rem;
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+/* 点赞按钮激活状态 */
+.btn-like.active {
+    background: rgba(181, 73, 91, 0.08);
+    border-color: rgba(181, 73, 91, 0.3);
+    color: #B5495B;
+}
+
+/* 收藏按钮激活状态 */
+.btn-fav.active {
+    background: rgba(212, 175, 55, 0.08);
+    border-color: rgba(212, 175, 55, 0.3);
+    color: #D4AF37;
+}
+
+/* 响应式适配：手机端变为上下结构 */
+@media (max-width: 992px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .portrait-column {
+        order: -1; /* 手机端让图片显示在文字上方 */
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .bg-watermark {
+        display: none; /* 手机端隐藏水印防止溢出 */
+    }
+
+    .master-name {
+        font-size: 2.8rem;
+    }
+}

@@ -1,0 +1,223 @@
+@model OperaLearningSystem.Web.Areas.Admin.ViewModels.AdminHomeViewModel
+@{
+    ViewData["Title"] = "畅音雅韵数据全览";
+}
+
+<div class="container-fluid admin-dashboard mt-3 mb-2">
+    <h2 class="guofeng-title">首页数据全览</h2>
+
+    <div class="row flex-grow-1">
+        <div class="col-xl-8 col-lg-7 d-flex flex-column">
+
+            <div class="row mb-3">
+                <div class="col-sm-6 col-md-3 mb-2">
+                    <a asp-controller="Play" asp-action="Index" class="stat-card">
+                        <div class="stat-card-title">馆藏剧目总数</div>
+                        <div class="stat-card-number">@Model.PlayCount</div>
+                        <i class="bi bi-film stat-icon"></i>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-md-3 mb-2">
+                    <a asp-controller="User" asp-action="Index" class="stat-card">
+                        <div class="stat-card-title">用户数</div>
+                        <div class="stat-card-number">@Model.UserCount</div>
+                        <i class="bi bi-people stat-icon"></i>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-md-3 mb-2">
+                    <a asp-controller="AiCharacter" asp-action="Index" class="stat-card">
+                        <div class="stat-card-title">入梦频次</div>
+                        <div class="stat-card-number" style="color: #E6C585;">@Model.AiChatCount</div>
+                        <i class="bi bi-stars stat-icon"></i>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-md-3 mb-2">
+                    @if (Model.IsSuperAdmin)
+                    {
+                        <a asp-area="" asp-controller="Audit" asp-action="Index" class="stat-card" style="background-color: #FFFDFD;">
+                            <div class="stat-card-title text-danger">待审核</div>
+                            <div class="stat-card-number text-danger">@Model.PendingApplicationCount</div>
+                            <i class="bi bi-envelope-exclamation stat-icon text-danger"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="Admin" asp-controller="Community" asp-action="Index" class="stat-card">
+                            <div class="stat-card-title">雅集帖数</div>
+                            <div class="stat-card-number">@Model.CommunityPostCount</div>
+                            <i class="bi bi-chat-quote stat-icon"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="row flex-grow-1 mb-3">
+                <div class="col-md-6 mb-2">
+                    <div class="list-card p-2">
+                        <div id="roseChart" style="width: 100%; flex: 1; min-height: 280px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <div class="list-card p-2">
+                        <div id="lineChart" style="width: 100%; flex: 1; min-height: 280px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row flex-grow-1 mb-2">
+                <div class="col-md-6 mb-2">
+                    <div class="list-card p-2">
+                        <div id="radarChart" style="width: 100%; flex: 1; min-height: 280px;"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <div class="list-card p-2">
+                        <div id="doughnutChart" style="width: 100%; flex: 1; min-height: 280px;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xl-4 col-lg-5 d-flex flex-column pb-2">
+            <div class="list-card mb-3 flex-grow-1" style="max-height: 48%;">
+                <div class="list-card-header"><i class="bi bi-person-plus"></i> 新入名帖</div>
+                <div class="list-scroll-area">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var user in Model.RecentUsers)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-3 py-2">
+                                <span class="text-truncate" style="max-width: 60%; font-size: 0.95rem;">
+                                    @(string.IsNullOrEmpty(user.Nickname) ? user.UserName : user.Nickname)
+                                </span>
+                                <span class="badge guofeng-badge rounded-pill">@user.CreatedAt.ToString("MM-dd")</span>
+                            </li>
+                        }
+                        @if (!Model.RecentUsers.Any())
+                        {
+                            <li class="list-group-item border-0 text-muted text-center py-3">暂无新晋名帖</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="list-card flex-grow-1" style="max-height: 48%;">
+                <div class="list-card-header"><i class="bi bi-journal-text"></i> 雅集回声</div>
+                <div class="list-scroll-area">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var post in Model.RecentPosts)
+                        {
+                            <li class="list-group-item d-flex flex-column border-0 px-3 py-2 border-bottom border-light">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <strong style="font-size: 0.9rem; color: #8C5E18;">@(post.Author?.Nickname ?? post.Author?.UserName ?? "匿名")</strong>
+                                    <span class="badge guofeng-badge rounded-pill">@post.CreatedTime.ToString("MM-dd")</span>
+                                </div>
+                                <span class="text-truncate text-muted" style="font-size: 0.85rem; width: 100%;">@post.Title</span>
+                            </li>
+                        }
+                        @if (!Model.RecentPosts.Any())
+                        {
+                            <li class="list-group-item border-0 text-muted text-center py-3">雅集暂无新声</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/echarts.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 解析所有数据
+            let categoryData = @Html.Raw(Model.CategoryChartDataJson ?? "[]");
+            const aiDates = @Html.Raw(Model.AiActivityDatesJson ?? "[]");
+            const aiCounts = @Html.Raw(Model.AiActivityCountsJson ?? "[]");
+            const moduleStats = @Html.Raw(Model.ModuleStatsJson ?? "[]");
+            const interactionData = @Html.Raw(Model.UserInteractionJson ?? "[]");
+
+            const fontTheme = "'Noto Serif SC', 'KaiTi', serif";
+            const colorPalette = ['#B5495B', '#E6C585', '#8C5E18', '#6F2A1D', '#F4ACB7', '#D3B88A'];
+
+            // 对玫瑰图数据进行升序排列，使其从内到外扇叶依次变大
+            categoryData.sort((a, b) => a.value - b.value);
+
+            // 1. 南丁格尔玫瑰图 
+            const roseChart = echarts.init(document.getElementById('roseChart'));
+            roseChart.setOption({
+                color: colorPalette,
+                title: { text: '剧种典藏分布', left: 'center', top: '5%', textStyle: { fontFamily: fontTheme, color: '#2C1E16', fontSize: 20 } },
+                tooltip: { trigger: 'item', formatter: '{b} : {c}部 ({d}%)' },
+                series: [{
+                    name: '剧目占比', type: 'pie', radius: [15, 75], center: ['50%', '55%'], roseType: 'area',
+                    itemStyle: { borderRadius: 4 }, data: categoryData, label: { show: false }
+                }]
+            });
+
+            // 2. 沉浸频次面积折线图
+            const lineChart = echarts.init(document.getElementById('lineChart'));
+            lineChart.setOption({
+                title: { text: '近七日沉浸热度', left: 'center', top: '5%', textStyle: { fontFamily: fontTheme, color: '#2C1E16', fontSize: 20 } },
+                tooltip: { trigger: 'axis' },
+                grid: { left: '12%', right: '5%', bottom: '15%', top: '25%' },
+                xAxis: { type: 'category', boundaryGap: false, data: aiDates, axisLabel: { fontFamily: fontTheme, fontSize: 10 } },
+                yAxis: { type: 'value', axisLabel: { fontFamily: fontTheme, fontSize: 10 } },
+                series: [{
+                    name: '交互次', data: aiCounts, type: 'line', smooth: true,
+                    lineStyle: { color: '#B5495B', width: 2 }, itemStyle: { color: '#B5495B' },
+                    areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(181, 73, 91, 0.5)' }, { offset: 1, color: 'rgba(181, 73, 91, 0.0)' }]) }
+                }]
+            });
+
+            // 3. 系统生态多维雷达图
+            const radarChart = echarts.init(document.getElementById('radarChart'));
+            radarChart.setOption({
+                title: { text: '大盘生态健康度', left: 'center', top: '5%', textStyle: { fontFamily: fontTheme, color: '#2C1E16', fontSize: 20 } },
+                tooltip: { trigger: 'item' },
+                radar: {
+                    indicator: [
+                        { name: '剧目底蕴', max: Math.max(...moduleStats) + 10 },
+                        { name: '名家资源', max: Math.max(...moduleStats) + 10 },
+                        { name: '私塾课程', max: Math.max(...moduleStats) + 10 },
+                        { name: '驻场戏迷', max: Math.max(...moduleStats) + 10 },
+                        { name: '雅集发帖', max: Math.max(...moduleStats) + 10 }
+                    ],
+                    center: ['50%', '55%'], radius: '60%', shape: 'circle',
+                    axisName: { color: '#8C5E18', fontFamily: fontTheme, fontSize: 10 }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [{ value: moduleStats, name: '生态指标' }],
+                    itemStyle: { color: '#B5495B' },
+                    areaStyle: { color: 'rgba(230, 197, 133, 0.4)' }
+                }]
+            });
+
+            // 4. 新增：用户互动行为环形图
+            const doughnutChart = echarts.init(document.getElementById('doughnutChart'));
+            doughnutChart.setOption({
+                color: ['#8C5E18', '#E6C585', '#B5495B', '#F4ACB7'],
+                title: { text: '活跃互动留存比', left: 'center', top: '5%', textStyle: { fontFamily: fontTheme, color: '#2C1E16', fontSize: 20 } },
+                tooltip: { trigger: 'item' },
+                legend: { bottom: '0', textStyle: { fontFamily: fontTheme, fontSize: 10 }, itemWidth: 8, itemHeight: 8 },
+                series: [{
+                    name: '互动行为', type: 'pie', radius: ['40%', '65%'], center: ['50%', '50%'],
+                    avoidLabelOverlap: false, itemStyle: { borderRadius: 5, borderColor: '#fff', borderWidth: 2 },
+                    label: { show: false, position: 'center' },
+                    emphasis: { label: { show: true, fontSize: 12, fontWeight: 'bold', fontFamily: fontTheme } },
+                    labelLine: { show: false }, data: interactionData
+                }]
+            });
+
+            // 统一缩放
+            window.addEventListener('resize', function() {
+                roseChart.resize();
+                lineChart.resize();
+                radarChart.resize();
+                doughnutChart.resize();
+            });
+        });
+    </script>
+}

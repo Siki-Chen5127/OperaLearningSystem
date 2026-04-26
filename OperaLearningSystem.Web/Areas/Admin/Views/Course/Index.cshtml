@@ -1,0 +1,212 @@
+@model PagedResult<OperaLearningSystem.Core.Entities.Course>
+@{
+    ViewData["Title"] = "课程管理";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+    var searchString = ViewData["CurrentFilter"] as string;
+
+    // 检查是否有系统消息
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+<link rel="stylesheet" href="~/css/admin/course.css" asp-append-version="true" />
+
+<div id="course-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-book text-muted" style="font-size: 1.5rem;"></i> 课程体系管理
+    </div>
+
+    <div class="top-action-bar">
+        <form asp-action="Index" method="get" style="margin: 0;">
+            <div class="search-input-group">
+                <input type="text" name="searchString" placeholder="输入课程名称搜索..." value="@searchString">
+                <button type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+
+        <a asp-action="Create" class="btn-create">
+            <i class="bi bi-plus"></i> 新增课程
+        </a>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="table-wrapper">
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">课程封面</th>
+                        <th style="width: 25%;">课程名称</th>
+                        <th style="width: 15%;">所属剧种</th>
+                        <th>状态属性</th>
+                        <th style="width: 220px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int rowIndex = 0;
+                    }
+                    @foreach (var item in Model.Items)
+                    {
+                        var delay = rowIndex * 0.05;
+
+                        <tr class="table-row" style="animation-delay: @(delay)s;">
+                            <td>
+                                <div class="img-container">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Name" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/images/default.png" alt="无图" />
+                                    }
+                                </div>
+                            </td>
+                            <td><strong style="font-size: 1.1rem; color: #4A312C;">@item.Name</strong></td>
+                            <td><span style="color: #8C5E18;">@item.Category?.Name</span></td>
+                            <td>
+                                @if (item.IsFeatured)
+                                {
+                                    <span class="status-badge featured"><i class="bi bi-star-fill"></i> 精选推荐</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge normal"><i class="bi bi-circle"></i> 常规课程</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="action-link link-edit">编辑</a>
+                                <span class="divider">|</span>
+                                <a asp-action="QuizQuestions" asp-route-id="@item.Id" class="action-link link-quiz"><i class="bi bi-ui-checks"></i> 题库管理</a>
+                                <span class="divider">|</span>
+                                <button data-id="@item.Id" data-name="@item.Name" class="action-link link-delete delete-btn">删除</button>
+                            </td>
+                        </tr>
+                        rowIndex++;
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #999;">暂无匹配的课程数据。</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container">
+            <ul class="pagination">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="1" asp-route-searchString="@searchString" class="page-link">首页</a>
+                </li>
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-searchString="@searchString" class="page-link">上一页</a>
+                </li>
+
+                @for (var i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@i" asp-route-searchString="@searchString" class="page-link">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-searchString="@searchString" class="page-link">下一页</a>
+                </li>
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@totalPages" asp-route-searchString="@searchString" class="page-link">尾页</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 系统消息提示
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                var firstRow = document.querySelector('.table-row');
+                if(firstRow) {
+                    setTimeout(function() {
+                        firstRow.classList.add('highlight-new');
+                    }, 400);
+                }
+
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#FAF6F7',
+                    color: '#333'
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: successMsgEl.innerText
+                });
+            }
+
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '操作失败',
+                    text: errorMsgEl.innerText,
+                    confirmButtonColor: '#B5495B',
+                    background: '#FAF6F7'
+                });
+            }
+
+            // 删除确认 (防飘红安全版)
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var courseId = $(this).data('id');
+                var courseName = $(this).data('name');
+                var form = $('#deleteForm');
+
+                form.attr('action', "@Url.Action("Delete", "Course")/" + courseId);
+
+                Swal.fire({
+                    title: '确认删除课程？',
+                    html: '即将删除课程：<strong>' + courseName + '</strong>。<br><span style="color:#C94A4A; font-size: 0.9em;">注意：该课程下的所有题目（题库）也将被同步清空且无法恢复！</span>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '确认删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

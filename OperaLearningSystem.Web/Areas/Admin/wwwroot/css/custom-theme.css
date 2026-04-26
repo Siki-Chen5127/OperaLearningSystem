@@ -1,0 +1,360 @@
+/* --- 1. 定义全新的轻盈、雅致调色板和字体变量 --- */
+:root {
+    /* 色彩 (低饱和度) */
+    --background-color: #FAF6F7; /* 浅粉白，作为底色 */
+    --primary-color: #B5495B; /* 玫瑰红，用于标题和强调 */
+    --text-color: #4A4A4A; /* 暖墨灰，用于主要文本 */
+    --secondary-text-color: #9B9B9B; /* 浅灰，用于次要信息 */
+    --accent-color: #E6C585; /* 淡雅金，用于点缀和高光 */
+    --border-color: #EAEAEA; /* 边框颜色 */
+    /* 字体 */
+    --font-heading: 'ZCOOL XiaoWei', serif; /* 标题字体：秀丽、清晰 */
+    --font-body: 'Noto Serif SC', serif; /* 正文字体：优雅、可读 */
+}
+
+/* --- 2. 应用全局样式到 body --- */
+body {
+    background-color: var(--background-color);
+    font-family: var(--font-body);
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 400; /* 默认字重 */
+}
+
+/* --- 3. 重新定义标题样式 (更小巧) --- */
+h1, .h1 {
+    font-size: 2.5rem;
+}
+
+h2, .h2 {
+    font-size: 2rem;
+}
+
+h3, .h3 {
+    font-size: 1.75rem;
+}
+
+h4, .h4 {
+    font-size: 1.25rem;
+}
+/* 减小标题尺寸 */
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: var(--font-heading);
+    color: var(--primary-color);
+    font-weight: normal;
+}
+
+/* --- 4. 调整链接样式 --- */
+a {
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+    a:hover {
+        color: var(--accent-color);
+        transform: translateY(-2px); /* 轻微上浮效果 */
+    }
+
+/* --- 5. 改造 Bootstrap 组件 --- */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.8) !important; /* 半透明导航栏 */
+    backdrop-filter: blur(10px); /* 毛玻璃效果 */
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: 20px; /* 圆角按钮，增加年轻感 */
+    padding: 10px 25px;
+    transition: all 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: #9e3a4b;
+        border-color: #9e3a4b;
+        box-shadow: 0 4px 15px rgba(181, 73, 91, 0.3);
+        transform: translateY(-3px);
+    }
+
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background-color: white;
+}
+
+/* --- 6. 列表页与详情页通用样式 --- */
+
+/* 页面顶部标题区域 */
+.page-header {
+    padding: 4rem 0;
+    text-align: center;
+}
+
+/* --- 7. 列表页卡片样式 --- */
+.item-card {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    text-decoration: none;
+    display: block;
+    color: var(--text-color);
+    overflow: hidden; /* 保证图片圆角生效 */
+    transition: all 0.4s ease;
+    height: 100%;
+}
+
+    .item-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+.item-card-image-wrapper {
+    height: 220px;
+    overflow: hidden;
+}
+
+    .item-card-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+.item-card:hover .item-card-image-wrapper img {
+    transform: scale(1.1);
+}
+
+.item-card-content {
+    padding: 1.5rem;
+}
+
+    .item-card-content h4 {
+        color: var(--primary-color);
+    }
+
+    .item-card-content p {
+        color: var(--secondary-text-color);
+        font-size: 0.9rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* 最多显示2行 */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+/* 8. 分页组件样式 */
+.pagination .page-item .page-link {
+    color: var(--primary-color);
+    border-radius: 50% !important; /* 圆形分页按钮 */
+    margin: 0 5px;
+    border: none;
+}
+
+    .pagination .page-item .page-link:hover {
+        background-color: #fdeef0;
+    }
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(181, 73, 91, 0.4);
+}
+
+/* --- 9.首页社区宣传区块样式 --- */
+.community-promo-v2 {
+    background-color: #ffffff; /* 使用纯白背景与底色形成对比 */
+    padding: 6rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+/* --- 10. 详情页样式 --- */
+
+/* 顶部英雄式头图 */
+.detail-hero {
+    height: 50vh; /* 头图高度占屏幕的50% */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end; /* 内容垂直居底 */
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding-bottom: 6rem; /* 为下方重叠区域留出空间 */
+}
+
+    /* 头图的渐变遮罩，让文字更突出 */
+    .detail-hero::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent 60%);
+    }
+
+.detail-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+    .detail-hero-content h1 {
+        color: white; /* 覆盖全局标题颜色 */
+        font-size: 4rem;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    }
+
+/* 主内容区域，使用负 margin 实现与头图的层次感 */
+.detail-main-content {
+    margin-top: -80px;
+    position: relative;
+    z-index: 3;
+}
+
+/* 浮动交互栏 */
+.detail-interaction-bar {
+    background-color: rgba(255,255,255,0.9);
+    backdrop-filter: blur(12px); /* 毛玻璃效果 */
+    padding: 1rem 1.5rem;
+    border-radius: 50px; /* 胶囊形状 */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    display: inline-block; /* 让宽度自适应内容 */
+}
+
+    /* 交互按钮 */
+    .detail-interaction-bar .btn {
+        border-radius: 20px !important;
+        padding: 8px 18px;
+        font-size: 0.9rem;
+    }
+
+/* 内容主体卡片 */
+.detail-body-card {
+    background-color: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* 评论区样式 */
+.comment-section .card {
+    border: none;
+    background-color: transparent;
+}
+
+.comment-section #commentList hr {
+    border-top: 1px solid var(--border-color);
+}
+
+.comment-section #commentForm textarea {
+    min-height: 120px;
+}
+
+/* --- 11.登录/注册页面居中布局 --- */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+
+.auth-box {
+    max-width: 480px;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* --- 12. 社区讨论区样式 --- */
+
+/* 帖子列表页 - 卡片样式 */
+.post-summary-card {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+    .post-summary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        border-left: 5px solid var(--primary-color);
+        color: var(--text-color);
+    }
+
+.post-summary-avatar {
+    flex-shrink: 0;
+}
+
+    .post-summary-avatar img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
+
+.post-summary-content {
+    flex-grow: 1;
+    margin-left: 1rem;
+}
+
+.post-summary-title {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.post-summary-meta {
+    font-size: 0.85rem;
+    color: var(--secondary-text-color);
+}
+
+    .post-summary-meta .author-name {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+/* 帖子详情页 */
+.post-detail-header {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.post-detail-title {
+    font-size: 3rem;
+}
+
+.post-detail-meta {
+    margin-top: 1rem;
+    color: var(--secondary-text-color);
+}
+
+    .post-detail-meta img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+
+.post-detail-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    padding: 2rem 0;
+}
+
+/* 创建帖子页面 */
+.create-post-container .auth-box {
+    max-width: 800px; /* 创作区域可以更宽一些 */
+}

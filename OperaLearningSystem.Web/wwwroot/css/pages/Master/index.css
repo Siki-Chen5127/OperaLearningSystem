@@ -1,0 +1,138 @@
+﻿/* 名家风采列表页面样式表*/
+
+/* --- 1. 全局容器 --- */
+.master-page-container {
+    /* 控制页面四周的留白。 */
+    padding: 25px;
+    /* 容器最大宽度，配合网格布局控制一行能放下多少个卡片 */
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+/* --- 2. 紧凑型头部 --- */
+.dense-header {
+    text-align: center;
+    margin-bottom: 30px; /* 标题与搜索栏的距离 */
+}
+
+    .dense-header h2 {
+        font-family: 'Ma Shan Zheng', cursive;
+        font-size: 3rem; /* 标题大小，如果嫌大可以改成 1.8rem */
+        color: #9E2A2F; /* 主题红 */
+        margin-bottom: 5px;
+    }
+
+/* --- 3. 紧凑型搜索栏 --- */
+.dense-toolbar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px; /* 搜索栏与下方列表的距离 */
+}
+
+.dense-search-form {
+    display: flex;
+    width: 100%;
+    max-width: 500px; /* 搜索框的长度上限 */
+    background: #fff;
+    border: 1px solid #efe8da;
+    border-radius: 50px; /* 两侧圆角，50px 即为半圆形胶囊 */
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04); /* 轻微阴影，增加立体感 */
+}
+
+.dense-search-input {
+    flex: 1;
+    border: none;
+    padding: 10px 20px; /* 搜索框内部文字的留白 */
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.dense-search-btn {
+    background: #fdfbf7;
+    border: none;
+    padding: 0 20px;
+    color: #9E2A2F;
+    cursor: pointer;
+    transition: background 0.2s; /* 悬浮时的渐变动画时间 */
+}
+
+    .dense-search-btn:hover {
+        background: #efe8da; /* 鼠标放上去时的背景色 */
+    }
+
+/* --- 4. 高密度网格布局 --- */
+.dense-master-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+    gap: 25px; /* 卡片之间的上下左右间距 */
+}
+
+/* --- 5. 名家信息卡片 --- */
+.master-list-item {
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    background: #fff;
+    border: 1px solid #efe8da;
+    border-radius: 10px; /* 卡片圆角 */
+    padding: 60px 50px; /* 卡片内部边缘到内容的距离 */
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease; /* 悬浮动画时长 */
+}
+
+    .master-list-item:hover {
+        box-shadow: 0 6px 15px rgba(158, 42, 47, 0.08); /* 鼠标移入时的红色泛光 */
+        border-color: #9E2A2F; /* 鼠标移入边框变红 */
+        transform: translateY(-2px); /* 鼠标移入时卡片微微上浮 */
+    }
+
+/* 头像设置 */
+.master-avatar {
+    width: 180px; /* 头像大小，可改为 60px 变大 */
+    height: 150px;
+    border-radius: 30%; /* 变成正圆 */
+    object-fit: cover; /* 保证图片不变形 */
+    border: 2px solid #f9f6f0;
+    flex-shrink: 0;
+    margin-right: 15px; /* 头像和右侧文字的距离 */
+}
+
+/* 文本信息区 */
+.master-info {
+    flex-grow: 1;
+    min-width: 0; /* 必须保留，防止文字太长撑破 flex 布局 */
+}
+
+.master-name {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.4rem; /* 名字大小 */
+    color: #333;
+    margin: 0 0 4px 0; /* 名字和下方简介的距离 */
+    line-height: 1.1;
+}
+
+.master-intro {
+    font-size: 0.85rem;
+    color: #777;
+    margin: 0;
+    /* 以下三行代码实现单行文字截断，超出部分变省略号 (...) */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- 6. 紧凑分页 --- */
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-link {
+    color: #9E2A2F;
+    border-color: #efe8da;
+}
+
+.page-item.active .page-link {
+    background-color: #9E2A2F;
+    border-color: #9E2A2F;
+}

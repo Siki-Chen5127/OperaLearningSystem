@@ -1,0 +1,163 @@
+@model OperaLearningSystem.Web.ViewModels.Account.UserCenterViewModel
+@using System.Linq
+@using OperaLearningSystem.Core.Entities
+@{
+    ViewData["Title"] = "个人中心";
+}
+
+<link rel="stylesheet" href="~/css/pages/Account/usercenter.css" asp-append-version="true" />
+
+<div class="uc-dashboard-wrapper">
+    <div class="uc-main-content">
+        <aside class="uc-sidebar">
+            <div class="uc-card-inner">
+                <div class="uc-profile-header">
+                    <img src="@(Model.User.AvatarUrl ?? "/images/default_avatar.png")" alt="Avatar" class="uc-avatar">
+                    <div class="uc-name">@Model.User.Nickname</div>
+                    <div class="uc-bio">“ @(string.IsNullOrEmpty(Model.User.Bio) ? "此君很懒，暂无寄语" : Model.User.Bio) ”</div>
+                </div>
+
+                <div class="uc-info-grid">
+                    <div class="info-cell">
+                        <span class="info-label">乾坤</span>
+                        <span class="info-val">@Model.User.Gender</span>
+                    </div>
+                    <div class="info-cell">
+                        <span class="info-label">故里</span>
+                        <span class="info-val">@Model.User.Province</span>
+                    </div>
+                    <div class="info-cell">
+                        <span class="info-label">能力值</span>
+                        <span class="info-val">@(String.Format("{0:F1}", ViewBag.AbilityEstimate ?? 1.0))</span>
+                    </div>
+                    <div class="info-cell">
+                        <span class="info-label">连胜</span>
+                        <span class="info-val">@(ViewBag.CorrectStreak ?? 0) 题</span>
+                    </div>
+                </div>
+
+                <div class="uc-divider"></div>
+
+                <div class="uc-list-compact">
+                    <div class="list-item">
+                        <i class="bi bi-calendar-check"></i> 入园：@Model.User.CreatedAt.ToString("yyyy-MM-dd")
+                    </div>
+                    <div class="list-item">
+                        <i class="bi bi-geo-alt"></i> 戏台打卡：@(ViewBag.CheckInCount ?? 0) 次
+                    </div>
+                </div>
+
+                <div class="uc-persona-box">
+                    <div class="info-label mb-1">梨园梦境画像</div>
+                    <p class="persona-text">@(string.IsNullOrEmpty(Model.User.DreamPersonaSummary) ? "入梦愈深，画像愈明" : Model.User.DreamPersonaSummary)</p>
+                </div>
+
+                <div class="uc-action-grid">
+                    <a asp-action="EditProfile" class="uc-btn-text">修改名帖</a>
+                    <a asp-action="ChangePassword" class="uc-btn-text">修改密码</a>
+                    <a asp-controller="AdminApplication" asp-action="Apply" class="uc-btn-text text-gold">申请管理</a>
+                    <form asp-action="Logout" method="post" style="display:contents;">
+                        <button type="submit" class="uc-btn-text text-muted">退出戏院</button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <main class="uc-content-area">
+            <div class="nav-tabs-custom">
+                <div class="nav-item-custom active" data-tab="fav" onclick="switchTab('fav', this)">
+                    我的珍藏 (@Model.Favorites.Count)
+                </div>
+                <div class="nav-item-custom" data-tab="like" onclick="switchTab('like', this)">
+                    点赞记录 (@Model.Likes.Count)
+                </div>
+                <div class="nav-item-custom" data-tab="quiz" onclick="switchTab('quiz', this)">
+                    传习进度 (@Model.CourseQuizHistory.Count)
+                </div>
+                <div class="nav-item-custom" data-tab="postbm" onclick="switchTab('postbm', this)">
+                    帖子收藏 (@Model.PostBookmarks.Count)
+                </div>
+            </div>
+
+            <div class="tab-viewport">
+                <div id="tab-fav" class="content-panel active">
+                    <div class="content-grid-dense">
+                        @foreach (var item in Model.Favorites)
+                        {
+                            <a href="/@item.ControllerName/Details/@item.Id" class="card-mini">
+                                <img src="@(item.ImageUrl ?? "/images/default_cover.jpg")">
+                                <div class="card-mini-body">
+                                    <span class="tag">@item.ContentType</span>
+                                    <div class="title">@item.Title</div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <div id="tab-like" class="content-panel">
+                    <div class="content-grid-dense">
+                        @foreach (var item in Model.Likes)
+                        {
+                            <a href="/@item.ControllerName/Details/@item.Id" class="card-mini">
+                                <img src="@(item.ImageUrl ?? "/images/default_cover.jpg")">
+                                <div class="card-mini-body">
+                                    <span class="tag tag-like">@item.ContentType</span>
+                                    <div class="title">@item.Title</div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <div id="tab-quiz" class="content-panel">
+                    <div class="table-responsive">
+                        <table class="table-custom-mini">
+                            <thead>
+                                <tr><th>课程</th><th>得分</th><th>正确率</th><th>完成时间</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var row in Model.CourseQuizHistory)
+                                {
+                                    <tr>
+                                        <td class="text-start">@row.CourseName</td>
+                                        <td>@row.CorrectCount / @row.TotalCount</td>
+                                        <td>@row.AccuracyPercent%</td>
+                                        <td class="text-muted">@row.FinishedAt.ToLocalTime().ToString("MM-dd HH:mm")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tab-postbm" class="content-panel">
+                    <div class="post-stack-mini">
+                        @foreach (var p in Model.PostBookmarks)
+                        {
+                            <a asp-controller="Community" asp-action="Details" asp-route-id="@p.PostId" class="post-item-compact">
+                                <div class="p-title">@p.Title</div>
+                                <div class="p-meta">@p.AuthorDisplay · @p.CategoryName · @p.CreatedTime.ToString("yyyy-MM-dd")</div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="uc-bottom-nav">
+        <a href="/" class="btn-exit"><i class="bi bi-door-open"></i> 返回首页</a>
+    </footer>
+</div>
+
+@section Scripts {
+    <script>
+        function switchTab(type, el) {
+            document.querySelectorAll('.nav-item-custom').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.content-panel').forEach(g => g.classList.remove('active'));
+            document.getElementById('tab-' + type).classList.add('active');
+        }
+    </script>
+}

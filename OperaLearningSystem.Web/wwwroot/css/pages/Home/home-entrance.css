@@ -1,0 +1,2427 @@
+/* ============ home-entrance.css - 全场景系统 ============ */
+
+/*确保没有黑边出现！非常重要的代码*/
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden !important; 
+    box-sizing: border-box;
+}
+
+/* 确保所有的元素计算高度时包含 padding 和 border */
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+body.transparent-nav-body { background: #000; }
+
+#entrance-container {
+    position: relative;
+    width: 100vw; height: 100vh;
+    background: #000;
+    overflow: hidden;
+    perspective: 1200px;
+}
+
+/* ========== 笔刷光标 ========== */
+.brush-cursor {
+    position: fixed; width: 80px; height: auto;
+    pointer-events: none; z-index: 999999;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+}
+
+/* ========== 门层（视频 + 画布擦除） ========== */
+.door-layer {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-size: cover; background-position: center;
+    transition: opacity 1s ease, transform 0.6s ease, filter 0.6s ease;
+}
+.door-video-stage {
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+.door-open-video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    background: #0a0604;
+}
+.door-guest-bg {
+    background: linear-gradient(165deg, #1a1510 0%, #0a0604 45%, #14100c 100%);
+    filter: grayscale(100%);
+    z-index: 1;
+}
+#scratch-canvas {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 10;
+    touch-action: none;
+    cursor: none;
+}
+
+/* ========== 未登录 ========== */
+.unauth-modal {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+}
+.unauth-box {
+    text-align: center;
+    background: linear-gradient(155deg, rgba(30, 24, 18, 0.95) 0%, rgba(12, 9, 6, 0.98) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    position: relative; padding: 60px 80px; border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8); overflow: hidden;
+}
+.unauth-box::before { content:''; position:absolute; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); }
+.unauth-box h2 { position:relative; color:#e2c079; font-family:'Ma Shan Zheng',cursive; font-size:3rem; margin-bottom:30px; text-shadow:0 4px 10px #000; }
+.unauth-box .btn-enter { position:relative; background:#9E2A2F; color:#fff; border:none; padding:12px 40px; font-size:1.2rem; border-radius:30px; text-decoration:none; transition:all 0.3s; font-family:'Ma Shan Zheng',cursive; }
+.unauth-box .btn-enter:hover { background:#b5383e; box-shadow:0 5px 20px rgba(158,42,47,0.6); color:#ffd700; }
+
+/* ========== 提示语 ========== */
+.glowing-text {
+    position:absolute; bottom:12%; left:50%; transform:translateX(-50%);
+    color:#e2c079; font-size:2rem; font-family:'Ma Shan Zheng',cursive;
+    text-shadow:0 0 15px rgba(226,192,121,0.8); z-index:20;
+    pointer-events:none; transition:opacity 0.5s; animation:breath 2s infinite alternate;
+    white-space:nowrap;
+}
+@keyframes breath {
+    from { opacity:0.6; text-shadow:0 0 5px rgba(226,192,121,0.3); }
+    to { opacity:1; text-shadow:0 0 25px rgba(226,192,121,0.9); }
+}
+
+/* ========== 叩门 ========== */
+#knock-point { position:absolute; top:50%;left:50%; transform:translate(-50%,-50%); width:86px;height:86px; z-index:30; display:flex; align-items:center;justify-content:center; cursor:pointer; }
+.knock-pulse { position:absolute; width:100%;height:100%; background:rgba(226,192,121,0.4); border-radius:50%; animation:pulse 1.5s infinite ease-out; }
+.knock-text { position:relative; color:#fff; font-family:'Ma Shan Zheng',cursive; font-size:2rem; text-shadow:0 0 8px #000; }
+@keyframes pulse { 0%{transform:scale(0.8);opacity:1;border:2px solid #e2c079;} 100%{transform:scale(2.5);opacity:0;border:2px solid transparent;} }
+
+/* ========== 场景基础 ========== */
+.scene-layer {
+    position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 5; opacity: 0; transition: opacity 0.8s ease;
+}
+.scene-layer.scene-active { opacity: 1; z-index: 40; }
+.scene-bg { width: 100%; height: 100%; object-fit: cover; pointer-events: none; position: absolute; top: 0; left: 0; }
+.scene-dark { background: #0a0505; }
+
+/* 视差 */
+.parallax-bg { width:100%;height:100%;overflow:hidden;transition:transform 0.15s ease-out;will-change:transform; }
+.inner-bg { width:100%;height:100%;object-fit:cover;pointer-events:none; }
+
+/* 场景进出动画 */
+.exit-up { animation: exitUp 0.5s forwards; }
+.exit-down { animation: exitDown 0.5s forwards; }
+.enter-from-below { animation: enterFromBelow 0.8s ease-out; }
+.enter-from-above { animation: enterFromAbove 0.8s ease-out; }
+
+@keyframes exitUp { to { transform: translateY(-100%); opacity: 0; } }
+@keyframes exitDown { to { transform: translateY(100%); opacity: 0; } }
+@keyframes enterFromBelow { from { transform: translateY(50%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes enterFromAbove { from { transform: translateY(-50%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* 翻转效果 */
+#entrance-container { transform-style: preserve-3d; }
+
+/* ========== 热区标识 ========== */
+.hotzone-container { position:absolute; top:0;left:0; width:100%;height:100%; pointer-events:none; }
+.hotzone {
+    position:absolute; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    pointer-events:auto; cursor:pointer; text-decoration:none; transition:all 0.4s ease;
+}
+.hotzone:hover { filter:brightness(1.15); }
+
+.hz-beacon {
+    position: relative;
+    width: 46px; height: 46px; border-radius: 50%;
+    background: rgba(226,192,121,0.15);
+    border: 2px solid rgba(226,192,121,0.6);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+    box-shadow: 0 0 20px rgba(226,192,121,0.3);
+}
+.hz-beacon::before {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    border: 2px solid rgba(226,192,121,0.5);
+    animation: hzKnockPulse 1.6s infinite ease-out;
+}
+.hz-beacon::after {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    border: 2px solid rgba(226,192,121,0.3);
+    animation: hzKnockPulse 1.6s 0.4s infinite ease-out;
+}
+.beacon-sm { width: 36px; height: 36px; }
+
+/* 寿台 / 禄台 / 福台：三层楼主页热区（须包含二层，且相对默认 46px 明显缩小才看得见） */
+.hz-floor1 .hz-beacon,
+.hz-floor2 .hz-beacon,
+.hz-floor3 .hz-beacon {
+    width: 34px;
+    height: 34px;
+}
+
+/* 阅是楼入口*/
+.hz-yueshilou .hz-beacon.beacon-sm {
+    width: 30px;
+    height: 30px;
+}
+.hz-beacon i {
+    color: #fff;
+    font-size: 0.82rem;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.75);
+    position: relative;
+    z-index: 1;
+    line-height: 1;
+}
+
+@keyframes hzKnockPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+.hz-label {
+    color:#fff; font-family:'Ma Shan Zheng',cursive; font-size:1.2rem;
+    text-shadow:0 3px 10px rgba(0,0,0,0.9); letter-spacing:2px;
+    opacity:0.85; transition:all 0.3s;
+}
+.hotzone:hover .hz-label { opacity:1; color:#e2c079; text-shadow:0 0 20px rgba(226,192,121,0.8); }
+.hotzone:hover .hz-beacon {
+    background: rgba(226,192,121,0.3); border-color: #e2c079;
+    box-shadow: 0 0 40px rgba(226,192,121,0.7);
+    transform: scale(1.15);
+}
+.hotzone:hover .hz-beacon::before,
+.hotzone:hover .hz-beacon::after { animation-duration: 1s; }
+
+/* ========== 主页热区位置 ========== */
+.hz-floor1 { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.hz-floor2 { top: 37.5%; left: 50%; transform: translate(-50%, -50%); }
+.hz-floor3 { top: 25%; left: 50%; transform: translate(-50%, -50%); }
+.hz-yueshilou { bottom: 8%; left: 50%; transform: translateX(-50%); }
+.hz-dongwei { top: 48%; left: 4%; }
+.hz-xiwei { top: 52%; right: 6%; }
+
+/* ========== 一层元素 ========== */
+.floor1-substage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.floor1-enter-knock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 176px;
+    width: auto;
+    height: 100px;
+    padding: 0 18px;
+    box-sizing: border-box;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.floor1-enter-knock .knock-text {
+    white-space: nowrap;
+    font-size: 1.75rem;
+    letter-spacing: 0.02em;
+}
+
+.floor1-xizhezi {
+    position: absolute;
+    left: 50%;
+    top: 62%;
+    transform: translate(-50%, -50%);
+    width: min(9vw, 82px);
+    height: auto;
+    z-index: 28;
+    cursor: pointer;
+    transition: filter 0.35s ease, transform 0.35s ease;
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+    transform-origin: center center;
+}
+
+.floor1-xizhezi:hover {
+    filter:
+        drop-shadow(0 0 26px rgba(255, 230, 180, 0.95))
+        drop-shadow(0 0 42px rgba(212, 175, 55, 0.55))
+        brightness(1.1);
+    transform: translate(-50%, -50%) scale(1.04);
+}
+
+.floor1-xizhezi-hidden {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.floor1-xizhezi-unfolding {
+    animation: floor1XizheziUnfold 0.88s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
+    z-index: 200;
+}
+
+@keyframes floor1XizheziUnfold {
+    0% {
+        transform: translate(-50%, -50%) scale(1) rotateZ(0deg);
+        opacity: 1;
+        filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+    }
+    35% {
+        transform: translate(-50%, -50%) scale(1.2) rotateZ(-6deg);
+        filter:
+            drop-shadow(0 0 28px rgba(255, 240, 200, 0.75))
+            brightness(1.12);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.15) rotateZ(4deg);
+        opacity: 0;
+        filter: drop-shadow(0 0 40px rgba(255, 230, 200, 0.5));
+    }
+}
+
+.floor1-xizhezi-appear {
+    animation: floor1XizheziAppear 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes floor1XizheziAppear {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.72);
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+    }
+}
+
+.floor1-actor1 {
+    position: absolute; bottom: 0%; right: 15%;
+    height: 55%; width: auto; object-fit: contain;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.7));
+    pointer-events: none;
+}
+.floor1-actor2 {
+    position: absolute;
+    bottom: 0.1%;
+    right: 50%;
+    height: 55%;
+    width: 45%;
+    object-fit: contain;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.7));
+    pointer-events: none;
+}
+
+.floor1-table {
+    position: absolute;
+    bottom: 10%; 
+    left: 37%;
+    width: 25%; 
+    height: auto;
+    z-index: 25; /* 层级：在背景之上(5)，在名伶(45)之下，形成前后遮挡 */
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); /* 加上阴影更有立体感 */
+    pointer-events: none; /* 如果桌子不需要点击，设为 none 防止遮挡后面的点击 */
+}
+
+/* 一层 · 展开时背景微暗（在弹窗之下） */
+.floor1-book-dim {
+    position: fixed;
+    inset: 0;
+    z-index: 200045;
+    background: rgba(6, 3, 2, 0.48);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+    pointer-events: none;
+}
+
+.floor1-book-dim.open {
+    opacity: 1;
+    /* 挡住寿台背景与底部场景按钮；全局小梨/导航/BGM 在 site.css 中 z-index 更高 */
+    pointer-events: auto;
+}
+
+/* 一层 · 戏折子：菜单态外框与 book_window 图一致，关闭在图内；内嵌态单独加大 */
+.floor1-book-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.98);
+    z-index: 200050;
+    width: fit-content;
+    height: fit-content;
+    max-width: min(88vw, calc(88vh * 16 / 10));
+    max-height: 88vh;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    box-shadow: none;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease,
+        width 0.2s ease, height 0.2s ease, max-width 0.2s ease, max-height 0.2s ease;
+}
+
+/* 点击三个按钮后：内嵌页尽量大 */
+.floor1-book-modal.floor1-book-modal--embed {
+    width: 96vw;
+    height: 96vh;
+    max-width: 96vw;
+    max-height: 96vh;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+.floor1-book-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+    display: flex;
+}
+
+.floor1-book-modal.is-closing {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.92);
+    transition: transform 0.42s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.36s ease;
+}
+
+/* 关闭键始终在 book_window 图内 */
+.floor1-book-frame .floor1-book-close {
+    position: absolute;
+    top: 4.5%;
+    right: 5%;
+    z-index: 6;
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+    border-radius: 10px;
+    background: rgba(42, 30, 20, 0.42);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: rgba(255, 250, 240, 0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.floor1-book-frame .floor1-book-close:hover {
+    background: rgba(90, 40, 35, 0.55);
+    border-color: rgba(226, 192, 121, 0.55);
+    color: #fff8ee;
+}
+
+.floor1-book-menu {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floor1-book-frame {
+    position: relative;
+    box-sizing: border-box;
+    /* 略缩小，与留白更协调 */
+    width: min(76vw, calc(78vh * 16 / 10));
+    max-width: 90vw;
+    aspect-ratio: 16 / 10;
+    max-height: min(78vh, calc(90vw * 10 / 16));
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 18px 44px rgba(0, 0, 0, 0.58));
+}
+
+
+.floor1-book-artlines {
+    gap: 1.25em;
+}
+
+/* 1. 容器铺满整本书，取消原来的居中和 flex */
+.floor1-book-actions {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: none; /* 取消原来的居中位移 */
+    display: block; /* 取消原来的 flex 布局 */
+}
+
+/* 2. 按钮开启“古籍”竖排模式 */
+.floor1-book-line {
+    position: absolute;
+    writing-mode: vertical-rl; /* 核心：文字从上到下，行从右向左 */
+    top: 25%; /* 离书本顶部的距离，控制整体偏上还是偏下 */
+    height: 50%; /* 限制文字整体的高度区域 */
+    width: auto;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(1.8rem, 4.5vw, 2.5rem); /* 竖排字体稍微调小一点更秀气 */
+    letter-spacing: 0.4em; /* 竖排时的字间距（上下间距） */
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: #4a2e1a;
+    cursor: pointer;
+    text-shadow: 0 1px 0 rgba(255, 248, 235, 0.45), 0 2px 4px rgba(40, 22, 12, 0.35);
+    transition: color 0.35s ease, text-shadow 0.4s ease, filter 0.4s ease, transform 0.3s ease;
+}
+
+    /* 3. 精准定位：右边两个，左边一个 */
+    /* 第一个按钮：探索剧种 */
+    .floor1-book-line:nth-child(1) {
+        right: 25%; /* 放在右页的最右侧 */
+    }
+
+    /* 第二个按钮：品鉴剧目 */
+    .floor1-book-line:nth-child(2) {
+        right: 35%; /* 放在右页的偏左侧，靠近书脊 */
+    }
+
+    /* 第三个按钮：名家风采 */
+    .floor1-book-line:nth-child(3) {
+        left: 34%; /* 越过书脊，放在左侧页面的中心 */
+    }
+
+    /* 悬停特效（保留原有的发光效果） */
+    .floor1-book-line:hover,
+    .floor1-book-line:focus-visible {
+        color: #6b241c;
+        outline: none;
+        transform: scale(1.045);
+        text-shadow: 0 0 10px rgba(255, 236, 200, 0.95), 0 0 26px rgba(212, 175, 55, 0.75), 0 0 48px rgba(212, 175, 55, 0.4), 0 0 2px rgba(158, 42, 47, 0.35), 0 1px 0 rgba(255, 248, 235, 0.5);
+        filter: drop-shadow(0 0 12px rgba(255, 224, 160, 0.85));
+    }
+
+
+.floor1-book-embed-wrap {
+    display: none;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.32);
+    background: #120e0a;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+}
+
+.floor1-book-close-embed {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 8;
+}
+
+.floor1-book-iframe {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #1a1510;
+}
+
+/* ========== 二层元素 ========== */
+/* 禄台 ·「查看」= 叩门同款 100×100；「进入内部」保持寿台宽幅；二者整体下移约 1/4 视口高 */
+.floor2-view-knock {
+    position: absolute;
+    top: calc(12.5% + 25vh);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 62px;
+    height: 62px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.floor2-view-knock .knock-text {
+    font-size: 1.45rem;
+}
+.floor2-enter-inner-knock {
+    top: calc(50% + 25vh);
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 禄台 · 牌扁弹窗 */
+.floor2-paibian-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200040;
+    background: rgba(6, 3, 2, 0.72);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+.floor2-paibian-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.floor2-paibian-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.94);
+    z-index: 200045;
+    max-width: min(92vw, 1200px);
+    max-height: 88vh;
+    padding: 0;
+    margin: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.65));
+}
+.floor2-paibian-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+    display: flex;
+}
+.floor2-paibian-img {
+    display: block;
+    max-width: min(92vw, 1200px);
+    max-height: 82vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 6px;
+}
+.floor2-paibian-close {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    z-index: 2;
+    width: 40px;
+    height: 40px;
+}
+
+/* ========== 三层 福台 · 背景铺满视口（底部导航浮在图上，避免出现大块渐变留白） ========== */
+.scene-floor3-layer {
+    background: #0a0605;
+}
+.floor3-bg-frame {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+    transition: transform 0.15s ease-out;
+    will-change: transform;
+}
+.floor3-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    filter: drop-shadow(0 8px 28px rgba(0, 0, 0, 0.55));
+}
+#floor3-outer {
+    z-index: 2;
+}
+.floor3-paibian-knock {
+    top: calc(38% + 110vh / 3);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 36;
+    pointer-events: auto;
+}
+/* 与「查看」同款叩门；水平方向再向右约 1/4 视口 */
+.floor3-more-theaters-knock {
+    right: 20% !important;
+    top: 60% !important;
+}
+.floor3-more-theaters-knock .knock-text {
+    font-size: 1.28rem;
+    white-space: nowrap;
+}
+
+.floor3-scrolls-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200050;
+    background: rgba(4, 2, 1, 0.82);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+.floor3-scrolls-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.floor3-scrolls-modal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.96);
+    z-index: 200055;
+    width: min(96vw, 1100px);
+    max-height: 88vh;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.75));
+}
+.floor3-scrolls-modal.open {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+}
+.floor3-scrolls-inner {
+    position: relative;
+    background: linear-gradient(180deg, #2a2218 0%, #1a1410 100%);
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    border-radius: 14px;
+    padding: 28px 22px 24px;
+    overflow: hidden auto;
+    max-height: 88vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.floor3-scrolls-close {
+    top: 10px;
+    right: 10px;
+}
+.floor3-scrolls-heading {
+    font-family: 'Ma Shan Zheng', cursive;
+    color: #e8d4a8;
+    font-size: 1.75rem;
+    text-align: center;
+    margin: 0 0 8px;
+    letter-spacing: 0.12em;
+}
+.floor3-scrolls-sub {
+    text-align: center;
+    color: rgba(245, 230, 200, 0.55);
+    font-size: 0.88rem;
+    margin: 0 0 22px;
+}
+.floor3-scrolls-loading,
+.floor3-scrolls-empty {
+    text-align: center;
+    color: rgba(245, 230, 200, 0.5);
+    padding: 20px;
+}
+/* 分区：一摞卷轴隐喻 — 点击后「取出」该摞下的戏楼列表 */
+.floor3-blinds-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    justify-content: center;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+.floor3-blind-tab {
+    flex: 0 1 auto;
+    min-width: 112px;
+    max-width: 200px;
+    border: none;
+    padding: 0 4px 4px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 10px;
+    transition: transform 0.28s cubic-bezier(0.25, 1, 0.45, 1), filter 0.25s ease;
+}
+.floor3-blind-tab:focus-visible {
+    outline: 2px solid rgba(226, 192, 121, 0.9);
+    outline-offset: 3px;
+}
+.floor3-blind-tab:hover {
+    transform: translateY(-3px);
+}
+.floor3-blind-tab:hover .floor3-scroll-stack__roll--front {
+    transform: translateY(3px) rotate(-1deg);
+}
+.floor3-blind-face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 64px;
+    padding: 10px 14px 12px;
+    border-radius: 10px;
+    background: linear-gradient(165deg, #453830 0%, #2a2218 55%, #1a1510 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        inset 0 -2px 8px rgba(0, 0, 0, 0.35),
+        0 6px 18px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(72, 58, 44, 0.9);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.45, 1);
+}
+.floor3-blind-tab--active .floor3-blind-face {
+    border-color: rgba(226, 192, 121, 0.85);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 0 0 2px rgba(212, 175, 55, 0.45),
+        0 10px 26px rgba(0, 0, 0, 0.55);
+    transform: translateY(2px);
+}
+.floor3-blind-tab--active .floor3-scroll-stack__roll--back {
+    transform: translateY(-5px) rotate(-5deg) scale(0.92);
+    opacity: 0.75;
+}
+.floor3-blind-tab--active .floor3-scroll-stack__roll--mid {
+    transform: translateY(1px) rotate(2deg);
+}
+.floor3-blind-tab--active .floor3-scroll-stack__roll--front {
+    transform: translateY(8px) rotate(-2deg) scale(1.04);
+}
+.floor3-scroll-stack {
+    position: relative;
+    width: 76px;
+    height: 52px;
+    flex-shrink: 0;
+}
+.floor3-scroll-stack__roll {
+    position: absolute;
+    left: 50%;
+    width: 70px;
+    height: 15px;
+    margin-left: -35px;
+    border-radius: 8px;
+    background: linear-gradient(
+        180deg,
+        #9a8065 0%,
+        #6e5844 35%,
+        #4a3a2c 70%,
+        #3d3026 100%
+    );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.45),
+        0 3px 6px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(30, 22, 16, 0.65);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.45, 1), opacity 0.35s ease;
+}
+.floor3-scroll-stack__roll::after {
+    content: '';
+    position: absolute;
+    inset: 3px 8px 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, transparent, rgba(245, 230, 200, 0.12) 50%, transparent);
+    pointer-events: none;
+}
+.floor3-scroll-stack__roll--back {
+    top: 2px;
+    transform: rotate(-4deg) scale(0.92);
+    z-index: 1;
+    opacity: 0.88;
+}
+.floor3-scroll-stack__roll--mid {
+    top: 14px;
+    transform: rotate(2.5deg);
+    z-index: 2;
+    width: 74px;
+    margin-left: -37px;
+}
+.floor3-scroll-stack__roll--front {
+    top: 26px;
+    transform: rotate(-1.5deg);
+    z-index: 3;
+}
+.floor3-blind-tab__label {
+    display: block;
+    margin-top: 9px;
+    padding: 0 2px;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.08rem;
+    line-height: 1.28;
+    color: #f2e6d0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* 选中分区后：独立展开区（全宽），戏楼卡片高对比易读 */
+.floor3-region-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-top: 0;
+    padding: 0 4px;
+    transition: max-height 0.55s cubic-bezier(0.25, 1, 0.45, 1), opacity 0.4s ease, margin-top 0.35s ease;
+}
+.floor3-region-panel--open {
+    max-height: min(50vh, 520px);
+    opacity: 1;
+    margin-top: 16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    animation: floor3RegionIn 0.5s cubic-bezier(0.25, 1, 0.45, 1) both;
+}
+@keyframes floor3RegionIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+.floor3-region-panel__head {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.4rem;
+    color: #f5e6c8;
+    text-align: center;
+    margin: 0 0 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.28);
+    letter-spacing: 0.08em;
+}
+.floor3-region-panel__empty {
+    text-align: center;
+    color: rgba(245, 230, 200, 0.55);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin: 12px 8px 20px;
+}
+/* 列表：戏台名在卷轴上方；左右落地木轴 + 中间较宽卷面 */
+.floor3-pick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px 16px;
+    padding: 6px 2px 14px;
+    justify-items: center;
+}
+@keyframes floor3JzPickIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.94);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+.floor3-region-panel--open .floor3-stage-pick {
+    animation: floor3JzPickIn 0.55s cubic-bezier(0.25, 1, 0.45, 1) both;
+    animation-delay: calc(0.05s * min(var(--floor3-pick-i, 0), 14));
+}
+.floor3-stage-pick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    width: 100%;
+    max-width: 288px;
+    padding: 8px 6px 14px;
+    margin: 0;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.48));
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.45, 1), filter 0.3s ease;
+}
+.floor3-stage-pick:hover {
+    transform: translateY(-5px);
+    filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.55));
+}
+.floor3-stage-pick:focus-visible {
+    outline: 2px solid rgba(226, 192, 121, 0.95);
+    outline-offset: 4px;
+    border-radius: 14px;
+}
+.floor3-stage-pick__name {
+    display: block;
+    width: 100%;
+    padding: 6px 10px 4px;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.38rem;
+    line-height: 1.35;
+    color: #f8ecd8;
+    text-align: center;
+    text-shadow:
+        0 0 12px rgba(0, 0, 0, 0.85),
+        0 2px 4px rgba(0, 0, 0, 0.9);
+    letter-spacing: 0.06em;
+}
+.floor3-stage-pick__closed {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+}
+.floor3-stage-pick__knob {
+    width: 26px;
+    flex-shrink: 0;
+    border-radius: 13px;
+    min-height: 108px;
+    background: linear-gradient(
+        90deg,
+        #0f0805 0%,
+        #3a2214 24%,
+        #6e4424 50%,
+        #3a2214 76%,
+        #0c0604 100%
+    );
+    box-shadow:
+        inset 5px 0 9px rgba(255, 230, 200, 0.12),
+        inset -5px 0 10px rgba(0, 0, 0, 0.55),
+        2px 0 8px rgba(0, 0, 0, 0.4);
+    position: relative;
+    align-self: stretch;
+}
+.floor3-stage-pick__knob--right {
+    box-shadow:
+        inset -5px 0 9px rgba(255, 230, 200, 0.1),
+        inset 5px 0 10px rgba(0, 0, 0, 0.55),
+        -2px 0 8px rgba(0, 0, 0, 0.4);
+}
+.floor3-stage-pick__knob::before,
+.floor3-stage-pick__knob::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    margin-left: -15px;
+    width: 30px;
+    height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 20%, #7a5030, #2a1810 78%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+}
+.floor3-stage-pick__knob::before {
+    top: -3px;
+}
+.floor3-stage-pick__knob::after {
+    bottom: -3px;
+}
+.floor3-stage-pick__roll {
+    flex: 1 1 auto;
+    min-width: 46px;
+    max-width: 56px;
+    min-height: 100px;
+    margin: 0 -7px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(55, 40, 30, 0.28) 0 2px,
+            transparent 2px 5px
+        ),
+        linear-gradient(90deg, #d2bc98 0%, #efe4d0 38%, #faf6ec 50%, #e8dcc8 62%, #b89870 100%);
+    box-shadow:
+        inset 0 0 0 1px rgba(45, 30, 20, 0.5),
+        inset 3px 0 6px rgba(255, 255, 255, 0.22),
+        inset -4px 0 8px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(40, 26, 18, 0.48);
+}
+
+/* 详情：左右木轴 + 卷面横向从中间展开 */
+
+/* 1. 弹窗主容器：调整最大比例，留出空隙 */
+#floor3-stage-detail {
+    width: fit-content !important;
+    height: fit-content !important;
+    max-width: 85vw !important; /* 从 95% 降至 85%，避免显得框架太大 */
+    max-height: 90vh !important;
+    background: #1a1510;
+    border: 1px solid rgba(226, 192, 121, 0.4);
+    border-radius: 12px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    overflow: hidden; /* 确保内部内容不溢出 */
+    z-index: 10001;
+}
+
+/* 2. 内部包装层：确保 Header 和 Body 垂直排列 */
+#floor3-stage-detail-inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* 3. 详情内容区：专门处理图片和文字的居中 */
+#floor3-stage-detail .floor3-unroll__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 关键：水平居中所有内部元素 */
+    padding: 20px;
+    background: transparent;
+}
+
+/* 4. 图片样式：自适应且保持比例 */
+#floor3-stage-detail-img {
+    display: block;
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 60vh !important; /* 给下方文字留出足够空间 */
+    object-fit: contain;
+    margin-bottom: 20px; /* 图片与标题的间距 */
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+/* 5. 标题与简介：修正偏左问题 */
+#floor3-stage-detail-name {
+    color: #000;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.8rem;
+    margin: 0 0 15px 0;
+    text-align: center; /* 强制文字居中 */
+    width: 100%;
+}
+
+#floor3-stage-detail-intro {
+    color: rgba(0, 0, 0, 0.55);
+    font-size: 1rem;
+    line-height: 1.6;
+    text-align: justify; /* 简介建议左右对齐，但在容器内居中展示 */
+    max-width: 600px; /* 限制文字宽度，阅读更舒适 */
+    margin: 0 auto; /* 块级居中 */
+    opacity: 0.9;
+}
+
+/* 6. 恢复返回/关闭按钮的可见性 */
+/* 确保 Header 始终在顶部且不被挤压 */
+#floor3-stage-detail .floor3-unroll__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(226, 192, 121, 0.2);
+    background: rgba(40, 30, 20, 0.95);
+}
+
+/* 如果你的返回按钮是类似 .fenmo-close 的类名 */
+#floor3-stage-detail .fenmo-close {
+    position: relative !important; /* 取消绝对定位干扰 */
+    right: 0 !important;
+    top: 0 !important;
+    color: #e2c079;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.floor3-unroll {
+    --floor3-sheet-w: min(920px, calc(100vw - 24px - 120px));
+    --floor3-roller-w: 56px;
+    position: fixed;
+    inset: 0;
+    z-index: 200082;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: max(10px, env(safe-area-inset-top)) 8px max(14px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    pointer-events: none;
+}
+.floor3-unroll.floor3-unroll--open,
+.floor3-unroll.floor3-unroll--closing {
+    pointer-events: auto;
+}
+.floor3-unroll__row {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    max-width: calc(100vw - 16px);
+    filter: drop-shadow(0 32px 64px rgba(0, 0, 0, 0.88));
+}
+.floor3-unroll__roller {
+    position: relative;
+    width: var(--floor3-roller-w);
+    flex-shrink: 0;
+    align-self: stretch;
+    min-height: min(480px, 62vh);
+    border-radius: calc(var(--floor3-roller-w) / 2);
+    background: linear-gradient(
+        90deg,
+        #060302 0%,
+        #1c1008 8%,
+        #3d2414 28%,
+        #6b3e1c 45%,
+        #8f5428 50%,
+        #6b3e1c 55%,
+        #3d2414 72%,
+        #1a0e06 92%,
+        #040201 100%
+    );
+    box-shadow:
+        inset 9px 0 14px rgba(255, 235, 200, 0.14),
+        inset -11px 0 18px rgba(0, 0, 0, 0.72),
+        6px 0 16px rgba(0, 0, 0, 0.45),
+        -4px 0 12px rgba(0, 0, 0, 0.3);
+    z-index: 3;
+}
+.floor3-unroll__roller::before,
+.floor3-unroll__roller::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    margin-left: -28px;
+    width: 56px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 28%, #9a663c, #5a3418 62%, #140a06);
+    box-shadow:
+        inset 0 2px 5px rgba(255, 255, 255, 0.12),
+        0 4px 10px rgba(0, 0, 0, 0.55);
+}
+.floor3-unroll__roller::before {
+    top: -7px;
+}
+.floor3-unroll__roller::after {
+    bottom: -7px;
+}
+.floor3-unroll__roller--left {
+    margin-right: -18px;
+}
+.floor3-unroll__roller--right {
+    margin-left: -18px;
+}
+.floor3-unroll__sheet-wrap {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    z-index: 2;
+    min-width: 0;
+    align-self: stretch;
+}
+.floor3-unroll__sheet {
+    width: 0;
+    min-width: 0;
+    max-width: var(--floor3-sheet-w);
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    transition: width 0.72s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.floor3-unroll--open .floor3-unroll__sheet {
+    width: var(--floor3-sheet-w);
+}
+.floor3-unroll--closing .floor3-unroll__sheet {
+    width: 0 !important;
+    transition: width 0.58s cubic-bezier(0.45, 0, 0.55, 1);
+}
+.floor3-unroll__inner {
+    flex-shrink: 0;
+    width: var(--floor3-sheet-w);
+    box-sizing: border-box;
+    min-height: min(480px, 62vh);
+    padding: 44px 36px 32px;
+    position: relative;
+    border-radius: 3px;
+    background-color: #4a3228;
+    background-image:
+        linear-gradient(90deg, transparent 48.5%, rgba(62, 42, 30, 0.14) 49.7%, rgba(42, 28, 20, 0.1) 50%, rgba(62, 42, 30, 0.14) 50.3%, transparent 51.5%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 6%, transparent 94%, rgba(0, 0, 0, 0.12) 100%),
+        repeating-linear-gradient(0deg, transparent 0 11px, rgba(120, 90, 60, 0.04) 11px 12px),
+        linear-gradient(165deg, #fffdf8 0%, #f7ecd8 38%, #efe2cc 72%, #e5d6bc 100%),
+        linear-gradient(
+            90deg,
+            #2a1410 0%,
+            #5a2820 5%,
+            #7a3830 9%,
+            #4a2018 14%,
+            #2a100c 18%,
+            #2a100c 82%,
+            #4a2018 86%,
+            #7a3830 91%,
+            #5a2820 95%,
+            #2a1410 100%
+        );
+    background-size:
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        calc(100% - 36px) calc(100% - 28px),
+        100% 100%;
+    background-position: center, center, center, center, center;
+    background-repeat: no-repeat;
+    box-shadow:
+        inset 0 0 0 2px rgba(180, 140, 90, 0.35),
+        inset 0 0 0 10px rgba(248, 240, 224, 0.12),
+        inset 0 0 0 14px rgba(90, 50, 40, 0.25),
+        0 0 0 1px rgba(20, 10, 6, 0.6);
+}
+.floor3-unroll__inner::before {
+    content: '';
+    position: absolute;
+    inset: 20px 28px 18px;
+    border-radius: 6px;
+    pointer-events: none;
+    box-shadow:
+        inset 0 0 0 1px rgba(110, 70, 45, 0.22),
+        inset 0 0 40px rgba(139, 100, 50, 0.06);
+}
+.floor3-unroll__close {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    z-index: 5;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: rgba(32, 22, 14, 0.72);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    color: #f8ecd8;
+    backdrop-filter: blur(5px);
+    font-size: 1.05rem;
+}
+.floor3-unroll__close:hover {
+    background: rgba(105, 40, 36, 0.82);
+    color: #fff;
+}
+.floor3-unroll__content {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(255, 254, 250, 0.97), rgba(250, 242, 228, 0.99));
+    border: 1px solid rgba(95, 70, 45, 0.38);
+    border-radius: 14px;
+    padding: 22px 24px 26px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        0 6px 28px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(5px);
+    transition:
+        opacity 0.5s ease 0.4s,
+        transform 0.58s cubic-bezier(0.25, 1, 0.45, 1) 0.4s,
+        filter 0.48s ease 0.4s;
+}
+.floor3-unroll--open .floor3-unroll__content {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+}
+.floor3-unroll--closing .floor3-unroll__content {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(4px);
+    transition: opacity 0.22s ease, transform 0.26s ease, filter 0.22s ease;
+}
+.floor3-unroll__img {
+    display: block;
+    width: 100%;
+    max-height: min(42vh, 320px);
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 0 auto 16px;
+    border: 1px solid rgba(90, 58, 26, 0.42);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+.floor3-unroll__title {
+    font-family: 'Ma Shan Zheng', cursive;
+    color: #2e1c12;
+    font-size: clamp(1.65rem, 3.2vw, 2.1rem);
+    margin: 0 0 14px;
+    text-align: center;
+    line-height: 1.25;
+}
+.floor3-unroll__intro {
+    font-size: 1rem;
+    color: #342a22;
+    line-height: 1.8;
+    margin: 0;
+    white-space: pre-wrap;
+    max-height: min(38vh, 300px);
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* =========================================
+   二层禄台 热点按钮
+   ========================================= */
+
+.floor2-roof-seal-btn {
+    position: absolute;
+    top: 16%;
+    transform: translate(-50%, 0);
+    z-index: 30;
+    width: 80px;
+    height: 220px; /* 进一步拉长，给长流苏留出空间 */
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    transform-origin: top center; 
+    transition: transform 0.4s ease;
+}
+
+    .floor2-roof-seal-btn:focus-visible {
+        outline: none;
+    }
+
+    /* 1. 红绳*/
+    .floor2-roof-seal-btn::before {
+        content: '';
+        width: 9px;
+        height: 100px;
+        background: #7a1518;
+        box-shadow: 1px 0 2px rgba(0,0,0,0.5);
+    }
+
+/* 2. 圆形红灯笼本体 */
+.floor2-roof-seal-icon {
+    position: relative;
+    width: 150px;
+    height: 180px; 
+    background: rgba(300, 40, 40, 0.85); /* 熄灭时：清晰的暗朱红色，不再黑乎乎 */
+    border: 1px solid #7a1518;
+    border-radius: 45% 45% 45% 45% / 50% 50% 50% 50%;
+    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.3), /* 熄灭时的立体阴影 */
+    0 4px 8px rgba(0,0,0,0.4);
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+    /* 灯笼上下两端的金箔封边 */
+    .floor2-roof-seal-icon::before,
+    .floor2-roof-seal-icon::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 44px;
+        height: 4px;
+        background: #d4af37; /* 镏金材质 */
+        border-radius: 2px;
+        border: 1px solid #8b6914;
+    }
+
+    .floor2-roof-seal-icon::before {
+        top: -2px;
+    }
+
+    .floor2-roof-seal-icon::after {
+        bottom: -2px;
+    }
+
+/* 内部的图标*/
+.floor2-roof-seal-btn i {
+    font-size: 1.25rem !important;
+    color: rgba(255, 230, 180, 0.8) !important; /* 熄灭时呈现淡金色，清晰可见 */
+    transform: none !important;
+    transition: all 0.4s ease;
+}
+
+/* 3. 流苏  */
+.floor2-roof-seal-btn::after {
+    content: '';
+    width: 30px;
+    height: 120px; /* 加长流苏显得更飘逸 */
+    background: repeating-linear-gradient(90deg, #d4af37, #d4af37 1px, transparent 1px, transparent 2px);
+    opacity: 0.95;
+    transform-origin: top center; /* 流苏的摆动支点在连接处 */
+    animation: tasselBreeze 4s ease-in-out infinite; /* 平时的微风摇晃 */
+}
+
+/* ================= 悬停与动画物理 ================= */
+
+/* 主体灯笼的摇晃 */
+@keyframes lanternSwing {
+    0% {
+        transform: translate(-50%, 0) rotate(0deg);
+    }
+
+    25% {
+        transform: translate(-50%, 0) rotate(5deg);
+    }
+
+    50% {
+        transform: translate(-50%, 0) rotate(0deg);
+    }
+
+    75% {
+        transform: translate(-50%, 0) rotate(-5deg);
+    }
+
+    100% {
+        transform: translate(-50%, 0) rotate(0deg);
+    }
+}
+
+/* 流苏的惯性跟随（比灯笼摆度大一点点，营造丝线感） */
+@keyframes tasselFollow {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(10deg);
+    }
+
+    50% {
+        transform: rotate(0deg);
+    }
+
+    75% {
+        transform: rotate(-10deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* 没人碰时的微风流苏效果 */
+@keyframes tasselBreeze {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(4deg);
+    }
+}
+
+.floor2-roof-seal-btn:hover {
+    animation: lanternSwing 2.5s ease-in-out infinite;
+}
+
+    .floor2-roof-seal-btn:hover::after {
+        animation: tasselFollow 2.5s ease-in-out infinite;
+        animation-delay: 0.15s; /* 核心魔法：延迟 0.15 秒，产生物理惯性拖拽感 */
+    }
+
+    /* 悬停点亮效果 */
+    .floor2-roof-seal-btn:hover .floor2-roof-seal-icon {
+        background: rgba(220, 20, 20, 0.95); /* 瞬间点亮成明艳的大红灯笼 */
+        border-color: #ff4500;
+        box-shadow: inset 0 0 20px rgba(255, 180, 0, 0.8), /* 烛火内光 */
+        0 0 20px rgba(255, 60, 0, 0.8), /* 红色晕染 */
+        0 0 45px rgba(255, 40, 0, 0.5); /* 大范围照亮夜空 */
+    }
+
+    .floor2-roof-seal-btn:hover i {
+        color: #fff !important;
+        filter: drop-shadow(0 0 4px rgba(255,255,255,0.9));
+    }
+
+/* ================= 提示文字 ================= */
+.floor2-roof-seal-tooltip {
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translate(-50%, 10px);
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.35rem;
+    letter-spacing: 2px;
+    color: #fdfbf7;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.9), 0 0 15px rgba(255, 60, 0, 0.8);
+    transition: all 0.35s ease;
+}
+
+.floor2-roof-seal-btn:hover .floor2-roof-seal-tooltip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+/* ========== 阅是楼元素 ========== */
+.yueshilou-enter { top: 50%; left: 50%; transform: translate(-50%,-50%); }
+.yueshilou-view-knock {
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+/* 室内4个交互点  */
+.ysl-book { bottom: 20%; left: 48%; }       /* 书桌靠左 - 书 */
+.ysl-lamp { bottom: 28%; right: 32%; }      /* 书桌靠右 - 宫灯 */
+.ysl-screen { bottom: 35%; left: 15%; }     /* 桌子左边 - 屏风 */
+.ysl-cabinet { bottom: 35%; right: 15%; }   /* 桌子右边 - 百宝阁 */
+
+/* ========== 东/西围房 ========== */
+.dongwei-enter { top: 50%; left: 50%; transform: translate(-50%,-50%); }
+.xiwei-enter { top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+/* ========== 场景导航按钮 ========== */
+.scene-nav {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 15px; z-index: 50;
+}
+.scene-nav-btn {
+    position: relative;
+    background: rgba(30,20,15,0.8); backdrop-filter: blur(10px);
+    border: 2px solid rgba(226,192,121,0.5); color: #e2c079;
+    padding: 10px 24px; border-radius: 25px; cursor: pointer;
+    font-family: 'Ma Shan Zheng', cursive; font-size: 1rem;
+    transition: all 0.3s; white-space: nowrap;
+    box-shadow: 0 0 15px rgba(226,192,121,0.2);
+}
+.scene-nav-btn::before {
+    content: ''; position: absolute; inset: -3px; border-radius: 25px;
+    border: 1px solid rgba(226,192,121,0.3);
+    animation: navBtnPulse 2s infinite ease-out;
+}
+@keyframes navBtnPulse {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scaleX(1.08) scaleY(1.25); opacity: 0; }
+}
+.scene-nav-btn:hover {
+    background: rgba(158,42,47,0.85); border-color: #e2c079;
+    box-shadow: 0 5px 25px rgba(226,192,121,0.4);
+    color: #fff;
+}
+.scene-nav-btn i { margin-right: 5px; }
+
+/* ========== 过渡遮罩 ========== */
+.transition-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 999998; pointer-events: none; opacity: 0;
+    background: transparent;
+}
+.transition-overlay.active { opacity: 1; pointer-events: auto; }
+
+/* 全屏推进（外链跳转等，与闪光同节奏） */
+.trans-zoom-in { background: radial-gradient(circle at center, rgba(255,240,200,0.45) 0%, rgba(0,0,0,0.92) 72%); }
+.trans-zoom-in.active { animation: flashPulse 0.75s ease-out; }
+
+/* 闪光拉近 */
+.trans-flash { background: radial-gradient(circle at center, rgba(255,240,200,0.5) 0%, rgba(0,0,0,0.95) 70%); }
+.trans-flash.active { animation: flashPulse 0.75s ease-out; }
+@keyframes flashPulse {
+    0%   { opacity:0; }
+    25%  { opacity:1; }
+    100% { opacity:0; }
+}
+
+/* 帷幕从上到下 */
+.trans-curtain-down { background: #0a0505; }
+.trans-curtain-down.active { animation: curtainDown 1.1s ease-in-out; }
+@keyframes curtainDown {
+    0%   { clip-path: inset(0 0 100% 0); opacity:1; }
+    50%  { clip-path: inset(0 0 0% 0);   opacity:1; }
+    100% { clip-path: inset(0 0 0% 0);   opacity:0; }
+}
+
+/* 虹膜关闭+打开（缩回主页） */
+.trans-iris-close { background: #000; }
+.trans-iris-close.active { animation: irisClose 0.6s ease-in; animation-fill-mode: none; }
+@keyframes irisClose {
+    0%   { clip-path: circle(75% at 50% 50%); opacity:1; }
+    100% { clip-path: circle(0% at 50% 50%);  opacity:1; }
+}
+.trans-iris-open { background: #000; }
+.trans-iris-open.active { animation: irisOpen 0.7s ease-out; }
+@keyframes irisOpen {
+    0%   { clip-path: circle(0% at 50% 50%);  opacity:1; }
+    100% { clip-path: circle(80% at 50% 50%); opacity:0; }
+}
+
+/* 从上到下擦除（层间上行） */
+.trans-wipe-up { background: #0a0505; }
+.trans-wipe-up.active { animation: wipeUp 0.55s ease-in-out; }
+@keyframes wipeUp {
+    0%   { clip-path: inset(100% 0 0 0); opacity:1; }
+    50%  { clip-path: inset(0 0 0 0);    opacity:1; }
+    100% { clip-path: inset(0 0 0 0);    opacity:0; }
+}
+
+/* 从下到上擦除（层间下行） */
+.trans-wipe-down { background: #0a0505; }
+.trans-wipe-down.active { animation: wipeDown 0.55s ease-in-out; }
+@keyframes wipeDown {
+    0%   { clip-path: inset(0 0 100% 0); opacity:1; }
+    50%  { clip-path: inset(0 0 0 0);    opacity:1; }
+    100% { clip-path: inset(0 0 0 0);    opacity:0; }
+}
+
+/* 一层旁白已整合到小梨widget - 无需独立样式 */
+
+.theater-map-wrap { margin-bottom: 20px; display: flex; justify-content: center; }
+.theater-map-svg { width: 100%; max-width: 420px; height: auto; border-radius: 8px; border: 1px solid rgba(90,58,26,0.35); }
+
+/* 粉墨木牌 */
+.fenmo-plaque-grid { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+.fenmo-plaque {
+    position: relative; min-width: 100px; padding: 22px 18px; border: none; cursor: pointer;
+    background: none; font-family: 'Ma Shan Zheng', cursive;
+}
+.fenmo-plaque-wood {
+    position: absolute; inset: 0; border-radius: 6px;
+    background: linear-gradient(160deg, #6b4423 0%, #4a2c14 40%, #5c3d1e 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 6px 16px rgba(0,0,0,0.45);
+    border: 1px solid rgba(212,175,55,0.35);
+}
+.fenmo-plaque-text { position: relative; z-index: 1; color: #f5e6c8; font-size: 1.35rem; letter-spacing: 3px; text-shadow: 0 2px 4px #000; }
+.fenmo-plaque:hover .fenmo-plaque-wood { filter: brightness(1.08); }
+
+/* 剧目翻转卡 */
+.fenmo-flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.fenmo-flip { height: 200px; perspective: 900px; cursor: pointer; }
+.fenmo-flip-inner {
+    position: relative; width: 100%; height: 100%; transition: transform 0.65s ease;
+    transform-style: preserve-3d;
+}
+.fenmo-flip:hover .fenmo-flip-inner { transform: rotateY(180deg); }
+.fenmo-flip-face {
+    position: absolute; inset: 0; backface-visibility: hidden; border-radius: 10px;
+    border: 1px solid rgba(212,175,55,0.25); overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 10px; background: rgba(40,30,22,0.9);
+}
+.fenmo-flip-back { transform: rotateY(180deg); justify-content: center; }
+.fenmo-flip-front img { width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; }
+.fenmo-flip-front h4 { color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.05rem; margin: 0; text-align: center; }
+.fenmo-flip-back p { color: rgba(255,255,255,0.75); font-size: 0.78rem; line-height: 1.5; margin: 0 0 10px; text-align: center; }
+.fenmo-flip-hint { color: #d4af37; font-size: 0.72rem; }
+.fenmo-master-grid .fenmo-master-intro { color: rgba(255,255,255,0.55); font-size: 0.78rem; margin-top: 6px; line-height: 1.4; }
+
+/* ========== 阅是楼 · 通用居中弹窗 ========== */
+.generic-panel-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200000;
+    background: radial-gradient(ellipse 120% 100% at 50% 0%, rgba(35, 28, 18, 0.82) 0%, rgba(8, 5, 3, 0.88) 55%, rgba(5, 3, 2, 0.92) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+.generic-panel-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.generic-center-panel {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -48%) scale(0.96);
+    width: min(92vw, 820px); max-height: 88vh;
+    background:
+        linear-gradient(165deg, rgba(42, 32, 24, 0.98) 0%, rgba(18, 14, 10, 0.99) 45%, rgba(12, 9, 6, 1) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    border-radius: 20px;
+    z-index: 200001;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease, box-shadow 0.35s ease;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+        0 4px 24px rgba(0, 0, 0, 0.45),
+        0 28px 90px rgba(0, 0, 0, 0.55);
+}
+.generic-center-panel.open {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.generic-panel-head.fenmo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+    padding: 18px 22px 16px;
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.08) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35) inset;
+}
+#generic-panel-title {
+    margin: 0;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(1.15rem, 2.8vw, 1.45rem);
+    font-weight: 400;
+    color: #f0e4c8;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.generic-panel-head .fenmo-close {
+    width: auto;
+    min-width: 40px;
+    height: auto;
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    font-family: 'Ma Shan Zheng', cursive;
+    letter-spacing: 0.06em;
+}
+.generic-panel-body.fenmo-content {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 18px 22px 22px;
+    -webkit-overflow-scrolling: touch;
+}
+.generic-panel-body.fenmo-content::-webkit-scrollbar { width: 8px; }
+.generic-panel-body.fenmo-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+}
+.generic-panel-body.fenmo-content::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.35);
+    border-radius: 6px;
+}
+.generic-panel-body.fenmo-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.5);
+}
+
+.panel-placeholder {
+    text-align: center;
+    padding: 48px 24px;
+    color: rgba(232, 220, 200, 0.55);
+    font-size: 0.95rem;
+}
+
+/* 阅是楼 · 内嵌 iframe */
+.generic-panel-embed-wrap {
+    height: min(62vh, 520px);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.generic-panel-embed-wrap.generic-open { opacity: 1; transform: none; }
+.generic-embed-iframe { width: 100%; height: 100%; border: none; background: #1a1510; }
+
+/* 阅是楼 · 词云 / 信息流 / 表单 */
+.yueshilou-wordcloud {
+    min-height: 76px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    text-align: center;
+    line-height: 1.85;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(212, 175, 55, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.yueshilou-wordcloud .wc-tag {
+    display: inline-block;
+    margin: 4px 7px;
+    color: #e8d4a8;
+    font-family: 'Ma Shan Zheng', cursive;
+    opacity: 0.92;
+}
+.yueshilou-wordcloud .wc-empty {
+    display: block;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.38);
+    line-height: 1.55;
+    font-family: system-ui, sans-serif;
+}
+.yueshilou-panel-hint {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.42);
+    margin: 0 0 12px;
+    padding-left: 2px;
+    letter-spacing: 0.02em;
+}
+.yueshilou-feed {
+    max-height: 40vh;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    padding-right: 4px;
+}
+.yueshilou-feed::-webkit-scrollbar { width: 6px; }
+.yueshilou-feed::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 4px;
+}
+.yueshilou-feed-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 14px 4px 14px 0;
+}
+.yueshilou-feed-item:last-child { border-bottom: none; }
+.yueshilou-feed-item h4 {
+    color: #e8c878;
+    font-size: 1.02rem;
+    margin: 0 0 8px;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-weight: 400;
+}
+.yueshilou-feed-item p { color: rgba(255, 255, 255, 0.68); font-size: 0.86rem; margin: 0; line-height: 1.55; }
+.yueshilou-feed-meta { font-size: 0.74rem; color: rgba(255, 255, 255, 0.38); margin-top: 8px; }
+.yueshilou-react { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.yueshilou-react .scene-nav-btn {
+    padding: 7px 14px;
+    font-size: 0.82rem;
+    border-radius: 999px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    background: rgba(212, 175, 55, 0.08);
+}
+.yueshilou-react .scene-nav-btn:hover {
+    background: rgba(212, 175, 55, 0.18);
+    border-color: rgba(212, 175, 55, 0.5);
+}
+.yueshilou-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.yueshilou-select { width: 136px; }
+.checkin-map-title {
+    color: #d4af37;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.08rem;
+    margin: 0 0 12px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+.checkin-map-area { border-radius: 8px; overflow: hidden; }
+.yueshilou-media-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+.yueshilou-media-item {
+    width: 100%;
+    height: 92px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #111;
+}
+.yueshilou-media-list { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 10px; }
+.yueshilou-media-chip {
+    font-size: 0.72rem;
+    color: #d4af37;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 999px;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.3);
+}
+.yueshilou-comment-box {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(212, 175, 55, 0.1);
+}
+.yueshilou-comment-list { max-height: 132px; overflow-y: auto; margin-bottom: 10px; }
+.yueshilou-comment-item { color: rgba(255, 255, 255, 0.78); font-size: 0.8rem; margin-bottom: 8px; line-height: 1.45; }
+.yueshilou-comment-compose { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.yueshilou-form-block {
+    border-top: 1px solid rgba(212, 175, 55, 0.14);
+    margin-top: 8px;
+    padding-top: 18px;
+}
+.yueshilou-form-block h4 {
+    color: #d4af37;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.12rem;
+    margin: 0 0 12px;
+    font-weight: 400;
+}
+.yueshilou-form-block .scene-nav-btn {
+    margin-top: 6px;
+    border-radius: 999px;
+    padding: 10px 22px;
+}
+.yueshilou-input, .yueshilou-textarea {
+    width: 100%;
+    margin: 0 0 10px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    background: rgba(0, 0, 0, 0.32);
+    color: #f5e6c8;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+.yueshilou-input::placeholder, .yueshilou-textarea::placeholder {
+    color: rgba(245, 230, 200, 0.35);
+}
+.yueshilou-input:focus, .yueshilou-textarea:focus {
+    outline: none;
+    border-color: rgba(212, 175, 55, 0.45);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+}
+.yueshilou-textarea { min-height: 80px; resize: vertical; }
+
+/* ========== 三层卷轴 ========== */
+.scroll-panel {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scaleY(0);
+    width: 80%; max-width: 900px; max-height: 80vh;
+    transform-origin: top center;
+    transition: transform 0.8s cubic-bezier(0.25,1,0.5,1);
+    z-index: 50;
+}
+.scroll-panel.scroll-open { transform: translate(-50%, -50%) scaleY(1); }
+
+.scroll-rod-top, .scroll-rod-bottom {
+    height: 18px; background: linear-gradient(to right, #5a3a1a, #8b6914, #d4af37, #8b6914, #5a3a1a);
+    border-radius: 9px; box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+}
+.scroll-body {
+    background: linear-gradient(to bottom, #f5e6c8, #ede0c0, #f5e6c8);
+    padding: 30px 40px; max-height: 70vh; overflow-y: auto;
+    border-left: 3px solid #8b6914; border-right: 3px solid #8b6914;
+    box-shadow: inset 0 0 30px rgba(139,105,20,0.15);
+}
+.scroll-title {
+    font-family: 'Ma Shan Zheng', cursive; font-size: 2rem;
+    color: #5a3a1a; text-align: center; margin-bottom: 25px;
+    letter-spacing: 5px;
+}
+.theater-cards { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+.theater-card {
+    flex: 1; min-width: 220px; max-width: 280px;
+    background: #fff; border-radius: 12px; padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
+    transition: transform 0.3s;
+}
+.theater-card:hover { transform: translateY(-5px); }
+.theater-card-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
+.theater-card h3 { font-family: 'Ma Shan Zheng', cursive; color: #5a3a1a; font-size: 1.4rem; margin-bottom: 8px; }
+.theater-card p { font-size: 0.85rem; color: #666; line-height: 1.6; }
+
+/* ========== 嵌入式大窗口（粉墨博览 / 名家风采） ========== */
+.embed-modal-backdrop {
+    position: fixed; inset: 0; z-index: 200000;
+    background: rgba(5,3,2,0.7); backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s;
+}
+.embed-modal-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.embed-modal-panel {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: min(92vw, 1100px); height: min(88vh, 800px);
+    background: rgba(20,15,10,0.97); backdrop-filter: blur(20px);
+    border: 1px solid rgba(212,175,55,0.3); border-radius: 18px;
+    z-index: 200001; display: flex; flex-direction: column; overflow: hidden;
+    opacity: 0; pointer-events: none;
+    transition: transform 0.5s cubic-bezier(0.25,1,0.5,1), opacity 0.4s;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.7);
+}
+.embed-modal-panel.open {
+    opacity: 1; pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+}
+.embed-modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 24px; border-bottom: 1px solid rgba(212,175,55,0.2);
+    flex-shrink: 0;
+}
+.embed-modal-header h2 {
+    color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; margin: 0;
+}
+.embed-modal-body { flex: 1; min-height: 0; }
+
+.fenmo-close {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.fenmo-close:hover {
+    color: #f0e4c8;
+    background: rgba(212, 175, 55, 0.12);
+    border-color: rgba(212, 175, 55, 0.35);
+}
+.loading-text {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 48px 24px;
+    font-size: 0.95rem;
+}
+
+/* ===== 粉墨博览 - 剧种列表 ===== */
+.fm-cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.fm-cat-card {
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.15);
+    border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.35s;
+    overflow: hidden;
+}
+.fm-cat-card:hover { border-color: rgba(212,175,55,0.5); transform: translateY(-3px); box-shadow: 0 6px 25px rgba(212,175,55,0.12); }
+.fm-cat-card img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+.fm-cat-info h3 { color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.2rem; margin: 0 0 4px; }
+.fm-cat-info p { color: rgba(255,255,255,0.45); font-size: 0.78rem; margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ===== 粉墨博览 - 剧种详情 ===== */
+.fm-detail-hero {
+    height: 200px; border-radius: 14px; background-size: cover; background-position: center;
+    position: relative; overflow: hidden; margin-bottom: 20px;
+}
+.fm-detail-hero-overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 24px; background: linear-gradient(to top, rgba(10,8,6,0.95) 0%, rgba(10,8,6,0.3) 50%, transparent 100%);
+}
+.fm-detail-hero-overlay h2 { color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 2rem; margin: 0 0 6px; }
+.fm-detail-hero-overlay p { color: rgba(255,255,255,0.6); font-size: 0.88rem; margin: 0; }
+
+.fm-detail-stats {
+    display: flex; gap: 20px; justify-content: center; margin-bottom: 24px;
+    padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(212,175,55,0.1);
+}
+.fm-stat { text-align: center; color: rgba(255,255,255,0.5); font-size: 0.82rem; }
+.fm-stat-num { display: block; font-size: 1.8rem; color: #d4af37; font-family: 'Ma Shan Zheng', cursive; line-height: 1.2; }
+
+.fm-section-title {
+    font-family: 'Ma Shan Zheng', cursive; font-size: 1.3rem; color: #e2c079;
+    margin: 20px 0 12px; padding-left: 12px; border-left: 3px solid #d4af37;
+}
+.fm-history { color: rgba(255,255,255,0.55); font-size: 0.88rem; line-height: 1.8; padding: 12px; background: rgba(0,0,0,0.15); border-radius: 10px; }
+
+/* ===== 粉墨博览 - 剧目卡片 ===== */
+.fm-play-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.fm-play-card {
+    border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.35s;
+    border: 1px solid rgba(212,175,55,0.12); background: rgba(255,255,255,0.03);
+}
+.fm-play-card:hover { border-color: rgba(212,175,55,0.4); transform: translateY(-3px); }
+.fm-play-card img { width: 100%; height: 100px; object-fit: cover; }
+.fm-play-title { padding: 8px 10px; color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 0.95rem; text-align: center; }
+
+/* ===== 名家卡片 (共用) ===== */
+.fm-master-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.fm-master-card {
+    display: flex; gap: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.12);
+    border-radius: 12px; padding: 12px; transition: all 0.35s; overflow: hidden;
+}
+.fm-master-card:hover { border-color: rgba(212,175,55,0.4); transform: translateY(-2px); }
+.fm-master-card img { width: 65px; height: 80px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.fm-master-body h4 { color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.05rem; margin: 0 0 4px; }
+.fm-master-body p { color: rgba(255,255,255,0.45); font-size: 0.78rem; margin: 0; line-height: 1.5; }
+
+/* ===== 名家详情 ===== */
+.fm-master-detail { display: flex; gap: 24px; align-items: flex-start; }
+.fm-master-detail-img { width: 200px; height: 260px; border-radius: 14px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(212,175,55,0.2); }
+.fm-master-detail-body h2 { color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.8rem; margin: 0 0 8px; }
+.fm-master-detail-body p { color: rgba(255,255,255,0.55); font-size: 0.9rem; line-height: 1.8; }
+@media (max-width: 640px) {
+    .fm-master-detail { flex-direction: column; }
+    .fm-master-detail-img { width: 100%; height: 200px; }
+}
+
+/* ========== 3D模型气泡窗 ========== */
+.model-viewer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200001;
+    background: rgba(6, 3, 2, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+}
+.model-viewer-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-bubble {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+    width: 70vw; height: 70vh; max-width: 900px;
+    background: rgba(20,15,10,0.95); backdrop-filter: blur(20px);
+    border: 1px solid rgba(212,175,55,0.4); border-radius: 20px;
+    z-index: 200002; display: flex; flex-direction: column; overflow: hidden;
+    opacity: 0; transition: all 0.4s cubic-bezier(0.25,1,0.5,1);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+}
+.modal-bubble.open { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.modal-bubble-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 25px; border-bottom: 1px solid rgba(212,175,55,0.2);
+}
+.modal-bubble-header h3 { color: #e2c079; font-family: 'Ma Shan Zheng', cursive; font-size: 1.3rem; margin: 0; }
+.model-quality-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 12px;
+    min-width: 0;
+}
+.model-quality-label {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.86rem;
+    white-space: nowrap;
+}
+.model-quality-select {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f2e2b7;
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 0.84rem;
+    max-width: 120px;
+}
+.model-quality-tip {
+    color: rgba(235, 205, 142, 0.92);
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+.modal-bubble-body { flex: 1; min-height: 0; }
+@media (max-width: 1100px) {
+    .model-quality-tip { display: none; }
+}
+
+
+
+/* 3D model-viewer 加载遮罩与进度条 */
+.gltf-poster-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    gap: 1rem;
+    color: #a89070;
+    font-family: 'Ma Shan Zheng', serif;
+    font-size: 1.1rem;
+    background: linear-gradient(180deg, rgba(26, 21, 16, 0.92) 0%, rgba(15, 12, 9, 0.96) 100%);
+    transition: opacity 0.45s ease, visibility 0.45s ease;
+}
+.gltf-poster-overlay.gltf-poster-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.gltf-poster-icon { font-size: 3rem; color: #d4af37; }
+.gltf-poster-status { min-height: 1.4em; text-align: center; padding: 0 12px; }
+.gltf-progress-track {
+    width: min(280px, 78%);
+    height: 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    overflow: hidden;
+}
+.gltf-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #8b6914, #d4af37, #f0e6a8);
+    transition: width 0.2s ease-out;
+}
+.gltf-load-pct {
+    font-size: 0.95rem;
+    color: #d4af37;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+}
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(5px);} to{opacity:1;transform:translateY(0);} }
+
+/* ========== 打卡双栏布局 ========== */
+.checkin-dual-layout {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+.checkin-map-col {
+    flex: 0 0 42%;
+    min-width: 0;
+    background: rgba(0, 0, 0, 0.22);
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid rgba(212, 175, 55, 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.checkin-feed-col { flex: 1; min-width: 0; }
+
+@media (max-width: 640px) {
+    .checkin-dual-layout { flex-direction: column; }
+    .checkin-map-col { flex: none; }
+}
+
+
+/* 禄台 · 高清图片画廊 */
+
+/* 1. 遮罩层 */
+.gallery-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    z-index: 20000 !important;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+    .gallery-backdrop.open {
+        opacity: 1;
+    }
+
+/* 2. 弹窗外框 */
+.gallery-bubble {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: #140f0a;
+    border: 1px solid rgba(226, 192, 121, 0.5);
+    border-radius: 12px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+    z-index: 20001 !important;
+    display: none;
+    flex-direction: column;
+    min-width: 480px !important;
+    width: auto !important;
+    max-width: 95vw;
+    max-height: 95vh;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease !important;
+}
+
+    /* 弹窗打开时的最终状态 */
+    .gallery-bubble.open {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+/* 3. 头部标题栏 */
+.gallery-header {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 15px 24px !important;
+    background: linear-gradient(180deg, #2a2218, #140f0a);
+    border-bottom: 1px solid rgba(226, 192, 121, 0.2);
+    box-sizing: border-box !important;
+}
+
+    .gallery-header h3 {
+        margin: 0 !important;
+        color: #e2c079 !important;
+        font-family: 'Ma Shan Zheng', cursive !important;
+        font-size: 1.5rem !important;
+        white-space: nowrap !important;
+    }
+
+.gallery-close-btn {
+    background: transparent;
+    border: none;
+    color: #a0a0a0;
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.3s ease; /* 增加过渡让hover更平滑 */
+}
+
+    .gallery-close-btn:hover {
+        color: #e2c079;
+        transform: rotate(90deg);
+    }
+
+/* 4. 内容主体区 */
+.gallery-body {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    min-height: 300px;
+}
+
+#gallery-main-img {
+    display: block;
+    max-width: 100%;
+    max-height: calc(95vh - 70px);
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+    #gallery-main-img.loaded {
+        opacity: 1;
+    }
+
+/* 5. 导航按钮 */
+.gallery-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(226, 192, 121, 0.4);
+    color: #e2c079;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+    .gallery-nav-btn:hover {
+        background: #5A1C20;
+        color: #fff;
+        border-color: #5A1C20;
+    }
+
+/* 修复：明确区分左右按钮的位置 */
+.prev-btn {
+    left: 15px;
+}
+
+.next-btn {
+    right: 15px;
+}
+
+/* 修复：增加页码计数器样式 */
+.gallery-counter-badge {
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #e2c079;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(226, 192, 121, 0.3);
+    z-index: 10;
+    letter-spacing: 2px;
+}}

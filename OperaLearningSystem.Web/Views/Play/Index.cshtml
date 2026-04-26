@@ -1,0 +1,109 @@
+@using OperaLearningSystem.Core.DTOs
+@model PagedResult<OperaLearningSystem.Core.Entities.Play>
+
+@{
+    ViewData["Title"] = "品鉴剧目";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+    var searchString = ViewData["CurrentFilter"] as string;
+    var categoryId = ViewData["CategoryId"] as int?;
+    var isEntranceEmbed = string.Equals(Context.Request.Query["entranceEmbed"].ToString(), "1", StringComparison.Ordinal);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Play/index.css" asp-append-version="true" />
+}
+
+<div class="container-fluid p-0">
+    <div class="play-layout-wrapper" data-aos="fade-in">
+
+        <div class="play-sidebar">
+            <h2 class="sidebar-title">品鉴剧目</h2>
+            <div class="sidebar-subtitle">赏经典剧目</div>
+
+            <form asp-action="Index" method="get" class="sidebar-search mt-4">
+                @if (categoryId.HasValue && categoryId.Value > 0)
+                {
+                    <input type="hidden" name="categoryId" value="@categoryId.Value" />
+                }
+                @if (isEntranceEmbed)
+                {
+                    <input type="hidden" name="entranceEmbed" value="1" />
+                }
+
+                <input type="text" name="searchString" class="search-input" placeholder="寻觅..." value="@searchString">
+                <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+            </form>
+
+            @if (!isEntranceEmbed)
+            {
+                <div class="mt-4 text-center">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-secondary" style="border-radius: 20px; font-size: 0.8rem;">
+                        返回首页
+                    </a>
+                </div>
+            }
+        </div>
+
+        <div class="play-content">
+
+            @if (Model.Items.Any())
+            {
+                <div class="play-grid">
+                    @foreach (var item in Model.Items)
+                    {
+                        var delay = (Model.Items.ToList().IndexOf(item) % 6) * 100;
+
+                        <a asp-action="Details" asp-route-id="@item.Id" class="play-card" data-aos="fade-up" data-aos-delay="@delay">
+                            <div class="play-img-box">
+                                <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-play.jpg" : item.ImageUrl)" alt="@item.Title">
+                            </div>
+                            <div class="play-info">
+                                <div class="play-title">@item.Title</div>
+                                <div class="play-desc">@(string.IsNullOrEmpty(item.Synopsis) ? "点击查阅剧目考据，领略百味人生。" : item.Synopsis)</div>
+                            </div>
+                        </a>
+                    }
+                </div>
+
+                @if (totalPages > 1)
+                {
+                    <div class="pagination-wrapper" data-aos="fade-up">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-searchString="@searchString" asp-route-categoryId="@categoryId" asp-route-entranceEmbed="@(isEntranceEmbed ? "1" : "")" class="page-link"><i class="fas fa-angle-left"></i></a>
+                                </li>
+
+                                @for (var i = 1; i <= totalPages; i++)
+                                {
+                                    if (i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2))
+                                    {
+                                        <li class="page-item @(i == currentPage ? "active" : "")">
+                                            <a asp-action="Index" asp-route-pageNumber="@i" asp-route-searchString="@searchString" asp-route-categoryId="@categoryId" asp-route-entranceEmbed="@(isEntranceEmbed ? "1" : "")" class="page-link">@i</a>
+                                        </li>
+                                    }
+                                    else if (i == currentPage - 3 || i == currentPage + 3)
+                                    {
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    }
+                                }
+
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-searchString="@searchString" asp-route-categoryId="@categoryId" asp-route-entranceEmbed="@(isEntranceEmbed ? "1" : "")" class="page-link"><i class="fas fa-angle-right"></i></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center" style="margin-top: 100px;">
+                    <i class="far fa-sad-tear fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">暂无相关剧目记录。</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

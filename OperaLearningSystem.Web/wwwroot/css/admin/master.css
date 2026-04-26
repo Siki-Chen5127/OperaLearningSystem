@@ -1,0 +1,470 @@
+﻿/* 名家管理列表样式 */
+#master-management-container {
+    padding: 20px 30px;
+    font-family: 'Microsoft YaHei', 'Noto Serif SC', sans-serif;
+    background-color: #FAF6F7;
+    min-height: calc(100vh - 60px);
+    color: #333;
+}
+
+    /* 标题区域 */
+    #master-management-container .page-title {
+        font-family: 'Noto Serif SC', 'KaiTi', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #5A1C20;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* 顶部操作栏 */
+    #master-management-container .top-action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        background: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        border: 1px solid rgba(238, 213, 183, 0.5);
+    }
+
+    /* 搜索框 */
+    #master-management-container .search-input-group {
+        display: flex;
+        border: 1px solid #EAEAEA;
+        border-radius: 4px;
+        overflow: hidden;
+        width: 320px;
+        transition: all 0.3s;
+    }
+
+        #master-management-container .search-input-group:focus-within {
+            border-color: #B5495B;
+            box-shadow: 0 0 5px rgba(181, 73, 91, 0.2);
+        }
+
+        #master-management-container .search-input-group input {
+            border: none;
+            padding: 8px 12px;
+            flex: 1;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        #master-management-container .search-input-group button {
+            background: #f8f9fa;
+            border: none;
+            border-left: 1px solid #EAEAEA;
+            color: #666;
+            padding: 0 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            #master-management-container .search-input-group button:hover {
+                background: #E6C585;
+                color: #fff;
+            }
+
+    /* 新增按钮 */
+    #master-management-container .btn-create {
+        background-color: #B5495B;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+        #master-management-container .btn-create:hover {
+            background-color: #9E2A2F;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(181, 73, 91, 0.3);
+        }
+
+    /* --- 表格区域 --- */
+    #master-management-container .table-wrapper {
+        background: #fff;
+        border-radius: 8px;
+        padding: 10px 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        border: 1px solid rgba(238, 213, 183, 0.5);
+    }
+
+    #master-management-container .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+        /* 表头：文字居中 */
+        #master-management-container .custom-table th {
+            color: #666;
+            font-weight: 600;
+            padding: 12px 10px;
+            border-bottom: 2px solid #f0f0f0;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        /* 单元格：文字居中，垂直居中 */
+        #master-management-container .custom-table td {
+            padding: 15px 10px;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+    /* 表格行入场动画 */
+    #master-management-container .table-row {
+        border-bottom: 1px solid #f8f9fa;
+        transition: all 0.2s;
+        animation: rowFadeIn 0.4s ease-out forwards;
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+@keyframes rowFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#master-management-container .table-row:hover {
+    background-color: #FFFDFD;
+}
+
+/* 名家专属：圆形头像样式 */
+#master-management-container .img-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%; /* 核心：变圆 */
+    overflow: hidden;
+    background-color: #f5f5f5;
+    border: 2px solid #EED5B7;
+    margin: 0 auto; /* 核心：容器自身居中 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+    #master-management-container .img-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+#master-management-container .table-row:hover .img-avatar img {
+    transform: scale(1.1); /* 悬浮微微放大 */
+}
+
+#master-management-container .avatar-placeholder {
+    color: #ccc;
+    font-size: 1.8rem;
+}
+
+/* 名家专属：星级评分样式 */
+#master-management-container .rating-stars {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+}
+
+    #master-management-container .rating-stars .star {
+        color: #EAEAEA; /* 未点亮的浅灰色 */
+        font-size: 1.3rem;
+        line-height: 1;
+    }
+
+        #master-management-container .rating-stars .star.filled {
+            color: #D4AF37; /* 点亮的专属雅韵金 */
+            text-shadow: 0 1px 2px rgba(212, 175, 55, 0.3);
+        }
+
+/* 操作链接 */
+#master-management-container .action-link {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+    margin: 0 2px;
+}
+
+#master-management-container .link-edit {
+    color: #8C5E18;
+}
+
+    #master-management-container .link-edit:hover {
+        color: #D4AF37;
+        text-decoration: underline;
+    }
+
+#master-management-container .link-delete {
+    color: #B5495B;
+}
+
+    #master-management-container .link-delete:hover {
+        color: #C94A4A;
+        text-decoration: underline;
+    }
+
+/* 分页器 */
+#master-management-container .pagination-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center; /* 完美居中 */
+}
+
+#master-management-container .pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+}
+
+#master-management-container .page-item .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 10px;
+    color: #555;
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+    #master-management-container .page-item .page-link:hover {
+        background-color: #f8f9fa;
+        border-color: #D4AF37;
+        color: #8C5E18;
+    }
+
+#master-management-container .page-item.active .page-link {
+    background-color: #B5495B;
+    border-color: #B5495B;
+    color: #fff;
+}
+
+#master-management-container .page-item.disabled .page-link {
+    color: #ccc;
+    background-color: #fcfcfc;
+    border-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+/* 新增高光动画 */
+.highlight-new {
+    animation: glowPulse 2s ease-out;
+}
+
+@keyframes glowPulse {
+    0% {
+        background-color: rgba(230, 197, 133, 0.3);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+/*新建/编辑名家页面*/
+#master-edit-container {
+    padding: 20px 30px;
+    font-family: 'Microsoft YaHei', 'Noto Serif SC', sans-serif;
+    color: #333;
+    min-height: calc(100vh - 60px);
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+    #master-edit-container .page-title {
+        font-family: 'Noto Serif SC', 'KaiTi', serif;
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #5A1C20;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #master-edit-container .edit-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(238, 213, 183, 0.5);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 800px; /* 保证底部按钮不重叠 */
+    }
+
+    #master-edit-container .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 30px;
+        padding: 25px;
+        flex: 1;
+    }
+
+    #master-edit-container .form-group {
+        margin-bottom: 20px;
+    }
+
+    #master-edit-container .control-label {
+        font-weight: 600;
+        color: #5A1C20;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    /* 统一输入框高度和边框 */
+    #master-edit-container .form-control,
+    #master-edit-container .custom-select {
+        border: 1px solid #EAEAEA;
+        border-radius: 4px;
+        padding: 10px 12px;
+        background-color: #fcfcfc;
+        transition: all 0.3s;
+        width: 100%;
+    }
+
+        #master-edit-container .form-control:focus,
+        #master-edit-container .custom-select:focus {
+            border-color: #B5495B;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(181, 73, 91, 0.1);
+            outline: none;
+        }
+
+    /* 名家评级输入框特制样式 */
+    #master-edit-container .rating-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+        #master-edit-container .rating-input-wrapper input {
+            padding-right: 35px; /* 给星星留位置 */
+        }
+
+        #master-edit-container .rating-input-wrapper i {
+            position: absolute;
+            right: 12px;
+            font-size: 1.1rem;
+        }
+
+    /* 照片预览框特制 (方形略带圆角，高度适合半身像) */
+    #master-edit-container .image-preview-box {
+        width: 100%;
+        height: 240px;
+        border: 2px dashed #EED5B7;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #FAF6F7;
+        margin-bottom: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    #master-edit-container .avatar-preview-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* 头像用 contain 保证不被暴力裁剪 */
+        background: #fff; /* 背景垫白 */
+    }
+
+    #master-edit-container .image-preview-placeholder {
+        color: #999;
+        font-size: 0.9rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #master-edit-container textarea.form-control {
+        resize: none;
+    }
+
+    #master-edit-container .form-actions {
+        padding: 15px 25px;
+        background-color: #FAF6F7;
+        border-top: 1px solid rgba(238, 213, 183, 0.5);
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+
+    #master-edit-container .btn-save {
+        background-color: #B5495B;
+        color: #fff;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 4px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+        #master-edit-container .btn-save:hover {
+            background-color: #9E2A2F;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(181, 73, 91, 0.3);
+        }
+
+    #master-edit-container .btn-cancel {
+        background-color: #fff;
+        color: #666;
+        border: 1px solid #ddd;
+        padding: 10px 25px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+        #master-edit-container .btn-cancel:hover {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+/*追加补丁代码*/
+.edit-card {
+    overflow: hidden !important;
+}
+
+    .edit-card form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0;
+    }
+
+.form-actions {
+    margin-top: auto !important; 
+    border-radius: 0 0 8px 8px; 
+}

@@ -1,0 +1,349 @@
+﻿@model OperaLearningSystem.Web.ViewModels.Account.AuditIndexViewModel
+@{
+    ViewData["Title"] = "审核大厅 - 梨园掌印";
+}
+
+<style>
+    /* 奏章与标签页极简古风样式 */
+    .audit-board {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* 绝美标签页重绘 */
+    .nav-tabs.ancient-tabs {
+        border-bottom: 2px solid #e8dfd5;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 40px;
+    }
+
+        .nav-tabs.ancient-tabs .nav-link {
+            color: #666;
+            border: none;
+            background: transparent;
+            font-family: 'SourceHanSerifSC', serif;
+            font-size: 1.2rem;
+            padding: 10px 30px;
+            border-radius: 0;
+            position: relative;
+        }
+
+            .nav-tabs.ancient-tabs .nav-link:hover {
+                color: #8b0000;
+            }
+
+            .nav-tabs.ancient-tabs .nav-link.active {
+                color: #8b0000;
+                font-weight: bold;
+                background: transparent;
+            }
+
+                .nav-tabs.ancient-tabs .nav-link.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 10%;
+                    width: 80%;
+                    height: 3px;
+                    background-color: #8b0000;
+                    border-radius: 3px;
+                }
+
+    /* 奏章卡片 */
+    .memorial-card {
+        background: #fffcf8;
+        border: 1px solid #e8dfd5;
+        border-radius: 4px;
+        padding: 25px 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        transition: all 0.4s ease;
+    }
+
+        .memorial-card:hover {
+            box-shadow: 0 10px 30px rgba(139,0,0,0.06);
+            border-color: #d4af37;
+        }
+
+    /* 古风按钮 */
+    .btn-seal-approve {
+        background-color: #8b0000;
+        color: white;
+        border: 1px solid #8b0000;
+        border-radius: 20px;
+        padding: 6px 25px;
+        letter-spacing: 2px;
+        transition: 0.3s;
+    }
+
+        .btn-seal-approve:hover {
+            background-color: #5a0000;
+            color: #fff;
+        }
+
+    .btn-seal-reject {
+        background-color: transparent;
+        color: #666;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        padding: 6px 25px;
+        letter-spacing: 2px;
+        transition: 0.3s;
+    }
+
+        .btn-seal-reject:hover {
+            color: #333;
+            border-color: #999;
+            background-color: #f0ece6;
+        }
+</style>
+
+<div class="container mt-5 pt-4 mb-5 audit-board">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert text-center mb-4" style="background: transparent; border: 1px dashed #d4af37; color: #8b0000;">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="text-center mb-4">
+        <h2 style="font-family: 'Ma Shan Zheng', cursive; color: #8b0000; font-size: 2.5rem; letter-spacing: 4px;">梨园 · 审核大厅</h2>
+    </div>
+
+    <ul class="nav nav-tabs ancient-tabs" id="auditTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="content-tab" data-bs-toggle="tab" data-bs-target="#content-pane" type="button" role="tab">
+                剧目审核 <span class="badge bg-danger ms-1 rounded-pill">@Model.PendingPlays.Count()</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="master-tab" data-bs-toggle="tab" data-bs-target="#master-pane" type="button" role="tab">
+                名家审核 <span class="badge bg-danger ms-1 rounded-pill">@Model.PendingMasters.Count()</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="category-tab" data-bs-toggle="tab" data-bs-target="#category-pane" type="button" role="tab">
+                剧种审核 <span class="badge bg-danger ms-1 rounded-pill">@Model.PendingCategories.Count()</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="course-tab" data-bs-toggle="tab" data-bs-target="#course-pane" type="button" role="tab">
+                课程审核 <span class="badge bg-danger ms-1 rounded-pill">@Model.PendingCourses.Count()</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="personnel-tab" data-bs-toggle="tab" data-bs-target="#personnel-pane" type="button" role="tab">
+                奏章 <span class="badge bg-secondary ms-1 rounded-pill">@Model.PendingApplications.Count()</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="auditTabContent">
+        
+        <div class="tab-pane fade" id="personnel-pane" role="tabpanel">
+            @if (!Model.PendingApplications.Any())
+            {
+                <div class="text-center py-5" style="opacity: 0.6;">
+                    <p style="font-family: 'SourceHanSerifSC', serif; font-size: 1.2rem; color: #666;">今日暂无人员递交拜帖。</p>
+                </div>
+            }
+            else
+            {
+                foreach (var app in Model.PendingApplications)
+                {
+                    <div class="memorial-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="fw-bold fs-5 text-dark">@(app.User.Nickname ?? "戏友") <span class="text-muted fs-6">(@app.User.Email)</span></div>
+                            <div class="text-muted" style="font-size: 0.85rem;">@app.CreatedAt.ToString("MM月dd日 HH:mm")</div>
+                        </div>
+
+                        <div class="p-3 mb-4" style="background: #faf8f5; border-left: 3px solid #e8dfd5; color: #444;">
+                            @app.Reason
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-2">
+                            <form asp-action="Approve" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@app.Id" />
+                                <button type="submit" class="btn btn-seal-approve">恩准入园</button>
+                            </form>
+                            <form asp-action="Reject" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@app.Id" />
+                                <input type="hidden" name="rejectReason" value="资历尚浅，望继续沉淀。" />
+                                <button type="submit" class="btn btn-seal-reject">驳回拜帖</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="tab-pane fade show active" id="play-pane" role="tabpanel">
+            @if (!Model.PendingPlays.Any())
+            {
+                <div class="text-center py-5" style="opacity: 0.6;">
+                    <p style="font-family: 'SourceHanSerifSC', serif; font-size: 1.2rem; color: #666;">天下太平，暂无剧目待审。</p>
+                </div>
+            }
+            else
+            {
+                foreach (var play in Model.PendingPlays)
+                {
+                    <div class="memorial-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h4 style="color: #8b0000; font-weight: bold; margin-bottom: 5px;">《@play.Title》</h4>
+                                <span class="badge" style="background: #e8dfd5; color: #5a0000;">@play.Category?.Name</span>
+                            </div>
+                            <div class="text-end text-muted" style="font-size: 0.9rem;">
+                                呈递人：<span class="fw-bold" style="color: #333;">@(play.Submitter?.Nickname ?? "共创者")</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 mb-4" style="background: #faf8f5; border-left: 3px solid #d4af37; color: #444;">
+                            @(string.IsNullOrEmpty(play.Synopsis) ? "（暂无剧情简介）" : (play.Synopsis.Length > 100 ? play.Synopsis.Substring(0, 100) + "..." : play.Synopsis))
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-2">
+                            <form asp-action="ApprovePlay" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@play.Id" />
+                                <button type="submit" class="btn btn-seal-approve">赐予放行</button>
+                            </form>
+
+                            <form asp-action="RejectPlay" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@play.Id" />
+                                <button type="submit" class="btn btn-seal-reject">狠心驳回</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="tab-pane fade" id="master-pane" role="tabpanel">
+            @if (!Model.PendingMasters.Any())
+            {
+                <div class="text-center py-5" style="opacity: 0.6;">
+                    <p style="font-family: 'SourceHanSerifSC', serif; font-size: 1.2rem; color: #666;">天下太平，暂无名家待审。</p>
+                </div>
+            }
+            else
+            {
+                foreach (var master in Model.PendingMasters)
+                {
+                    <div class="memorial-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h4 style="color: #8b0000; font-weight: bold; margin-bottom: 5px;">【@master.Name】</h4>
+                                <span class="badge" style="background: #e8dfd5; color: #5a0000;">@master.Category?.Name</span>
+                            </div>
+                            <div class="text-end text-muted" style="font-size: 0.9rem;">
+                                呈递人：<span class="fw-bold" style="color: #333;">@(master.Submitter?.Nickname ?? "共创者")</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 mb-4" style="background: #faf8f5; border-left: 3px solid #d4af37; color: #444;">
+                            @(string.IsNullOrEmpty(master.Introduction) ? "（暂无简介）" : (master.Introduction.Length > 100 ? master.Introduction.Substring(0, 100) + "..." : master.Introduction))
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-2">
+                            <form asp-action="ApproveMaster" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@master.Id" />
+                                <button type="submit" class="btn btn-seal-approve">赐予放行</button>
+                            </form>
+
+                            <form asp-action="RejectMaster" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@master.Id" />
+                                <button type="submit" class="btn btn-seal-reject">狠心驳回</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="tab-pane fade" id="category-pane" role="tabpanel">
+            @if (!Model.PendingCategories.Any())
+            {
+                <div class="text-center py-5" style="opacity: 0.6;">
+                    <p style="font-family: 'SourceHanSerifSC', serif; font-size: 1.2rem; color: #666;">天下太平，暂无剧种待审。</p>
+                </div>
+            }
+            else
+            {
+                foreach (var category in Model.PendingCategories)
+                {
+                    <div class="memorial-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h4 style="color: #8b0000; font-weight: bold; margin-bottom: 5px;">【@category.Name】</h4>
+                            </div>
+                            <div class="text-end text-muted" style="font-size: 0.9rem;">
+                                呈递人：<span class="fw-bold" style="color: #333;">@(category.Submitter?.Nickname ?? "共创者")</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 mb-4" style="background: #faf8f5; border-left: 3px solid #d4af37; color: #444;">
+                            @(string.IsNullOrEmpty(category.Description) ? "（暂无简介）" : (category.Description.Length > 100 ? category.Description.Substring(0, 100) + "..." : category.Description))
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-2">
+                            <form asp-action="ApproveCategory" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@category.Id" />
+                                <button type="submit" class="btn btn-seal-approve">赐予放行</button>
+                            </form>
+
+                            <form asp-action="RejectCategory" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@category.Id" />
+                                <button type="submit" class="btn btn-seal-reject">狠心驳回</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="tab-pane fade" id="course-pane" role="tabpanel">
+            @if (!Model.PendingCourses.Any())
+            {
+                <div class="text-center py-5" style="opacity: 0.6;">
+                    <p style="font-family: 'SourceHanSerifSC', serif; font-size: 1.2rem; color: #666;">天下太平，暂无课程待审。</p>
+                </div>
+            }
+            else
+            {
+                foreach (var course in Model.PendingCourses)
+                {
+                    <div class="memorial-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h4 style="color: #8b0000; font-weight: bold; margin-bottom: 5px;">【@course.Name】</h4>
+                                <span class="badge" style="background: #e8dfd5; color: #5a0000;">@course.Category?.Name</span>
+                            </div>
+                            <div class="text-end text-muted" style="font-size: 0.9rem;">
+                                呈递人：<span class="fw-bold" style="color: #333;">@(course.Submitter?.Nickname ?? "共创者")</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 mb-4" style="background: #faf8f5; border-left: 3px solid #d4af37; color: #444;">
+                            @(string.IsNullOrEmpty(course.Description) ? "（暂无简介）" : (course.Description.Length > 100 ? course.Description.Substring(0, 100) + "..." : course.Description))
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-2">
+                            <form asp-action="ApproveCourse" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@course.Id" />
+                                <button type="submit" class="btn btn-seal-approve">赐予放行</button>
+                            </form>
+
+                            <form asp-action="RejectCourse" method="post" class="m-0">
+                                <input type="hidden" name="id" value="@course.Id" />
+                                <button type="submit" class="btn btn-seal-reject">狠心驳回</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

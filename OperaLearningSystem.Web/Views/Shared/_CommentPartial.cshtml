@@ -1,0 +1,68 @@
+@model OperaLearningSystem.Core.Entities.Comment
+@using OperaLearningSystem.Core.Entities
+@using OperaLearningSystem.Web.Helpers
+
+@{
+    IList<Comment> all = ViewBag.AllComments is IList<Comment> ac ? ac : new List<Comment>();
+    var statsMap = ViewBag.CommentVoteStats as Dictionary<int, CommentVoteStatsDto> ?? new Dictionary<int, CommentVoteStatsDto>();
+    statsMap.TryGetValue(Model.Id, out var vs);
+    vs ??= new CommentVoteStatsDto();
+    var replies = all.Where(c => c.ParentCommentId == Model.Id).OrderBy(c => c.CreatedAt).ToList();
+    var isNested = Model.ParentCommentId.HasValue;
+    var hasTopic = ViewBag.CommentCourseId != null || ViewBag.CommentPlayId != null || ViewBag.CommentPostId != null;
+}
+
+<!-- 单条评论（可嵌套回复）；ViewBag：AllComments、CommentVoteStats、CommentCourseId / CommentPlayId / CommentPostId -->
+<div class="comment-item @(isNested ? "comment-item-nested" : "")" id="comment-@Model.Id" data-comment-id="@Model.Id">
+    <img src="@(Model.User?.AvatarUrl ?? "/images/default_avatar.png")" class="comment-avatar" alt="">
+
+    <div class="comment-content-box">
+        <div>
+            <span class="comment-user-name">
+                @(Model.User?.Nickname ?? Model.User?.UserName ?? "匿名戏迷")
+            </span>
+            <span class="comment-time">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+        </div>
+        <div class="comment-text">
+            @Model.Content
+        </div>
+
+        <div class="comment-actions">
+            <span class="comment-vote-group">
+                <button type="button" class="comment-vote-btn comment-vote-up @(vs.UserVote == 1 ? "is-active" : "")" data-comment-vote="1" data-comment-id="@Model.Id" title="赞">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span class="comment-vote-count comment-up-count">@vs.Up</span>
+                </button>
+                <button type="button" class="comment-vote-btn comment-vote-down @(vs.UserVote == -1 ? "is-active" : "")" data-comment-vote="-1" data-comment-id="@Model.Id" title="踩">
+                    <i class="fas fa-thumbs-down"></i>
+                    <span class="comment-vote-count comment-down-count">@vs.Down</span>
+                </button>
+            </span>
+            @if (User.Identity?.IsAuthenticated == true && hasTopic)
+            {
+                <button type="button" class="comment-reply-toggle btn btn-link btn-sm p-0 align-items-baseline" data-reply-for="@Model.Id">回复</button>
+            }
+        </div>
+
+        @if (User.Identity?.IsAuthenticated == true && hasTopic)
+        {
+            <div class="comment-reply-box d-none mt-2" data-reply-box="@Model.Id">
+                <textarea class="form-control form-control-sm reply-body" rows="2" placeholder="写下回复…"></textarea>
+                <div class="mt-1 text-end">
+                    <button type="button" class="btn btn-sm btn-outline-secondary submit-reply-btn" data-parent-id="@Model.Id">发送</button>
+                    <button type="button" class="btn btn-sm btn-link text-muted cancel-reply-btn" data-reply-for="@Model.Id">取消</button>
+                </div>
+            </div>
+        }
+
+        @if (replies.Count > 0)
+        {
+            <div class="comment-replies mt-2">
+                @foreach (var r in replies)
+                {
+                    <partial name="_CommentPartial" model="r" />
+                }
+            </div>
+        }
+    </div>
+</div>

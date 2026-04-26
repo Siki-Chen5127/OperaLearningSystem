@@ -1,0 +1,82 @@
+﻿@model OperaLearningSystem.Core.Entities.CommunityPost
+@{
+    ViewData["Title"] = "帖子详情审阅";
+}
+
+<link rel="stylesheet" href="~/css/admin/community.css" asp-append-version="true" />
+
+<div id="community-reading-container">
+
+    <div class="nav-header">
+        <a asp-action="Index" class="back-link"><i class="bi bi-arrow-left"></i> 返回社区交流管理</a>
+    </div>
+
+    <div class="reading-card">
+
+        <div class="article-header">
+            <h1 class="article-title">@Model.Title</h1>
+            <div class="article-meta">
+                <span class="meta-item"><i class="bi bi-person-circle"></i> @Model.Author?.Nickname</span>
+                <span class="meta-divider">|</span>
+                <span class="meta-item"><i class="bi bi-clock"></i> @Model.CreatedTime.ToString("yyyy-MM-dd HH:mm")</span>
+                <span class="meta-divider">|</span>
+                <span class="meta-item category-tag"><i class="bi bi-bookmark"></i> @Model.Category?.Name</span>
+            </div>
+        </div>
+
+        <div class="ornamental-divider"></div>
+
+        <div class="article-content rich-text-content">
+            @Html.Raw(Model.Content)
+        </div>
+
+        <div class="article-footer">
+            <div class="end-mark">· 完 ·</div>
+            <div class="action-buttons">
+                <button class="btn-danger-custom delete-btn" data-id="@Model.Id" data-name="@Model.Title">
+                    <i class="bi bi-trash3"></i> 违规删除
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // 国风删除弹窗
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var postId = $(this).data('id');
+                var postTitle = $(this).data('name');
+                var form = $('#deleteForm');
+
+                form.attr('action', "/Admin/Community/Delete/" + postId);
+
+                Swal.fire({
+                    title: '确认删除该贴？',
+                    html: '即将永久删除帖子：<br><strong style="color:#4A312C;">《' + postTitle + '》</strong>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '确认删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

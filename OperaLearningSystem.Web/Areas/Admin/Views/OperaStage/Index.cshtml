@@ -1,0 +1,202 @@
+@using System.Linq
+@model IReadOnlyList<OperaLearningSystem.Core.Entities.OperaStage>
+@{
+    ViewData["Title"] = "戏台条目管理";
+    var regions = ViewBag.Regions as IReadOnlyList<OperaLearningSystem.Core.Entities.OperaStageRegion> ?? Array.Empty<OperaLearningSystem.Core.Entities.OperaStageRegion>();
+    int? sel = ViewBag.SelectedRegionId as int?;
+
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+<link rel="stylesheet" href="~/css/admin/operastage.css" asp-append-version="true" />
+
+<div id="stage-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-bank text-muted" style="font-size: 1.5rem;"></i> 戏台条目管理
+    </div>
+
+    <div class="top-action-bar">
+        <div class="left-actions">
+            <div class="filter-group dropdown-filter">
+                <span class="filter-label"><i class="bi bi-geo-alt-fill" style="color: #B5495B;"></i> 当前分区：</span>
+                <div class="dropdown">
+                    @{
+                        var currentRegionName = regions.FirstOrDefault(r => r.Id == sel)?.Name ?? "请选择分区";
+                    }
+                    <button class="btn custom-dropdown-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        @currentRegionName
+                    </button>
+                    <ul class="dropdown-menu custom-dropdown-menu shadow">
+                        @foreach (var r in regions.OrderBy(x => x.SortOrder).ThenBy(x => x.Id))
+                        {
+                            <li>
+                                <a class="dropdown-item @(sel == r.Id ? "active" : "")" asp-action="Index" asp-route-regionId="@r.Id">
+                                    @r.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-actions">
+            @if (sel.HasValue)
+            {
+                <a asp-action="Create" asp-route-regionId="@sel.Value" class="btn-create">
+                    <i class="bi bi-plus"></i> 新建戏台
+                </a>
+            }
+            <a asp-controller="OperaStageRegion" asp-action="Index" class="btn-outline-custom">
+                <i class="bi bi-map"></i> 管理所有分区
+            </a>
+        </div>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (!regions.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-geo-alt"></i>
+            <p>尚未建立任何戏台分区</p>
+            <a asp-controller="OperaStageRegion" asp-action="Create" class="btn-create">立即去创建分区</a>
+        </div>
+    }
+    else if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>当前分区下暂无戏台条目</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <div style="overflow-x: auto;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">展示排序</th>
+                            <th style="width: 120px;">封面图</th>
+                            <th style="width: 25%;">戏台名称</th>
+                            <th>审核状态</th>
+                            <th style="width: 180px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int rowIndex = 0;
+                        }
+                        @foreach (var s in Model.OrderBy(x => x.SortOrder).ThenBy(x => x.Id))
+                        {
+                            var delay = rowIndex * 0.05;
+                            <tr class="table-row" style="animation-delay: @(delay)s;">
+                                <td>
+                                    <span class="sort-badge">@s.SortOrder</span>
+                                </td>
+                                <td>
+                                    <div class="img-container">
+                                        <img src="@(string.IsNullOrEmpty(s.ImageUrl) ? "/images/default.png" : s.ImageUrl)" alt="@s.Name" />
+                                    </div>
+                                </td>
+                                <td><strong style="font-size: 1.1rem; color: #4A312C;">@s.Name</strong></td>
+                                <td>
+                                    @if (s.AuditStatus == 1)
+                                    {
+                                        <span class="status-badge published"><i class="bi bi-check-circle-fill"></i> 已发布</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge pending"><i class="bi bi-clock-fill"></i> 待审核</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@s.Id" class="action-link link-edit">编辑</a>
+                                    <span class="divider">|</span>
+                                    <button data-id="@s.Id" data-name="@s.Name" class="action-link link-delete delete-btn">删除</button>
+                                </td>
+                            </tr>
+                            rowIndex++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // 系统消息提示
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#FAF6F7',
+                    color: '#333'
+                });
+                Toast.fire({ icon: 'success', title: successMsgEl.innerText });
+            }
+
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '操作失败',
+                    text: errorMsgEl.innerText,
+                    confirmButtonColor: '#B5495B',
+                    background: '#FAF6F7'
+                });
+            }
+
+            // 国风删除弹窗
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var stageId = $(this).data('id');
+                var stageName = $(this).data('name');
+                var form = $('#deleteForm');
+
+                form.attr('action', "@Url.Action("Delete", "OperaStage")/" + stageId);
+
+                Swal.fire({
+                    title: '确认拆除该戏台？',
+                    html: '即将永久删除戏台数据：<strong>' + stageName + '</strong>。此操作不可逆。',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '确认删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,45 @@
+@model OperaLearningSystem.Web.Areas.Admin.ViewModels.OperaStageRegionViewModel
+@{
+    ViewData["Title"] = "新建戏台分区";
+}
+
+<link rel="stylesheet" href="~/css/admin/operastageregion.css" asp-append-version="true" />
+
+<div id="region-edit-container">
+    <div class="page-title">
+        <i class="bi bi-plus-square text-muted"></i> 新建戏台分区
+    </div>
+
+    <div class="edit-card mini-card">
+        <form asp-action="Create" method="post" class="form-flex">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="padding: 10px 30px 0;"></div>
+
+            <div class="form-body">
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label">分区名称 <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control" placeholder="如：京域御苑" />
+                    <span asp-validation-for="Name" class="text-danger" style="font-size: 0.85rem;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SortOrder" class="control-label">展示排序</label>
+                    <input asp-for="SortOrder" class="form-control" type="number" placeholder="数字越小越靠前" />
+                    <span class="text-muted" style="font-size: 0.8rem; margin-top: 6px; display: block;">决定该分区在前台入口「百叶窗」中的排列顺序</span>
+                    <span asp-validation-for="SortOrder" class="text-danger" style="font-size: 0.85rem;"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-cancel">取消返回</a>
+                <button type="submit" class="btn-save"><i class="bi bi-check2-circle"></i> 确认创建</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

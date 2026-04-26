@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35913.81
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OperaLearningSystem.Core", "Core\OperaLearningSystem.Core.csproj", "{AD705C5C-568C-4B98-9892-ADB40303328E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OperaLearningSystem.Infrastructure", "Infrastructure\OperaLearningSystem.Infrastructure.csproj", "{8F1B4D09-17E2-413C-BDC7-6A8867C23123}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OperaLearningSystem.Application", "Application\OperaLearningSystem.Application.csproj", "{3F0DC0EF-DE5B-4C9A-B9DA-AD86E7FD3C43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OperaLearningSystem.Web", "OperaLearningSystem.Web\OperaLearningSystem.Web.csproj", "{1D488E25-EAE2-4263-9FFF-1F60616108B6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD705C5C-568C-4B98-9892-ADB40303328E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD705C5C-568C-4B98-9892-ADB40303328E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD705C5C-568C-4B98-9892-ADB40303328E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD705C5C-568C-4B98-9892-ADB40303328E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F1B4D09-17E2-413C-BDC7-6A8867C23123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F1B4D09-17E2-413C-BDC7-6A8867C23123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F1B4D09-17E2-413C-BDC7-6A8867C23123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F1B4D09-17E2-413C-BDC7-6A8867C23123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F0DC0EF-DE5B-4C9A-B9DA-AD86E7FD3C43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F0DC0EF-DE5B-4C9A-B9DA-AD86E7FD3C43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F0DC0EF-DE5B-4C9A-B9DA-AD86E7FD3C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F0DC0EF-DE5B-4C9A-B9DA-AD86E7FD3C43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D488E25-EAE2-4263-9FFF-1F60616108B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D488E25-EAE2-4263-9FFF-1F60616108B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D488E25-EAE2-4263-9FFF-1F60616108B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D488E25-EAE2-4263-9FFF-1F60616108B6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EA8D3A9A-2BA3-401D-8522-15A3B78FF6B5}
+	EndGlobalSection
+EndGlobal

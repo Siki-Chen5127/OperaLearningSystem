@@ -1,0 +1,116 @@
+﻿@{
+    ViewData["Title"] = "关于作者";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Home/home-about.css" />
+
+}
+
+<div class="container about-container">
+
+    <!-- 1. 个人名片 -->
+    <div class="profile-section" data-aos="fade-up">
+        <!-- 左侧：照片 -->
+        <div class="profile-img-box">
+            <img src="~/images/auth/avatar3.png" alt="Author" class="profile-img">
+        </div>
+
+        <!-- 右侧：介绍 -->
+        <div class="profile-text">
+            <h1 class="hello-title">你好，</h1>
+            <h1 class="hello-title">我是陈欣祺</h1>
+            <div class="role-badge">独立开发者 / 戏曲爱好者</div>
+
+            <div class="bio-desc">
+                <p> 一名游走在代码逻辑与戏曲韵律之间的大学生。</p>
+                <p>相信技术是骨架，文化是灵魂。</p>
+                <p>在编写 if-else 的间隙，我也沉醉于西皮二黄的抑扬顿挫。</p>
+                <p>不仅追求代码的整洁，更追求界面的雅致。</p>
+            </div>
+
+            <div class="signature">陈欣祺 敬上</div>
+        </div>
+    </div>
+
+    <!-- 2. 技术栈展示 -->
+    <div class="tech-section" data-aos="fade-up" data-aos-delay="100">
+        <h2 class="section-title">筑梦工具</h2>
+        <div class="tech-grid">
+            <div class="tech-card tech-net">
+                <i class="fab fa-microsoft tech-icon"></i>
+                <div class="tech-name">ASP.NET Core</div>
+                <div class="tech-role">强劲后端 · 稳如泰山</div>
+            </div>
+            <div class="tech-card tech-db">
+                <i class="fas fa-database tech-icon"></i>
+                <div class="tech-name">Entity Framework</div>
+                <div class="tech-role">数据经纬 · 井井有条</div>
+            </div>
+            <div class="tech-card tech-fe">
+                <i class="fab fa-html5 tech-icon"></i>
+                <div class="tech-name">HTML5 / CSS3</div>
+                <div class="tech-role">精雕细琢 · 移步换景</div>
+            </div>
+            <div class="tech-card tech-design">
+                <i class="fas fa-paint-brush tech-icon"></i>
+                <div class="tech-name">UI / UX Design</div>
+                <div class="tech-role">传统美学 · 现代交互</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 开发初衷 -->
+    <div class="story-section" data-aos="fade-up" data-aos-delay="200">
+        <div class="quote-mark quote-left">“</div>
+        <div class="quote-mark quote-right">”</div>
+
+        <h2 class="section-title" style="text-align:center; display:block; margin-bottom:30px;">初心与愿景</h2>
+
+        <div class="story-text">
+            <p>
+                在这个快节奏的数字时代，传统的戏曲艺术似乎离年轻人越来越远。
+                很多人觉得戏曲“听不懂”、“节奏慢”、“太老旧”。
+                但我始终认为，那是我们还没找到正确的打开方式。
+            </p>
+            <p>
+                开发“畅音雅韵”的初衷，就是希望用最现代的 Web 技术，
+                为古老的戏曲搭建一座通往年轻一代的桥梁。
+                用视差滚动展现戏台的深邃，用瀑布流记录名家的风采，
+                用实时弹幕连接戏迷的共鸣。
+            </p>
+            <p>
+                希望当你打开这个网页时，能感受到那份跨越时空的“方寸舞台，天地大美”。
+            </p>
+        </div>
+    </div>
+
+    <!-- 联系方式：飞鸽传书 -->
+    <div class="contact-section" data-aos="fade-up" data-aos-delay="300">
+        <h2 class="section-title">飞鸽传书</h2>
+        <div class="contact-methods">
+            <!-- 邮件 -->
+            <a href="mailto:354975@whut.edu.com" class="contact-item" title="发送邮件">
+                <i class="fas fa-envelope"></i>
+                <span>Email</span>
+            </a>
+            <!-- GitHub -->
+            <a href="https://github.com/Siki-Chen5127" target="_blank" class="contact-item" title="查看代码">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+            <!-- 微信 (示例，实际可替换为二维码弹窗) -->
+            <a href="javascript:void(0)" onclick="alert('微信号：OperaFan_2023')" class="contact-item" title="添加微信">
+                <i class="fab fa-weixin"></i>
+                <span>WeChat</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary" style="border-radius: 50px; padding: 10px 30px;">
+            <i class="fas fa-home"></i> 回到梨园
+        </a>
+    </div>
+
+</div>

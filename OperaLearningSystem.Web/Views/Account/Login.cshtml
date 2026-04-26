@@ -1,0 +1,119 @@
+@model OperaLearningSystem.Web.ViewModels.Account.LoginViewModel
+@{
+    ViewData["Title"] = "登录";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <!-- 引入字体与图标 -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/pages/Account/login.css" />
+}
+
+<div class="auth-page-wrapper">
+    <div class="water-sleeve-bg"></div>
+
+    <div class="auth-container-card" id="container">
+
+        <!-- 1. 注册表单 -->
+        <!-- 注意：在 Login 页，这是“副”表单，使用标准 HTML 提交到 Register Action -->
+        <div class="form-container sign-up-container">
+            <form action="/Account/Register" method="post" class="auth-form">
+                @Html.AntiForgeryToken() <!-- 手动添加防伪标记 -->
+                <h1 class="auth-title">初试莺啼</h1>
+                <p class="auth-subtitle">填写以下信息，入驻梨园</p>
+
+                <div class="input-group-custom">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="Email" class="input-custom" placeholder="电子邮箱" required />
+                </div>
+                <div class="input-group-custom">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="Password" class="input-custom" placeholder="设置密码" required />
+                </div>
+                <div class="input-group-custom">
+                    <i class="fas fa-check-circle"></i>
+                    <input type="password" name="ConfirmPassword" class="input-custom" placeholder="确认密码" required />
+                </div>
+
+                <button type="submit" class="btn-auth-primary">立即注册</button>
+            </form>
+        </div>
+
+        <!-- 2. 登录表单 (Sign In) -->
+        <!-- 注意：在 Login 页，这是“主”表单，使用 Tag Helper 绑定 Model -->
+        <div class="form-container sign-in-container">
+            <form asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="auth-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                <h1 class="auth-title">粉墨登场</h1>
+                <p class="auth-subtitle">欢迎回来，使用账号登录</p>
+
+                <div class="input-group-custom">
+                    <i class="fas fa-envelope"></i>
+                    <input asp-for="Email" class="input-custom" placeholder="电子邮箱" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger" style="font-size:0.8rem;"></span>
+
+                <div class="input-group-custom">
+                    <i class="fas fa-lock"></i>
+                    <input asp-for="Password" class="input-custom" placeholder="密码" />
+                </div>
+                <span asp-validation-for="Password" class="text-danger" style="font-size:0.8rem;"></span>
+
+                <div class="remember-me-box" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px;">
+                    <div>
+                        <input asp-for="RememberMe" />
+                        <label asp-for="RememberMe">记住我</label>
+                    </div>
+                    <a asp-action="ForgotPassword" asp-controller="Account" style="font-size: 0.85rem; color: #8b0000; text-decoration: none;">忘记密码？</a>
+                </div>
+
+                <button type="submit" class="btn-auth-primary">登 录</button>
+            </form>
+        </div>
+
+        <!-- 3. 乳白水袖遮罩 -->
+        <div class="overlay-container">
+            <div class="overlay">
+
+                <!-- 左侧面板 (去登录) -->
+                <div class="overlay-panel overlay-left">
+                    <h1>旧友重逢</h1>
+                    <p>若是梨园旧相识<br>由此入座赏雅音</p>
+                    <button class="ghost" id="signIn">去登录</button>
+                </div>
+
+                <!-- 右侧面板 (去注册) -->
+                <div class="overlay-panel overlay-right">
+                    <h1>初入梨园</h1>
+                    <p>方寸舞台天地宽<br>注册开启戏曲路</p>
+                    <button class="ghost" id="signUp">去注册</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // 每次到登录页都重置“已开门”会话，避免直接跳过叩门流程
+        sessionStorage.removeItem('door_opened');
+
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        // 点击去注册：滑动到注册面板
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+        });
+
+        // 点击去登录：滑动到登录面板
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+        });
+    </script>
+}

@@ -1,0 +1,131 @@
+﻿/* 复用茶馆背景 */
+body {
+    background-color: #f7f3e8;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4c5b0' fill-opacity='0.2' fill-rule='evenodd'%3E%3Cpath d='M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z'/%3E%3C/g%3E%3C/svg%3E");
+    font-family: 'Noto Serif SC', serif;
+}
+
+.edit-page-container {
+    padding-top: 120px;
+    padding-bottom: 80px;
+    min-height: 100vh;
+}
+
+/* 纸张容器 */
+.paper-card {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 50px 60px;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    position: relative;
+    /* 纸张信笺纹理 (横线) */
+    background-image: repeating-linear-gradient(transparent, transparent 29px, #f0f0f0 30px);
+    border-top: 5px solid #3e2723; /* 顶部木条装饰 */
+}
+
+/* 标题 */
+.page-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.5rem;
+    color: #3e2723;
+    text-align: center;
+    margin-bottom: 40px;
+    background: #fff; /* 遮挡横线 */
+    display: inline-block;
+    padding: 0 20px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* 输入框样式 */
+.form-group {
+    margin-bottom: 25px;
+    background: #fff; /* 遮挡背景横线，让输入区清晰 */
+    padding: 5px;
+}
+
+.form-label {
+    font-weight: bold;
+    color: #8d6e63;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control-custom {
+    width: 100%;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background: #fcfcfc;
+}
+
+    .form-control-custom:focus {
+        outline: none;
+        border-color: #9E2A2F;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(158, 42, 47, 0.1);
+    }
+
+textarea.form-control-custom {
+    line-height: 1.8;
+    min-height: 300px;
+}
+
+/* 按钮组 */
+.action-bar {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    background: #fff;
+    padding-top: 10px;
+}
+
+.btn-custom {
+    padding: 10px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cancel {
+    background: #efebe9;
+    color: #5d4037;
+}
+
+    .btn-cancel:hover {
+        background: #d7ccc8;
+        color: #3e2723;
+    }
+
+.btn-save {
+    background: #9E2A2F;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(158, 42, 47, 0.3);
+}
+
+    .btn-save:hover {
+        background: #b53036;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(158, 42, 47, 0.4);
+    }
+
+.text-danger {
+    font-size: 0.85rem;
+    color: #d9534f;
+    margin-top: 5px;
+    display: block;
+}
+

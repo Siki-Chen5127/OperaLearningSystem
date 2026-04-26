@@ -1,0 +1,238 @@
+﻿/* =========================================================
+   品鉴剧目
+   ========================================================= */
+
+body {
+    background-color: #fdfaf5;
+    font-family: 'Noto Serif SC', serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* --- 核心容器：左右双栏布局 --- */
+.play-layout-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100vw; 
+    background: transparent;
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+}
+/* --- 左侧栏：书法简牍区 --- */
+.play-sidebar {
+    width: 140px; /* 纤细修长 */
+    min-width: 250px;
+    background: linear-gradient(to bottom, #fffdf8, #f3ead7);
+    border-right: 1px dashed rgba(212, 175, 55, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 200px; /* 👉 顶部刻意留白，完美避开弹窗左上角的返回按钮！ */
+    padding-bottom: 50px;
+    position: relative;
+}
+
+/* 纵书大标题：极具中国古典创意 */
+.sidebar-title {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 3.2rem;
+    color: #9E2A2F;
+    letter-spacing: 12px;
+    margin: 0 0 30px 0;
+    text-shadow: 2px 2px 0px rgba(212, 175, 55, 0.3);
+}
+
+.sidebar-subtitle {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    font-size: 0.95rem;
+    color: #777;
+    letter-spacing: 6px;
+    margin-bottom: auto; /* 把下面的搜索框推到底部 */
+}
+
+/* 侧边栏底部的迷你搜索框 */
+.sidebar-search {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+    .sidebar-search .search-input {
+        width: 100%;
+        border: 1px solid rgba(212, 175, 55, 0.5);
+        background: #fff;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        text-align: center;
+        outline: none;
+        color: #333;
+    }
+
+    .sidebar-search .search-btn {
+        background: #9E2A2F;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(158, 42, 47, 0.2);
+        transition: all 0.3s;
+    }
+
+        .sidebar-search .search-btn:hover {
+            background: #7a1f23;
+            transform: scale(1.1);
+        }
+
+/* --- 右侧内容区：戏签画廊 --- */
+.play-content {
+    flex-grow: 1;
+    padding: 90px;
+    overflow-y: auto; /* 内容超出时内部滚动 */
+    display: flex;
+    flex-direction: column;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30 30 0z' fill='%23d4af37' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+    /* 隐藏右侧丑陋的滚动条 */
+    .play-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .play-content::-webkit-scrollbar-thumb {
+        background: rgba(212, 175, 55, 0.4);
+        border-radius: 4px;
+    }
+
+/* 网格排版 */
+.play-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin: 0 auto;
+    align-content: start; /* 即使剧目少，也紧贴顶部排版 */
+    flex-grow: 1; /* 占据主要空间，把分页器挤到底部 */
+}
+
+/* --- 戏签卡片 --- */
+.play-card {
+    display: flex;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(5px);
+    border: 1px solid #efe8da;
+    border-radius: 8px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    height: 300px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    transition: all 0.3s ease;
+}
+
+    .play-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: #D4AF37;
+        transition: all 0.3s;
+        z-index: 5;
+    }
+
+    .play-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(158, 42, 47, 0.12);
+        border-color: rgba(158, 42, 47, 0.2);
+        background: #fff;
+    }
+
+        .play-card:hover::before {
+            background: #9E2A2F;
+        }
+
+.play-img-box {
+    width: 80px;
+    min-width: 240px;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+    .play-img-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+.play-card:hover .play-img-box img {
+    transform: scale(1.1);
+}
+
+.play-info {
+    padding: 12px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.play-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.5rem;
+    color: #333;
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s;
+}
+
+.play-card:hover .play-title {
+    color: #9E2A2F;
+}
+
+.play-desc {
+    font-size: 0.8rem;
+    color: #777;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 分页器美化 */
+.pagination-wrapper {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed rgba(212, 175, 55, 0.3);
+}
+
+.pagination .page-link {
+    color: #9E2A2F;
+    background: #fff;
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.pagination .active .page-link {
+    background-color: #9E2A2F;
+    border-color: #9E2A2F;
+    color: white;
+}

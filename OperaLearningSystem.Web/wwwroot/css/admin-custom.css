@@ -1,0 +1,284 @@
+﻿/* 
+   畅音雅韵 - 后台全局驾驶舱专属国风样式
+   */
+
+/*侧边栏*/
+:root {
+    /* 后台专属调色板 */
+    --admin-bg-color: #FAF6F7; /* 宣纸白底 */
+    --admin-sidebar-bg: #2C1E16; /* 深檀木色侧边栏 */
+    --admin-sidebar-hover: #5A1C20; /* 宫墙暗红 */
+    --admin-accent-gold: #E6C585; /* 香槟金 */
+    --admin-text-main: #4A312C; /* 深褐色文字 */
+    --admin-border-color: #EED5B7; /* 浅木色边框 */
+    /* 字体族 */
+    --font-heading: 'Noto Serif SC', 'KaiTi', 'STKaiti', serif;
+    --font-body: 'Microsoft YaHei', sans-serif;
+}
+
+body {
+    background-color: var(--admin-bg-color);
+    font-family: var(--font-body);
+    color: var(--admin-text-main);
+    margin: 0;
+    overflow-x: hidden;
+    height: 100vh; /* 强制页面全屏 */
+}
+
+/* --- 1. 整体布局 --- */
+.admin-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    height: 100vh;
+}
+
+/* --- 2. 左侧导航栏--- */
+.admin-sidebar {
+    min-width: 280px;
+    max-width: 280px;
+    background: #4A352A; /* 提亮：温润的栗木色 */
+    color: #fff;
+    transition: all 0.3s;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+    z-index: 100;
+    display: flex;
+    flex-direction: column; /* 垂直排列 */
+}
+
+    .admin-sidebar .sidebar-header {
+        padding: 30px 20px;
+        background: #38261E; /* 提亮：略深一号的栗色作为头部 */
+        text-align: center;
+        border-bottom: 1px solid #5C4335; /* 边框也同步提亮 */
+    }
+
+        .admin-sidebar .sidebar-header a {
+            color: var(--admin-accent-gold);
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+    /* 侧边栏用户信息区 */
+    .admin-sidebar .user-info-sidebar {
+        padding: 20px;
+        background: rgba(230, 197, 133, 0.05); /* 极淡的金色水印 */
+        border-bottom: 1px solid #5C4335;
+        text-align: center;
+    }
+
+        .admin-sidebar .user-info-sidebar i {
+            font-size: 2.5rem;
+            color: var(--admin-accent-gold);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .admin-sidebar .user-info-sidebar .user-name {
+            color: rgba(230, 197, 133, 0.9);
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+        }
+
+        .admin-sidebar .user-info-sidebar strong {
+            color: #fff; 
+        }
+
+        .admin-sidebar .user-info-sidebar .badge {
+            margin-top: 5px;
+            font-size: 0.75rem;
+            font-weight: normal;
+        }
+
+    /* 侧边栏菜单列表 */
+    .admin-sidebar ul.components {
+        padding: 15px 0;
+        flex: 1; /* 撑满中间空间 */
+        overflow-y: auto; /* 菜单过多时允许滚动 */
+        scrollbar-width: none; /* 兼容 Firefox */
+        -ms-overflow-style: none; /* 兼容 IE 10+ */
+    }
+
+        .admin-sidebar ul.components::-webkit-scrollbar {
+            display: none;
+        }
+
+    /* 侧边栏菜单分隔线 */
+    .admin-sidebar .menu-divider {
+        padding: 15px 20px 5px 20px;
+        font-size: 0.8rem;
+        color: #E6C585; /* 提亮分割线文字 */
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px dashed #5C4335;
+        margin-bottom: 5px;
+    }
+
+    .admin-sidebar ul li a {
+        padding: 12px 20px;
+        font-size: 1.05rem;
+        display: block;
+        color: rgba(255, 255, 255, 0.75); /* 文字调白一点，增加对比度 */
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 4px solid transparent;
+    }
+
+        .admin-sidebar ul li a:hover {
+            color: #fff;
+            background: #B5495B; /* 悬停直接用胭脂红，更有活力 */
+            border-left: 4px solid #E6C585;
+        }
+
+    /* 当前选中菜单项高亮 */
+    .admin-sidebar ul li.active > a {
+        color: #fff;
+        background: #B5495B;
+        border-left: 4px solid #E6C585;
+        font-weight: bold;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .admin-sidebar ul li a i {
+        margin-right: 12px;
+        font-size: 1.1rem;
+    }
+
+    /* 侧边栏底部 */
+    .admin-sidebar .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid #5C4335;
+    }
+
+/*登出按钮定制 */
+.btn-logout {
+    color: #E6C585; /* 改为淡金色，在栗色背景上更和谐 */
+    border: 1px solid #E6C585;
+    background: transparent;
+    border-radius: 20px;
+    padding: 8px 15px;
+    transition: all 0.3s;
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+    .btn-logout:hover {
+        background: #E6C585;
+        color: #38261E;
+        box-shadow: 0 4px 15px rgba(230, 197, 133, 0.2);
+        transform: translateY(-2px);
+    }
+
+/* --- 3. 右侧主内容区 (全局数据驾驶舱无翻页画布) --- */
+.admin-main-content {
+    flex: 1;
+    height: 100vh;
+    overflow-y: hidden;
+    background-color: var(--admin-bg-color);
+}
+
+/* 首页数据大屏样式  */
+.admin-dashboard {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.guofeng-title {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #5A1C20;
+    border-left: 5px solid #E6C585;
+    padding-left: 12px;
+    margin-bottom: 15px;
+}
+
+/* 顶部数据卡片 */
+.stat-card {
+    background: #ffffff;
+    border: 1px solid rgba(181, 73, 91, 0.15);
+    border-radius: 8px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+    color: var(--admin-text-main);
+    height: 100%;
+}
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(90, 28, 32, 0.08);
+        border-color: #5A1C20;
+    }
+
+.stat-card-title {
+    font-size: 1rem;
+    color: #9B9B9B;
+    margin-bottom: 5px;
+}
+
+.stat-card-number {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #B5495B;
+}
+
+.stat-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 2.2rem;
+    color: rgba(230, 197, 133, 0.3);
+}
+
+/* 图表与列表通用白色面板 */
+.list-card {
+    background: #fff;
+    border: 1px solid rgba(181, 73, 91, 0.15);
+    border-radius: 9px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.list-card-header {
+    background-color: transparent;
+    border-bottom: 1px dashed #EAEAEA;
+    padding: 12px 15px;
+    font-weight: bold;
+    color: #5A1C20;
+    flex-shrink: 0;
+}
+
+/* 滚动区域隐藏滚动条 */
+.list-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+}
+
+    .list-scroll-area::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .list-scroll-area::-webkit-scrollbar-thumb {
+        background-color: #EED5B7;
+        border-radius: 4px;
+    }
+
+.guofeng-badge {
+    background-color: #FAF6F7;
+    color: #B5495B;
+    border: 1px solid #EAEAEA;
+    font-weight: normal;
+    font-size: 0.9rem;
+}

@@ -1,0 +1,484 @@
+﻿/*  AI 角色管理列表页 */
+#ai-management-container {
+    padding: 20px 30px;
+    font-family: 'Microsoft YaHei', 'Noto Serif SC', sans-serif;
+    background-color: #FAF6F7;
+    min-height: calc(100vh - 60px);
+    color: #333;
+}
+
+    #ai-management-container .page-title {
+        font-family: 'Noto Serif SC', 'KaiTi', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #5A1C20;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* 顶部操作栏 */
+    #ai-management-container .top-action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        background: #fff;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        border: 1px solid rgba(238, 213, 183, 0.5);
+    }
+
+    #ai-management-container .btn-create {
+        background-color: #B5495B;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+        #ai-management-container .btn-create:hover {
+            background-color: #9E2A2F;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(181, 73, 91, 0.3);
+        }
+
+    /* 空白状态 */
+    #ai-management-container .empty-state {
+        background: #fff;
+        border: 1px dashed #EED5B7;
+        border-radius: 8px;
+        padding: 60px 20px;
+        text-align: center;
+        color: #999;
+    }
+
+        #ai-management-container .empty-state i {
+            font-size: 3rem;
+            color: #EED5B7;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+    /* --- 表格区域 --- */
+    #ai-management-container .table-wrapper {
+        background: #fff;
+        border-radius: 8px;
+        padding: 10px 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        border: 1px solid rgba(238, 213, 183, 0.5);
+    }
+
+    #ai-management-container .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+        /* 居中对齐 */
+        #ai-management-container .custom-table th {
+            color: #666;
+            font-weight: 600;
+            padding: 12px 10px;
+            border-bottom: 2px solid #f0f0f0;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        #ai-management-container .custom-table td {
+            padding: 15px 10px;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+    /* 简介文字处理：太长时省略号 */
+    #ai-management-container .desc-text {
+        font-size: 0.9rem;
+        color: #666;
+        max-width: 250px;
+        margin: 0 auto;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 行动画 */
+    #ai-management-container .table-row {
+        border-bottom: 1px solid #f8f9fa;
+        transition: all 0.2s;
+        animation: rowFadeIn 0.4s ease-out forwards;
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+@keyframes rowFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#ai-management-container .table-row:hover {
+    background-color: #FFFDFD;
+}
+
+/* 排序徽章 */
+#ai-management-container .sort-badge {
+    background-color: #f4f4f4;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* 角色头像 (圆角方形) */
+#ai-management-container .img-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px; /* 偏圆角的方形 */
+    overflow: hidden;
+    background-color: #f5f5f5;
+    border: 2px solid #EED5B7;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+    #ai-management-container .img-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+#ai-management-container .table-row:hover .img-avatar img {
+    transform: scale(1.1);
+}
+
+#ai-management-container .avatar-placeholder {
+    color: #ccc;
+    font-size: 1.5rem;
+}
+
+/* 启用/停用状态徽章 */
+#ai-management-container .status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    #ai-management-container .status-badge.active {
+        background-color: rgba(140, 94, 24, 0.1);
+        color: #8C5E18;
+        border: 1px solid #EED5B7;
+    }
+
+    #ai-management-container .status-badge.inactive {
+        background-color: #f8f9fa;
+        color: #999;
+        border: 1px solid #eaeaea;
+    }
+
+/* 操作链接 */
+#ai-management-container .action-link {
+    background: transparent;
+    border: none;
+    padding: 4px 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+#ai-management-container .divider {
+    color: #EAEAEA;
+    margin: 0 5px;
+}
+
+#ai-management-container .link-edit {
+    color: #8C5E18;
+}
+
+    #ai-management-container .link-edit:hover {
+        color: #D4AF37;
+        text-decoration: underline;
+    }
+
+#ai-management-container .link-delete {
+    color: #B5495B;
+}
+
+    #ai-management-container .link-delete:hover {
+        color: #C94A4A;
+        text-decoration: underline;
+    }
+
+/* 新增高光动画 */
+.highlight-new {
+    animation: glowPulse 2s ease-out;
+}
+
+@keyframes glowPulse {
+    0% {
+        background-color: rgba(230, 197, 133, 0.3);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* ==========================================================================
+   AI 角色：新建/编辑表单专属样式 (双栏紧凑布局)
+   ========================================================================== */
+#ai-edit-container {
+    padding: 20px 30px;
+    font-family: 'Microsoft YaHei', 'Noto Serif SC', sans-serif;
+    color: #333;
+    min-height: calc(100vh - 60px);
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+    #ai-edit-container .page-title {
+        font-family: 'Noto Serif SC', 'KaiTi', serif;
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #5A1C20;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #ai-edit-container .edit-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(238, 213, 183, 0.5);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 700px;
+        overflow: hidden !important;
+    }
+
+        #ai-edit-container .edit-card form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0;
+        }
+
+    #ai-edit-container .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr; /* 左边稍窄，右边留给大模型提示词 */
+        gap: 30px;
+        padding: 25px;
+        flex: 1;
+    }
+
+    #ai-edit-container .form-group {
+        margin-bottom: 15px;
+    }
+
+    #ai-edit-container .control-label {
+        font-weight: 600;
+        color: #5A1C20;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    /* 统一输入框 */
+    #ai-edit-container .form-control {
+        border: 1px solid #EAEAEA;
+        border-radius: 4px;
+        padding: 10px 12px;
+        background-color: #fcfcfc;
+        transition: all 0.3s;
+        width: 100%;
+    }
+
+        #ai-edit-container .form-control:focus {
+            border-color: #B5495B;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(181, 73, 91, 0.1);
+            outline: none;
+        }
+
+    #ai-edit-container textarea.form-control {
+        resize: none;
+    }
+
+    /* Bootstrap Switch 美化 */
+    #ai-edit-container .custom-switch .form-check-input {
+        width: 2.5em;
+        height: 1.25em;
+        cursor: pointer;
+    }
+
+        #ai-edit-container .custom-switch .form-check-input:checked {
+            background-color: #4A7A8C; /* 启用状态用稳重一点的天青色 */
+            border-color: #4A7A8C;
+        }
+
+    #ai-edit-container .custom-switch .form-check-label {
+        cursor: pointer;
+        font-weight: bold;
+        color: #4A312C;
+        margin-left: 8px;
+        padding-top: 2px;
+    }
+
+    /* 图片预览框特制 */
+    #ai-edit-container .image-preview-box {
+        width: 100%;
+        border: 2px dashed #EED5B7;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #FAF6F7;
+        margin-bottom: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    #ai-edit-container .avatar-preview {
+        aspect-ratio: 1 / 1; /* 头像强制正方形 */
+    }
+
+    #ai-edit-container .landscape-preview {
+        aspect-ratio: 16 / 9; /* 背景强制横版 */
+    }
+
+    #ai-edit-container .image-preview-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    #ai-edit-container .image-preview-placeholder {
+        color: #ccc;
+        font-size: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* 底部操作栏完美贴底 */
+    #ai-edit-container .form-actions {
+        padding: 15px 30px;
+        background-color: #FAF6F7;
+        border-top: 1px solid rgba(238, 213, 183, 0.5);
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: auto !important;
+        border-radius: 0 0 8px 8px;
+    }
+
+    #ai-edit-container .btn-save {
+        background-color: #B5495B;
+        color: #fff;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 4px;
+        font-weight: bold;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+        #ai-edit-container .btn-save:hover {
+            background-color: #9E2A2F;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(181, 73, 91, 0.3);
+        }
+
+    #ai-edit-container .btn-cancel {
+        background-color: #fff;
+        color: #666;
+        border: 1px solid #ddd;
+        padding: 10px 25px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+        #ai-edit-container .btn-cancel:hover {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+/*分页器*/
+#ai-management-container .pagination-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center; /* 核心：完美居中 */
+}
+
+#ai-management-container .pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+}
+
+#ai-management-container .page-item .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 10px;
+    color: #555;
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+    #ai-management-container .page-item .page-link:hover {
+        background-color: #f8f9fa;
+        border-color: #D4AF37; /* 悬浮雅韵金边框 */
+        color: #8C5E18;
+    }
+
+#ai-management-container .page-item.active .page-link {
+    background-color: #B5495B; /* 核心：选中时的胭脂红 */
+    border-color: #B5495B;
+    color: #fff;
+}
+
+#ai-management-container .page-item.disabled .page-link {
+    color: #ccc;
+    background-color: #fcfcfc;
+    border-color: #f0f0f0;
+    cursor: not-allowed;
+}

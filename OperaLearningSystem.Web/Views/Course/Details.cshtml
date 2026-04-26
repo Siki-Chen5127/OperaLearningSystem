@@ -1,0 +1,242 @@
+@model OperaLearningSystem.Core.Entities.Course
+@{
+    ViewData["Title"] = Model.Name;
+    bool isLiked = ViewBag.IsLikedByCurrentUser ?? false;
+    bool isFavorited = ViewBag.IsFavoritedByCurrentUser ?? false;
+}
+
+@section Styles {
+    <!-- 引入 FontAwesome 图标库，确保播放三角形和其他图标可见 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/pages/Course/detail.css" />
+}
+
+<div class="course-detail-container">
+
+    <!-- 书桌上的书籍 -->
+    <div class="open-book-wrapper" data-aos="zoom-in-up">
+        <div class="open-book">
+
+            <!-- 左页：影像 -->
+            <div class="book-page-left">
+                <div class="media-frame">
+                    <img src="@(Model.ImageUrl ?? $"https://picsum.photos/800/600?random={Model.Id}")" class="media-cover" alt="@Model.Name">
+
+                    @if (!string.IsNullOrEmpty(Model.VideoUrl))
+                    {
+                        <a href="javascript:void(0)" onclick="openVideoModal('@Model.VideoUrl')" class="play-overlay">
+                            <div class="play-btn-circle">
+                                <!-- 使用 font-awesome 图标 -->
+                                <i class="fas fa-play" style="margin-left: 5px;"></i>
+                            </div>
+                        </a>
+                    }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.BilibiliEmbedHtml))
+                {
+                    <div class="bilibili-embed-slot" style="margin-top:14px;border-radius:8px;overflow:hidden;aspect-ratio:16/9;max-height:220px;">
+                        @Html.Raw(Model.BilibiliEmbedHtml)
+                    </div>
+                }
+            </div>
+
+            <!-- 右页：文墨 -->
+            <div class="book-page-right">
+                <h1 class="course-title">@Model.Name</h1>
+
+                <div class="course-meta">
+                    <span><i class="fas fa-tag"></i> @(Model.Category?.Name ?? "未分类")</span>
+                    <span class="meta-divider">|</span>
+                    <span><i class="fas fa-user-graduate"></i> 梨园讲师</span>
+
+                    @if (Model.IsFeatured)
+                    {
+                        <span class="meta-divider">|</span>
+                        <span style="color:#c62828;"><i class="fas fa-certificate"></i> 精品课程</span>
+                    }
+                </div>
+
+                <div class="course-desc">
+                    @Model.Description
+                </div>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="mb-3">
+                        <a asp-action="Study" asp-route-id="@Model.Id" class="btn" style="background:#5d4037;color:#fff;border-radius:50px;padding:10px 28px;">
+                            <i class="fas fa-scroll"></i> 进入传习考校（视频与答卷）
+                        </a>
+                    </div>
+                }
+
+                <!-- 交互印章区 (AJAX Form) -->
+                <form id="interactionForm">
+                    @Html.AntiForgeryToken()
+                    <div class="stamp-row">
+                        <!-- 点赞印章 -->
+                        <button id="likeButton" class="stamp-btn @(isLiked ? "active" : "")" data-course-id="@Model.Id" title="点赞">
+                            <i class="fas @(isLiked ? "fa-heart" : "fa-heart") stamp-icon"></i>
+                            <span style="font-size:1rem;">赏</span>
+                            <span class="stamp-count" id="likeCount">@Model.Likes.Count</span>
+                        </button>
+
+                        <!-- 收藏印章 -->
+                        <button id="favoriteButton" class="stamp-btn @(isFavorited ? "active" : "")" data-course-id="@Model.Id" title="收藏" style="transform: rotate(3deg);">
+                            <i class="fas @(isFavorited ? "fa-star" : "fa-star") stamp-icon"></i>
+                            <span style="font-size:1rem;">藏</span>
+                            <span class="stamp-count" id="favoriteCount">@Model.Favorites.Count</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部：心得卷轴 -->
+    <div class="scroll-wrapper" data-aos="fade-up">
+        <div class="scroll-rod top"></div>
+
+        <div class="scroll-paper comment-thread-root"
+             data-antiforgery-source="#commentForm"
+             data-vote-url="@Url.Action("Vote", "Comment")"
+             data-add-url="@Url.Action("Add", "Comment")"
+             data-course-id="@Model.Id">
+            <div class="comment-header">
+                <i class="fas fa-pen-fancy"></i> 研习心得 <span style="font-size:1rem; opacity:0.6;">(<span id="commentSectionCount">@Model.Comments.Count</span>)</span>
+            </div>
+
+            <form id="commentForm" class="comment-input-box mb-5">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="courseId" value="@Model.Id" />
+                <textarea id="commentContent" name="content" rows="3" placeholder="诸位学子，不妨在此留下您的修习感悟..."></textarea>
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn btn-dark" style="background:#5d4037; border:none; border-radius:50px; padding:8px 30px;">
+                        <i class="fas fa-paper-plane"></i> 呈递心得
+                    </button>
+                </div>
+            </form>
+
+            <div id="commentList">
+                @foreach (var comment in Model.Comments.Where(c => c.ParentCommentId == null).OrderByDescending(c => c.CreatedAt))
+                {
+                    <partial name="_CommentPartial" model="comment" />
+                }
+            </div>
+        </div>
+
+        <div class="scroll-rod bottom"></div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a asp-action="Index" asp-route-categoryId="@(Model.CategoryId > 0 ? Model.CategoryId : (int?)null)" class="btn btn-link" style="color:#d7ccc8; text-decoration:none;">
+            <i class="fas fa-arrow-left"></i> 返回私塾书架
+        </a>
+    </div>
+
+</div>
+
+<!-- 视频播放弹窗 -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content" style="background: #111; border: 1px solid #333;">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" style="color:#d4af37; font-family: 'Ma Shan Zheng', cursive;">戏影视界</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0" style="height: 75vh;">
+        <iframe id="videoIframe" src="" style="width:100%; height:100%; border:none;" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openVideoModal(url) {
+            let finalUrl = url;
+            const bvidMatch = url.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/i);
+            if(bvidMatch) {
+                finalUrl = `//player.bilibili.com/player.html?bvid=${bvidMatch[1]}&page=1&high_quality=1&as_wide=1&danmaku=0`;
+            }
+            document.getElementById('videoIframe').src = finalUrl;
+            var myModal = new bootstrap.Modal(document.getElementById('videoModal'));
+            myModal.show();
+        }
+
+        document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('videoIframe').src = '';
+        });
+
+        $(document).ready(function () {
+            const handleAjaxError = (xhr) => {
+                if (xhr.status === 401) {
+                    alert('请先登录！');
+                    window.location.href = '/Account/Login?ReturnUrl=' + window.location.pathname;
+                } else {
+                    alert('请求失败，请稍后重试。');
+                }
+            };
+
+            const formParamByDataAttr = { 'course-id': 'courseId', 'play-id': 'playId', 'master-id': 'masterId' };
+            const interactionHandler = (buttonSelector, url, idAttribute, countSelector, stateProp, activeClass) => {
+                $(buttonSelector).on('click', function (e) {
+                    e.preventDefault();
+                    let button = $(this);
+                    if (button.data('reqBusy')) return;
+                    let entityId = button.attr('data-' + idAttribute);
+                    if (entityId === undefined || entityId === '') return;
+                    let token = $('#interactionForm input[name="__RequestVerificationToken"]').val();
+                    let postData = { __RequestVerificationToken: token };
+                    postData[formParamByDataAttr[idAttribute]] = entityId;
+
+                    button.data('reqBusy', true);
+                    $.ajax({
+                        url: url, type: 'POST', data: postData,
+                        complete: function () { button.data('reqBusy', false); },
+                        success: function (response) {
+                            if (response && response.success) {
+                                let totalCount = response.totalLikes ?? response.totalFavorites ?? 0;
+                                $(countSelector).text(totalCount);
+
+                                let isInteracted = !!response[stateProp];
+
+                                if (isInteracted) {
+                                    button.addClass(activeClass);
+                                } else {
+                                    button.removeClass(activeClass);
+                                }
+                            }
+                        }, error: handleAjaxError
+                    });
+                });
+            };
+
+            // 注意：使用 active 类来控制印章的“实心”状态
+            interactionHandler('#likeButton', '@Url.Action("ToggleCourseLike", "Interaction")', 'course-id', '#likeCount', 'isLiked', 'active');
+            interactionHandler('#favoriteButton', '@Url.Action("ToggleCourseFavorite", "Interaction")', 'course-id', '#favoriteCount', 'isFavorited', 'active');
+
+            $('#commentForm').on('submit', function (e) {
+                e.preventDefault(); var form = $(this);
+                if (!$('#commentContent').val().trim()) { alert('评论内容不能为空！'); return; }
+                $.ajax({
+                    url: '@Url.Action("Add", "Comment")', type: 'POST', data: form.serialize(),
+                    success: function (r) {
+                        if (r && typeof r === 'object' && r.success === false) {
+                            alert(r.message || '发表失败');
+                            return;
+                        }
+                        $('#commentList').prepend(r);
+                        $('#commentContent').val('');
+                        var el = $('#commentSectionCount');
+                        if (el.length) {
+                            var n = parseInt(el.text(), 10) || 0;
+                            el.text(n + 1);
+                        }
+                    },
+                    error: handleAjaxError
+                });
+            });
+        });
+    </script>
+    <partial name="_CommentThreadScripts" />
+}

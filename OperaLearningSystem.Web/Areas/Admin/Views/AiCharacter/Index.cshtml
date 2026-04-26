@@ -1,0 +1,195 @@
+@model PagedResult<OperaLearningSystem.Core.Entities.AiCharacter>
+@{
+    ViewData["Title"] = "AI 角色管理";
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+}
+
+<link rel="stylesheet" href="~/css/admin/aicharacter.css" asp-append-version="true" />
+
+<div id="ai-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-robot text-muted" style="font-size: 1.5rem;"></i> AI 角色配置
+    </div>
+
+    <div class="top-action-bar">
+        <div class="left-actions">
+            <a asp-action="Create" class="btn-create">
+                <i class="bi bi-plus"></i> 新建角色
+            </a>
+        </div>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (!Model.Items.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>暂无配置任何 AI 角色</p>
+            <a asp-action="Create" class="btn-create">立即配置首个角色</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <div style="overflow-x: auto;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">排序</th>
+                            <th style="width: 15%;">角色立绘</th>
+                            <th style="width: 20%;">角色名称</th>
+                            <th style="width: 30%;">设定简介</th>
+                            <th style="width: 10%;">状态</th>
+                            <th style="width: 15%;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int rowIndex = 0;
+                        }
+                        @foreach (var c in Model.Items)
+                        {
+                            var delay = rowIndex * 0.05;
+                            <tr class="table-row" style="animation-delay: @(delay)s;">
+                                <td><span class="sort-badge">@c.SortOrder</span></td>
+                                <td>
+                                    <div class="img-avatar">
+                                        @if (!string.IsNullOrEmpty(c.AvatarUrl))
+                                        {
+                                            <img src="@c.AvatarUrl" alt="@c.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div class="avatar-placeholder"><i class="bi bi-person"></i></div>
+                                        }
+                                    </div>
+                                </td>
+                                <td><strong style="font-size: 1.1rem; color: #4A312C;">@c.Name</strong></td>
+                                <td>
+                                    <div class="desc-text" title="@c.Description">
+                                        @{
+                                            var d = c.Description ?? "暂无简介";
+                                        }
+                                        @(d.Length > 30 ? d.Substring(0, 30) + "..." : d)
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (c.IsActive)
+                                    {
+                                        <span class="status-badge active"><i class="bi bi-check-circle-fill"></i> 启用</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge inactive"><i class="bi bi-pause-circle-fill"></i> 停用</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@c.Id" class="action-link link-edit">编辑</a>
+                                    <span class="divider">|</span>
+                                    <button data-id="@c.Id" data-name="@c.Name" class="action-link link-delete delete-btn">删除</button>
+                                </td>
+                            </tr>
+                            rowIndex++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @if (totalPages > 1)
+        {
+            <div class="pagination-container">
+                <ul class="pagination">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="1" class="page-link">首页</a>
+                    </li>
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" class="page-link">上一页</a>
+                    </li>
+
+                    @for (var i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a asp-action="Index" asp-route-pageNumber="@i" class="page-link">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" class="page-link">下一页</a>
+                    </li>
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@totalPages" class="page-link">尾页</a>
+                    </li>
+                </ul>
+            </div>
+        }
+
+    }
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // 系统消息提示
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                var firstRow = document.querySelector('.table-row');
+                if(firstRow) { setTimeout(function() { firstRow.classList.add('highlight-new'); }, 400); }
+
+                Swal.mixin({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
+                    background: '#FAF6F7', color: '#333'
+                }).fire({ icon: 'success', title: successMsgEl.innerText });
+            }
+
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({
+                    icon: 'error', title: '操作失败', text: errorMsgEl.innerText,
+                    confirmButtonColor: '#B5495B', background: '#FAF6F7'
+                });
+            }
+
+            // 国风删除弹窗
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var charId = $(this).data('id');
+                var charName = $(this).data('name');
+                var form = $('#deleteForm');
+                form.attr('action', "@Url.Action("Delete", "AiCharacter")/" + charId);
+
+                Swal.fire({
+                    title: '确认删除角色？',
+                    html: '即将删除 AI 角色：<strong>' + charName + '</strong>。<br><span style="color:#C94A4A; font-size: 0.9em;">注意：该操作将同时清空该角色所有的历史对话记录！</span>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '确认删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) { form.submit(); }
+                });
+            });
+        });
+    </script>
+}

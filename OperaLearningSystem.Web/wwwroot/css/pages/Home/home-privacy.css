@@ -1,0 +1,247 @@
+﻿/* --- 背景：深邃而庄重的木纹 --- */
+body {
+    background-color: #3e2723;
+    /* 叠加木纹纹理 */
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%235d4037' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+    font-family: 'Noto Serif SC', serif;
+    min-height: 100vh;
+}
+
+.privacy-container {
+    padding-top: 140px;
+    padding-bottom: 100px;
+}
+
+/* --- 核心容器：榜文告示 (The Official Notice) --- */
+.notice-board {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fffdf5; /* 宣纸色 */
+    padding: 0; /* 内边距由内部元素控制 */
+    border-radius: 4px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); /* 深邃阴影，立体感 */
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #d7ccc8;
+}
+
+/* 顶部装饰：红头文件风格 */
+.notice-top-bar {
+    background: #9E2A2F; /* 胭脂红 */
+    height: 15px;
+    width: 100%;
+    border-bottom: 2px solid #b71c1c;
+}
+
+.notice-content-wrapper {
+    padding: 60px 80px;
+    position: relative;
+    /* 背景隐纹 */
+    background-image: radial-gradient(#f0f0f0 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* 四角装饰 (Corner Ornaments) */
+.corner-deco {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #D4AF37; /* 金色 */
+    transition: all 0.5s;
+}
+
+.top-left {
+    top: 25px;
+    left: 25px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.top-right {
+    top: 25px;
+    right: 25px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.bottom-left {
+    bottom: 25px;
+    left: 25px;
+    border-right: none;
+    border-top: none;
+}
+
+.bottom-right {
+    bottom: 25px;
+    right: 25px;
+    border-left: none;
+    border-top: none;
+}
+
+/* 标题 */
+.notice-header {
+    text-align: center;
+    margin-bottom: 50px;
+    border-bottom: 1px dashed #9E2A2F; /* 红色虚线分割 */
+    padding-bottom: 30px;
+}
+
+.notice-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 3.5rem;
+    color: #333;
+    margin-bottom: 10px;
+    letter-spacing: 5px;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.1);
+}
+
+.notice-subtitle {
+    color: #888;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* 条款内容 */
+.policy-content {
+    font-size: 1.15rem;
+    line-height: 2.2;
+    color: #444;
+    text-align: justify;
+}
+
+.policy-item {
+    margin-bottom: 40px;
+}
+
+.policy-heading {
+    font-weight: bold;
+    color: #9E2A2F;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    font-family: 'Ma Shan Zheng', cursive;
+}
+
+    .policy-heading::before {
+        content: '❖';
+        margin-right: 15px;
+        color: #D4AF37;
+        font-size: 0.8em;
+    }
+
+.policy-text {
+    text-indent: 2em;
+}
+
+/* 底部落款与印章 */
+.notice-footer {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    position: relative;
+    padding-right: 20px;
+}
+
+.date-sign {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+    margin-top: 8px;
+    margin-right: 40px;
+    font-family: 'Ma Shan Zheng', cursive;
+    letter-spacing: 2px;
+    z-index: 2;
+}
+
+/* 核心特效：盖章动画 */
+.seal-stamp {
+    width: 140px;
+    height: 140px;
+    border: 5px solid #d32f2f;
+    border-radius: 16px;
+    color: #d32f2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.2rem;
+    position: absolute;
+    top: -30px;
+    right: 10px;
+    /* 初始状态：放大且透明 (模拟印章还没盖下来) */
+    transform: scale(2) rotate(0deg);
+    opacity: 0;
+    background: rgba(255,255,255,0.6); /* 半透背景遮挡文字 */
+    text-align: center;
+    line-height: 1.2;
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,0.5); /* 内白边 */
+    mix-blend-mode: multiply; /* 正片叠底，像真实的印泥 */
+    z-index: 1;
+    pointer-events: none;
+}
+
+    /* 盖章动作 */
+    .seal-stamp.stamped {
+        animation: stamp-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+@keyframes stamp-in {
+    0% {
+        transform: scale(2) rotate(0deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) rotate(-15deg);
+        opacity: 0.85;
+    }
+}
+
+/* 返回按钮 */
+.back-btn-wrapper {
+    text-align: center;
+    margin-top: 60px;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 40px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50px;
+    color: #d7ccc8;
+    text-decoration: none;
+    transition: all 0.3s;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(5px);
+    font-size: 1rem;
+}
+
+    .btn-back:hover {
+        border-color: #D4AF37;
+        background: #D4AF37;
+        color: #3e2723;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .notice-content-wrapper {
+        padding: 40px 25px;
+    }
+
+    .notice-title {
+        font-size: 2.5rem;
+    }
+
+    .seal-stamp {
+        width: 100px;
+        height: 100px;
+        font-size: 1.5rem;
+        right: 0;
+    }
+}

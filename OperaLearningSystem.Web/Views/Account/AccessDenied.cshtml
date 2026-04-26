@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "无权访问";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var returnUrl = ViewData["ReturnUrl"] as string;
+}
+
+@section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        .access-denied-wrap { min-height: 55vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .access-denied-card {
+            max-width: 420px; text-align: center;
+            background: rgba(20, 15, 10, 0.92); border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 16px; padding: 36px 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+        }
+        .access-denied-card h1 { font-family: 'Ma Shan Zheng', cursive; color: #e2c079; font-size: 1.75rem; margin: 0 0 12px; font-weight: 400; }
+        .access-denied-card p { color: rgba(255,255,255,0.65); font-size: 0.95rem; line-height: 1.65; margin: 0 0 24px; }
+        .access-denied-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+        .access-denied-actions a {
+            display: inline-block; padding: 10px 22px; border-radius: 999px; text-decoration: none;
+            font-size: 0.9rem; transition: background 0.2s, border-color 0.2s;
+        }
+        .ad-primary { background: rgba(158, 42, 47, 0.9); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+        .ad-primary:hover { background: #b5383e; color: #fff; }
+        .ad-secondary { background: transparent; color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.45); }
+        .ad-secondary:hover { background: rgba(212, 175, 55, 0.12); color: #f0e4c8; }
+    </style>
+}
+
+<div class="access-denied-wrap">
+    <div class="access-denied-card">
+        <h1><i class="fas fa-lock" style="opacity:0.85;margin-right:8px;"></i>暂无通行令牌</h1>
+        <p>当前账号没有访问该页的权限（例如管理后台仅限管理员）。若您应为管理员，请使用管理员账号登录或联系站长分配角色。</p>
+        @if (!string.IsNullOrEmpty(returnUrl))
+        {
+            <p style="font-size:0.8rem;opacity:0.5;word-break:break-all;">目标：@returnUrl</p>
+        }
+        <div class="access-denied-actions">
+            <a href="/" class="ad-secondary">返回首页</a>
+            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@returnUrl" class="ad-primary">切换账号登录</a>
+        </div>
+    </div>
+</div>

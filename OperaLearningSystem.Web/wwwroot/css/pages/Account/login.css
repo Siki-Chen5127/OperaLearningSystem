@@ -1,0 +1,316 @@
+﻿:root {
+    --background-image: url('images\\auth\\bg-paper.jpg');
+    --primary-red: #9E2A2F;
+    --ink: #2c2c2c;
+    --paper-bg: #fcf9f2;
+    --silk-white: #ffffff;
+    --transition-curve: cubic-bezier(0.25, 0.8, 0.25, 1);
+    --transition-time: 0.8s;
+}
+
+.auth-page-wrapper {
+    font-family: 'Noto Serif SC', serif;
+    background: linear-gradient(rgba(234, 221, 207, 0.85), rgba(234, 221, 207, 0.9)), var(--custom-bg-url);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 85vh; /* 适应 Layout */
+    overflow: hidden;
+    position: relative;
+    border-radius: 12px;
+    margin: 2rem auto;
+}
+
+/* 水袖纹理背景动画 */
+.water-sleeve-bg {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(158, 42, 47, 0.05) 0%, transparent 60%);
+    animation: rotateSleeve 20s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes rotateSleeve {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 主容器 */
+.auth-container-card {
+    background-color: var(--paper-bg);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    width: 900px;
+    max-width: 100%;
+    min-height: 600px;
+    z-index: 1;
+}
+
+.form-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all var(--transition-time) var(--transition-curve);
+}
+
+.sign-in-container {
+    left: 0;
+    width: 50%;
+    z-index: 2;
+}
+
+.sign-up-container {
+    left: 0;
+    width: 50%;
+    opacity: 0;
+    z-index: 1;
+}
+
+/* 切换状态 */
+.auth-container-card.right-panel-active .sign-in-container {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.auth-container-card.right-panel-active .sign-up-container {
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+    animation: formFadeIn 0.6s forwards;
+}
+
+@keyframes formFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%) translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(100%) translateY(0);
+    }
+}
+
+/* 表单样式 */
+.auth-form {
+    background-color: var(--paper-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 50px;
+    height: 100%;
+    text-align: center;
+}
+
+h1.auth-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    color: var(--primary-red);
+    font-size: 3rem;
+    margin-bottom: 10px;
+    font-weight: normal;
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+    color: #888;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
+/* 输入框组 */
+.input-group-custom {
+    position: relative;
+    width: 100%;
+    margin: 12px 0;
+}
+
+    .input-group-custom i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+        font-size: 0.9rem;
+        transition: 0.3s;
+        z-index: 10;
+    }
+
+.input-custom {
+    background-color: white;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    padding: 15px 15px 15px 45px;
+    margin: 5px 0;
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    transition: 0.3s;
+    border-radius: 8px 8px 0 0;
+}
+
+    .input-custom:focus {
+        outline: none;
+        border-bottom: 2px solid var(--primary-red);
+        background-color: #fffdfd;
+    }
+
+        .input-custom:focus + i {
+            color: var(--primary-red);
+        }
+
+/* 按钮 */
+.btn-auth-primary {
+    border-radius: 50px;
+    border: none;
+    background: var(--primary-red);
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 12px 50px;
+    letter-spacing: 2px;
+    margin-top: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(158, 42, 47, 0.2);
+}
+
+    .btn-auth-primary:hover {
+        background: #b53036;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(158, 42, 47, 0.3);
+    }
+
+/* 水袖遮罩 Overlay */
+.overlay-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform var(--transition-time) var(--transition-curve);
+    z-index: 100;
+    box-shadow: -5px 0 25px rgba(0,0,0,0.05);
+}
+
+.auth-container-card.right-panel-active .overlay-container {
+    transform: translateX(-100%);
+}
+
+.overlay {
+    background: repeating-linear-gradient(115deg, var(--silk-white) 0%, var(--silk-white) 20px, #f4f4f4 35px, var(--silk-white) 50px);
+    color: var(--ink);
+    position: relative;
+    left: -100%;
+    height: 100%;
+    width: 200%;
+    transform: translateX(0);
+    transition: transform var(--transition-time) var(--transition-curve);
+}
+
+    .overlay::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%);
+        pointer-events: none;
+    }
+
+.auth-container-card.right-panel-active .overlay {
+    transform: translateX(50%);
+}
+
+.overlay-panel {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    text-align: center;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    transform: translateX(0);
+    transition: transform var(--transition-time) var(--transition-curve);
+}
+
+.overlay-left {
+    transform: translateX(-20%);
+}
+
+.auth-container-card.right-panel-active .overlay-left {
+    transform: translateX(0);
+}
+
+.overlay-right {
+    right: 0;
+    transform: translateX(0);
+}
+
+.auth-container-card.right-panel-active .overlay-right {
+    transform: translateX(20%);
+}
+
+.overlay-panel h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    color: var(--primary-red);
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+}
+
+.overlay-panel p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin: 20px 0 40px;
+    color: #555;
+    font-weight: 500;
+}
+
+button.ghost {
+    background-color: transparent;
+    border: 1px solid var(--primary-red);
+    color: var(--primary-red);
+    border-radius: 50px;
+    padding: 12px 45px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+    button.ghost:hover {
+        background-color: var(--primary-red);
+        color: white;
+        box-shadow: 0 5px 15px rgba(158, 42, 47, 0.2);
+    }
+
+/* 记住我 Checkbox */
+.remember-me-box {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+    .remember-me-box input {
+        width: auto;
+        margin-right: 8px;
+    }

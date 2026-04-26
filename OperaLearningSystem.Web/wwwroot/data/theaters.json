@@ -1,0 +1,17 @@
+[
+  {
+    "name": "故宫畅音阁",
+    "image": "/images/entrance/theater_changyinge.jpg",
+    "description": "清代乾隆年间修建的三层大戏台，为帝王观戏之所。寿台、禄台、福台三层相通，可演绎从天而降、由地而出的舞台奇观。"
+  },
+  {
+    "name": "颐和园德和园",
+    "image": "/images/entrance/theater_deheyuan.jpg",
+    "description": "始建于光绪年间，是现存规模最大的古戏楼之一。戏台结构精巧，后台与化妆空间保存完整，兼具观演与礼制功能。"
+  },
+  {
+    "name": "承德避暑山庄清音阁",
+    "image": "/images/entrance/theater_qingyinge.jpg",
+    "description": "与畅音阁、德和园并称清代三大戏台。戏台结合园林与水法机关，体现古代戏曲建筑与舞台技术的融合。"
+  }
+]

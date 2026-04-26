@@ -1,0 +1,17 @@
+# 忽略编译和临时文件
+*.bin
+*.glb
+.vscode/
+.vs/
+*.vsidx
+*.suo
+*.user
+*.sln.docstates
+[Bb]in/
+[Oo]bj/
+.idea/
+
+# 忽略多媒体和3D模型
+**/wwwroot/models/
+**/wwwroot/images/
+**/wwwroot/videos/

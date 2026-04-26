@@ -1,0 +1,106 @@
+﻿@model OperaLearningSystem.Web.ViewModels.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "注册";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/pages/Account/register.css" />
+}
+
+<div class="auth-page-wrapper">
+    <div class="water-sleeve-bg"></div>
+
+    <div class="auth-container-card" id="container">
+
+        <!-- 1. 注册表单 (Sign Up) -->
+        <!-- 在 Register 页，这是“主”表单，使用 asp-for -->
+        <div class="form-container sign-up-container">
+            <form asp-action="Register" method="post" class="auth-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <h1 class="auth-title">初试莺啼</h1>
+                <p class="auth-subtitle">填写以下信息，入驻梨园</p>
+
+                <div class="input-group-custom">
+                    <i class="fas fa-envelope"></i>
+                    <input asp-for="Email" class="input-custom" placeholder="电子邮箱" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger" style="font-size:0.8rem;"></span>
+
+                <div class="input-group-custom">
+                    <i class="fas fa-lock"></i>
+                    <input asp-for="Password" class="input-custom" placeholder="设置密码" />
+                </div>
+                <span asp-validation-for="Password" class="text-danger" style="font-size:0.8rem;"></span>
+
+                <div class="input-group-custom">
+                    <i class="fas fa-check-circle"></i>
+                    <input asp-for="ConfirmPassword" class="input-custom" placeholder="确认密码" />
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="text-danger" style="font-size:0.8rem;"></span>
+
+                <button type="submit" class="btn-auth-primary">立即注册</button>
+            </form>
+        </div>
+
+        <!-- 2. 登录表单 (Sign In) -->
+        <!-- 在 Register 页，这是“副”表单，使用标准 HTML 提交到 Login Action -->
+        <div class="form-container sign-in-container">
+            <form action="/Account/Login" method="post" class="auth-form">
+                @Html.AntiForgeryToken()
+                <h1 class="auth-title">粉墨登场</h1>
+                <p class="auth-subtitle">欢迎回来，使用账号登录</p>
+
+                <div class="input-group-custom">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="Email" class="input-custom" placeholder="电子邮箱" required />
+                </div>
+                <div class="input-group-custom">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="Password" class="input-custom" placeholder="密码" required />
+                </div>
+
+                <button type="submit" class="btn-auth-primary">登 录</button>
+            </form>
+        </div>
+
+        <!-- 3. 乳白水袖遮罩 -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>旧友重逢</h1>
+                    <p>若是梨园旧相识<br>由此入座赏雅音</p>
+                    <button class="ghost" id="signIn">去登录</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>初入梨园</h1>
+                    <p>方寸舞台天地宽<br>注册开启戏曲路</p>
+                    <button class="ghost" id="signUp">去注册</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        // 初始化时，因为是 Register 页面，所以直接设为 active (显示注册面板)
+        container.classList.add("right-panel-active");
+
+        // 切换逻辑
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+        });
+    </script>
+}

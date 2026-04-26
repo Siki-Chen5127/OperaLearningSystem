@@ -1,0 +1,363 @@
+/* --- 1. 场景：深色书桌 --- */
+body {
+    /* 深胡桃木色背景 */
+    background-color: #4e342e;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%233e2723' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+    font-family: 'Noto Serif SC', serif;
+}
+
+.course-detail-container {
+    padding-top: 120px;
+    padding-bottom: 100px;
+    min-height: 100vh;
+}
+
+/* --- 2. 核心：摊开的书籍 (The Open Book) --- */
+.open-book-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    perspective: 1500px; /* 3D 透视 */
+}
+
+.open-book {
+    display: flex;
+    background-color: #fffdf5; /* 米黄纸色 */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    /* 纸张纹理 */
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z' fill='%23dccab6' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+    /* 书脊中缝阴影 */
+    .open-book::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 60px;
+        margin-left: -30px;
+        background: linear-gradient(to right, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.02) 100%);
+        z-index: 10;
+        pointer-events: none;
+    }
+
+/* 左页：影像页 */
+.book-page-left {
+    flex: 1;
+    padding: 40px;
+    border-right: 1px solid #e0e0e0;
+    position: relative;
+}
+
+/* 右页：文墨页 */
+.book-page-right {
+    flex: 1;
+    padding: 50px 60px;
+    position: relative;
+}
+
+/* 视频/封面框 */
+.media-frame {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    border: 8px solid #5d4037; /* 木框 */
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+}
+
+.media-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.media-frame:hover .media-cover {
+    transform: scale(1.05);
+}
+
+/* 播放按钮覆盖 */
+.play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-decoration: none;
+}
+
+.media-frame:hover .play-overlay {
+    opacity: 1;
+}
+
+.play-btn-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    color: #9E2A2F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem; /* 稍微调大字体让图标更明显 */
+    box-shadow: 0 0 30px rgba(255,255,255,0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+/* 文字排版 */
+.course-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.8rem;
+    color: #3e2723;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    border-bottom: 2px solid #3e2723;
+    padding-bottom: 15px;
+    display: inline-block;
+}
+
+.course-meta {
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+    color: #8d6e63;
+    font-weight: bold;
+}
+
+.meta-divider {
+    margin: 0 10px;
+    color: #d7ccc8;
+}
+
+.course-desc {
+    font-size: 1.1rem;
+    line-height: 2;
+    color: #5d4037;
+    text-align: justify;
+    margin-bottom: 50px;
+    position: relative;
+}
+    /* 竖排装饰线 */
+    .course-desc::before {
+        content: '';
+        position: absolute;
+        left: -20px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: #e0e0e0;
+    }
+
+/* --- 3. 交互印章 (Seals) --- */
+.stamp-row {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    margin-top: auto; /* 推到底部 */
+}
+
+.stamp-btn {
+    width: 70px;
+    height: 70px;
+    border: 3px solid #9E2A2F;
+    border-radius: 8px;
+    background: transparent;
+    color: #9E2A2F;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    transform: rotate(-5deg); /* 模拟盖章的随机角度 */
+}
+
+    .stamp-btn:hover {
+        transform: rotate(0deg) scale(1.1);
+    }
+
+    /* 激活状态：实心印章 */
+    .stamp-btn.active {
+        background: #9E2A2F;
+        color: #fffdf5;
+        border-color: #9E2A2F;
+        box-shadow: 0 2px 10px rgba(158, 42, 47, 0.4);
+    }
+
+.stamp-icon {
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+}
+
+.stamp-count {
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* --- 4. 底部：心得卷轴 (Commentary Scroll) --- */
+.scroll-wrapper {
+    max-width: 900px;
+    margin: 60px auto 0 auto;
+    position: relative;
+}
+
+/* 卷轴两端的轴杆 */
+.scroll-rod {
+    height: 30px;
+    background: linear-gradient(to bottom, #5d4037, #3e2723, #5d4037);
+    border-radius: 15px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 5;
+}
+
+    .scroll-rod.top {
+        margin-bottom: -15px;
+    }
+
+    .scroll-rod.bottom {
+        margin-top: -15px;
+    }
+
+/* 宣纸内容区 */
+.scroll-paper {
+    background: #fdfbf7;
+    padding: 50px 60px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+    /* 纸张折痕纹理 */
+    background-image: repeating-linear-gradient(transparent, transparent 49px, #f0eee9 50px);
+}
+
+.comment-header {
+    text-align: center;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2rem;
+    color: #5d4037;
+    margin-bottom: 30px;
+}
+
+.comment-input-box textarea {
+    background: rgba(255,255,255,0.5);
+    border: 2px dashed #d7ccc8;
+    border-radius: 8px;
+    padding: 15px;
+    width: 100%;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+    .comment-input-box textarea:focus {
+        outline: none;
+        border-color: #8d6e63;
+        background: #fff;
+    }
+
+/* --- 5. 评论列表样式 --- */
+.comment-item {
+    display: flex;
+    padding: 1.5rem 0;
+    border-bottom: 1px dashed #d7ccc8; /* 虚线更符合卷轴感 */
+}
+
+    .comment-item:last-child {
+        border-bottom: none;
+    }
+
+.comment-avatar {
+    width: 45px; /* 关键：固定宽度 */
+    height: 45px; /* 关键：固定高度 */
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid #e0e0e0;
+}
+
+.comment-content-box {
+    flex: 1;
+}
+
+.comment-user-name {
+    font-weight: bold;
+    color: #5d4037; /* 深褐色，匹配主题 */
+    font-size: 0.95rem;
+    font-family: 'Noto Serif SC', serif;
+}
+
+.comment-time {
+    font-size: 0.8rem;
+    color: #999;
+    margin-left: 10px;
+}
+
+.comment-text {
+    margin-top: 5px;
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.scroll-paper .comment-vote-btn {
+    color: rgba(93, 64, 55, 0.55);
+}
+.scroll-paper .comment-vote-btn:hover {
+    color: #5d4037;
+    background: rgba(93, 64, 55, 0.08);
+}
+
+/* 响应式 */
+@media (max-width: 992px) {
+    .open-book {
+        flex-direction: column;
+    }
+
+    .book-page-left, .book-page-right {
+        width: 100%;
+        border-right: none;
+    }
+
+    .book-page-left {
+        height: 300px;
+        padding: 0;
+    }
+
+    .media-frame {
+        border: none;
+        border-bottom: 8px solid #5d4037;
+        border-radius: 0;
+    }
+
+    .open-book::before {
+        display: none;
+    }
+    /* 手机端隐藏中缝 */
+}
+

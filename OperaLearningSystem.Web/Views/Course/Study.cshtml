@@ -1,0 +1,589 @@
+@using System.Text.RegularExpressions
+@model OperaLearningSystem.Core.Entities.Course
+@{
+    ViewData["Title"] = Model.Name + " · 传习考校";
+    string? bilibiliPlayerSrc = null;
+    string? youtubeEmbedId = null;
+    if (!string.IsNullOrWhiteSpace(Model.VideoUrl))
+    {
+        var url = Model.VideoUrl.Trim();
+        var bv = Regex.Match(url, @"BV[\w]+", RegexOptions.IgnoreCase);
+        if (bv.Success)
+            bilibiliPlayerSrc = $"https://player.bilibili.com/player.html?bvid={bv.Value}&page=1&high_quality=1&danmaku=0";
+        else
+        {
+            var av = Regex.Match(url, @"av(\d+)", RegexOptions.IgnoreCase);
+            if (av.Success)
+                bilibiliPlayerSrc = $"https://player.bilibili.com/player.html?aid={av.Groups[1].Value}&page=1&high_quality=1&danmaku=0";
+        }
+        var yt = Regex.Match(url, @"(?:youtube\.com/watch\?v=|youtu\.be/)([\w-]{11})", RegexOptions.IgnoreCase);
+        if (yt.Success)
+            youtubeEmbedId = yt.Groups[1].Value;
+    }
+}
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body { background: #1a1208; margin: 0; }
+        .study-root {
+            max-width: 960px; margin: 0 auto; padding: 100px 24px 80px;
+            position: relative; z-index: 1;
+        }
+
+        .study-top-bar {
+            display: flex; align-items: center; justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+        .study-top-bar a {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: 1px solid rgba(139,105,20,0.45);
+            color: #f5e6c8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background .25s, border-color .25s;
+            background: rgba(40,28,14,0.6);
+        }
+        .study-top-bar a:hover {
+            background: rgba(158,42,47,0.35);
+            border-color: #d4af37;
+            color: #fff;
+        }
+
+        .quiz-progress {
+            text-align: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            color: #7a5c2e;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            margin: -8px 0 16px;
+        }
+
+        .exam-summary-box {
+            text-align: center;
+            padding: 16px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(139,105,20,0.35);
+            margin-top: 12px;
+        }
+        .exam-summary-box .cert {
+            font-size: 0.88rem;
+            color: #3a2512;
+            line-height: 1.7;
+            margin: 12px 0;
+        }
+
+        .study-title-bar {
+            text-align: center; margin-bottom: 24px;
+        }
+        .study-title-bar h1 {
+            font-family: 'Ma Shan Zheng', cursive; color: #f5e6c8; font-size: 2.2rem;
+            letter-spacing: 6px; text-shadow: 0 3px 10px rgba(0,0,0,0.5);
+            margin: 0 0 8px;
+        }
+        .study-title-bar p { color: rgba(245,230,200,0.45); font-size: 0.9rem; margin: 0; }
+
+        /* 统一 16:9 视频区，内嵌不跳转 */
+        .study-video-frame {
+            max-width: 960px;
+            margin: 0 auto 20px;
+            border: 3px solid #8b6914;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0a0a0a;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 0 30px rgba(139,105,20,0.08);
+        }
+        .study-video-inner {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+        }
+        .study-video-inner :where(iframe) {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            border: 0 !important;
+            display: block;
+        }
+        .study-video-empty {
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            color: rgba(245,230,200,0.45);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* 观摹倒计时 + 赴考按钮 */
+        .study-quiz-gate {
+            max-width: 960px;
+            margin: 0 auto 40px;
+            text-align: center;
+            padding: 20px 16px;
+            background: rgba(40,28,14,0.55);
+            border: 1px solid rgba(139,105,20,0.35);
+            border-radius: 12px;
+        }
+        .study-countdown {
+            font-family: 'Ma Shan Zheng', cursive;
+            color: rgba(212,175,55,0.85);
+            font-size: 1.15rem;
+            letter-spacing: 3px;
+            margin: 0 0 18px;
+        }
+        .study-countdown.is-ready { color: #c8e6c9; }
+        .btn-go-quiz {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 40px;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.25rem;
+            letter-spacing: 4px;
+            border-radius: 8px;
+            border: 2px solid #4a3a28;
+            cursor: not-allowed;
+            transition: all 0.35s ease;
+            background: linear-gradient(180deg, #3d332a, #2a221c);
+            color: rgba(245,230,200,0.35);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .btn-go-quiz:not(:disabled) {
+            cursor: pointer;
+            border-color: #8b6914;
+            background: linear-gradient(180deg, #9E2A2F, #6e1f24);
+            color: #f5e6c8;
+            box-shadow: 0 6px 24px rgba(158,42,47,0.45);
+        }
+        .btn-go-quiz:not(:disabled):hover {
+            filter: brightness(1.08);
+            transform: translateY(-2px);
+        }
+
+        /* 答题弹窗 */
+        .quiz-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 200000;
+            background: rgba(5,3,2,0.82);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            box-sizing: border-box;
+        }
+        .quiz-modal-backdrop.open { display: flex; }
+        .quiz-modal {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            max-height: 90vh;
+            overflow: auto;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.65);
+        }
+        .quiz-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            z-index: 2;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(30,22,12,0.9);
+            color: #d4af37;
+            font-size: 1.4rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+        }
+        .quiz-modal-close:hover { color: #fff; background: #9E2A2F; }
+        .quiz-modal-back {
+            position: absolute;
+            top: 10px;
+            left: 14px;
+            z-index: 2;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(30,22,12,0.9);
+            color: #d4af37;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+        .quiz-modal-back:hover { color: #fff; background: #5a3a1a; }
+
+        .exam-scroll { position: relative; margin: 0; }
+        .exam-rod {
+            height: 16px; border-radius: 8px;
+            background: linear-gradient(to right, #5a3a1a, #8b6914, #d4af37, #8b6914, #5a3a1a);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        }
+        .exam-paper {
+            background: linear-gradient(to bottom, #f5e6c8, #ede0c0, #f0e4c4);
+            border-left: 3px solid #8b6914; border-right: 3px solid #8b6914;
+            padding: 36px 28px 32px;
+            box-shadow: inset 0 0 30px rgba(139,105,20,0.12);
+            min-height: 200px;
+        }
+        .exam-paper-title {
+            font-family: 'Ma Shan Zheng', cursive; font-size: 1.7rem; color: #5a3a1a;
+            text-align: center; margin-bottom: 20px; letter-spacing: 5px;
+        }
+
+        .exam-stamp-btn {
+            display: block; margin: 0 auto 8px; padding: 10px 32px;
+            background: #9E2A2F; color: #f5e6c8; border: 2px solid #7a1f23;
+            font-family: 'Ma Shan Zheng', cursive; font-size: 1.1rem; letter-spacing: 3px;
+            cursor: pointer; border-radius: 4px; transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(158,42,47,0.4);
+        }
+        .exam-stamp-btn:hover { transform: scale(1.03); }
+
+        .exam-question { display: none; margin-top: 20px; animation: fadeInQuestion 0.5s ease-out; }
+        .exam-question.show { display: block; }
+        @@keyframes fadeInQuestion {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .exam-q-text {
+            color: #3a2512; font-size: 1.05rem; line-height: 1.8; margin-bottom: 16px;
+            padding-left: 16px; border-left: 3px solid #9E2A2F;
+        }
+        .exam-q-img {
+            max-width: 100%; border-radius: 8px; margin-bottom: 16px;
+            border: 1px solid rgba(90,58,26,0.2);
+        }
+
+        .exam-options { list-style: none; padding: 0; margin: 0 0 20px; }
+        .exam-opt {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px 16px; margin-bottom: 8px;
+            border: 1px solid rgba(139,105,20,0.25); border-radius: 6px;
+            background: rgba(255,255,255,0.4); cursor: pointer;
+            transition: all 0.3s;
+        }
+        .exam-opt:hover { background: rgba(212,175,55,0.12); border-color: #8b6914; }
+        .exam-opt.selected { background: rgba(158,42,47,0.1); border-color: #9E2A2F; }
+        .exam-opt-mark {
+            width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+            border: 2px solid #8b6914; display: flex; align-items: center; justify-content: center;
+            font-family: 'Ma Shan Zheng', cursive; font-size: 0.9rem; color: #5a3a1a;
+            transition: all 0.3s;
+        }
+        .exam-opt.selected .exam-opt-mark {
+            background: #9E2A2F; color: #fff; border-color: #9E2A2F;
+        }
+        .exam-opt-text { color: #3a2512; font-size: 0.95rem; line-height: 1.6; padding-top: 3px; }
+
+        .exam-submit {
+            display: block; margin: 0 auto; padding: 10px 40px;
+            background: #5a3a1a; color: #f5e6c8; border: none;
+            font-family: 'Ma Shan Zheng', cursive; font-size: 1.1rem;
+            border-radius: 4px; cursor: pointer; transition: all 0.3s;
+            letter-spacing: 2px;
+        }
+        .exam-submit:hover { background: #3a2512; }
+
+        .exam-result {
+            display: none; text-align: center; padding: 20px; margin-top: 16px;
+            border-radius: 8px; animation: stampAppear 0.4s ease-out;
+        }
+        .exam-result.show { display: block; }
+        @@keyframes stampAppear {
+            from { transform: scale(1.3) rotate(-5deg); opacity: 0; }
+            to { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .exam-result.correct {
+            background: rgba(46,125,50,0.12); border: 2px solid rgba(46,125,50,0.3);
+        }
+        .exam-result.wrong {
+            background: rgba(198,40,40,0.1); border: 2px solid rgba(198,40,40,0.25);
+        }
+        .exam-result-stamp {
+            font-family: 'Ma Shan Zheng', cursive; font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+        .exam-result.correct .exam-result-stamp { color: #2e7d32; }
+        .exam-result.wrong .exam-result-stamp { color: #c62828; }
+        .exam-result-text { color: #5a3a1a; font-size: 0.95rem; line-height: 1.6; }
+        .exam-result-badge {
+            display: inline-block; margin-top: 10px; padding: 4px 16px;
+            background: #d4af37; color: #1a1208; border-radius: 20px;
+            font-family: 'Ma Shan Zheng', cursive; font-size: 1rem;
+            animation: badgeGlow 1s ease infinite alternate;
+        }
+        @@keyframes badgeGlow {
+            from { box-shadow: 0 0 8px rgba(212,175,55,0.4); }
+            to { box-shadow: 0 0 20px rgba(212,175,55,0.8); }
+        }
+
+        .exam-next-btn {
+            display: inline-block; margin-top: 12px; padding: 8px 28px;
+            background: rgba(90,58,26,0.8); color: #f5e6c8; border: 1px solid rgba(139,105,20,0.3);
+            font-family: 'Ma Shan Zheng', cursive; font-size: 1rem; border-radius: 4px;
+            cursor: pointer; transition: all 0.3s; letter-spacing: 2px;
+        }
+        .exam-next-btn:hover { background: #5a3a1a; }
+
+        .study-back { text-align: center; margin-top: 8px; }
+        .study-back a {
+            color: rgba(245,230,200,0.45); text-decoration: none; font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .study-back a:hover { color: #d4af37; }
+    </style>
+}
+
+<div class="study-root">
+    <div class="study-top-bar">
+        <a asp-action="Details" asp-route-id="@Model.Id"><i class="fas fa-arrow-left"></i> 返回课程详情</a>
+    </div>
+    <div class="study-title-bar">
+        <h1>@Model.Name</h1>
+        <p>请先完整观摹影像（至少三分钟），再赴卷答题。视频内嵌播放，无需跳转外链。</p>
+    </div>
+
+    <div class="study-video-frame">
+        @if (!string.IsNullOrWhiteSpace(Model.BilibiliEmbedHtml))
+        {
+            <div class="study-video-inner">
+                @Html.Raw(Model.BilibiliEmbedHtml)
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(bilibiliPlayerSrc))
+        {
+            <div class="study-video-inner">
+                <iframe src="@bilibiliPlayerSrc"
+                        title="课程视频"
+                        allowfullscreen
+                        scrolling="no"
+                        allow="fullscreen; autoplay; clipboard-write; encrypted-media"></iframe>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(youtubeEmbedId))
+        {
+            <div class="study-video-inner">
+                <iframe src="https://www.youtube.com/embed/@youtubeEmbedId?rel=0"
+                        title="课程视频"
+                        allowfullscreen
+                        allow="fullscreen; autoplay; clipboard-write; encrypted-media"></iframe>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(Model.VideoUrl))
+        {
+            <div class="study-video-empty">
+                当前链接无法内嵌播放。请使用 <strong style="color:#d4af37;">B 站视频页地址</strong>（含 BV 或 av 号），或在后台粘贴 B 站「分享 → 嵌入代码」。
+            </div>
+        }
+        else
+        {
+            <div class="study-video-empty">暂无视频。请在后台填写视频链接或嵌入代码。</div>
+        }
+    </div>
+
+    <div class="study-quiz-gate">
+        <p class="study-countdown" id="studyCountdown" aria-live="polite">观摹满三分钟方可赴考，剩余 03:00</p>
+        <button type="button" class="btn-go-quiz" id="btnGoQuiz" disabled>
+            <i class="fas fa-scroll"></i> 观看完毕，前往答题
+        </button>
+    </div>
+
+    <div class="study-back">
+        <a asp-action="Details" asp-route-id="@Model.Id"><i class="fas fa-arrow-left"></i> 返回课程详情</a>
+    </div>
+</div>
+
+<div class="quiz-modal-backdrop" id="quizModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="quizModalTitle">
+    <div class="quiz-modal" id="quizModal">
+        <button type="button" class="quiz-modal-back" id="quizModalBack">← 返回</button>
+        <button type="button" class="quiz-modal-close" id="quizModalClose" aria-label="关闭">&times;</button>
+        <div class="exam-scroll">
+            <div class="exam-rod"></div>
+            <div class="exam-paper">
+                <div class="exam-paper-title" id="quizModalTitle"><i class="fas fa-feather-alt"></i> 传习考卷</div>
+                <p class="quiz-progress" id="quizProgress" style="display:none;"></p>
+                <button type="button" class="exam-stamp-btn" id="btnReloadQuiz" style="display:none;">重新抽题</button>
+                <div class="exam-question" id="modalExamQuestion"></div>
+                <div class="exam-result" id="modalExamResult"></div>
+            </div>
+            <div class="exam-rod"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var courseId = @Model.Id;
+            var totalSec = 180;
+            var remaining = totalSec;
+            var cdEl = document.getElementById('studyCountdown');
+            var btnQuiz = document.getElementById('btnGoQuiz');
+            var backdrop = document.getElementById('quizModalBackdrop');
+            var btnClose = document.getElementById('quizModalClose');
+            var btnBack = document.getElementById('quizModalBack');
+            var progEl = document.getElementById('quizProgress');
+
+            function fmt(t) {
+                var m = Math.floor(t / 60);
+                var s = t % 60;
+                return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+            }
+
+            function tick() {
+                cdEl.textContent = '观摹满三分钟方可赴考，剩余 ' + fmt(remaining);
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    cdEl.textContent = '观摹已满三分钟，可点击下方按钮赴考答题。';
+                    cdEl.classList.add('is-ready');
+                    btnQuiz.disabled = false;
+                    return;
+                }
+                remaining--;
+            }
+            var timer = setInterval(tick, 1000);
+            tick();
+
+            var btnReload = document.getElementById('btnReloadQuiz');
+            var sessionId = null;
+            var currentQuestionId = null;
+            var optLabels = ['甲', '乙', '丙', '丁', '戊', '己'];
+
+            btnQuiz.addEventListener('click', function () {
+                if (btnQuiz.disabled) return;
+                backdrop.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                startCourseExam();
+            });
+
+            btnReload.addEventListener('click', function () {
+                startCourseExam();
+            });
+
+            function closeModal() {
+                backdrop.classList.remove('open');
+                document.body.style.overflow = '';
+                sessionId = null;
+                progEl.style.display = 'none';
+                progEl.textContent = '';
+            }
+            btnClose.addEventListener('click', closeModal);
+            btnBack.addEventListener('click', closeModal);
+            backdrop.addEventListener('click', function (e) {
+                if (e.target === backdrop) closeModal();
+            });
+
+            async function startCourseExam() {
+                var r = await fetch('/api/quiz/course/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ courseId: courseId })
+                });
+                var data = await r.json();
+                var mount = document.getElementById('modalExamQuestion');
+                var res = document.getElementById('modalExamResult');
+                res.className = 'exam-result'; res.innerHTML = '';
+
+                if (!data.ok) {
+                    mount.innerHTML = '<p style="color:#5a3a1a;text-align:center;">' + escapeHtml(data.message || '无法开考') + '</p>';
+                    mount.classList.add('show');
+                    btnReload.style.display = 'block';
+                    progEl.style.display = 'none';
+                    return;
+                }
+                btnReload.style.display = 'none';
+                sessionId = data.sessionId;
+                progEl.style.display = 'block';
+                progEl.textContent = '第 ' + data.current + ' / ' + data.total + ' 题（本卷答完即结业，记录可在个人中心查看）';
+                renderQuestion(data.question);
+            }
+
+            function renderQuestion(q) {
+                currentQuestionId = q.id;
+                var mount = document.getElementById('modalExamQuestion');
+                var opts = q.options || [];
+                var html = '<div class="exam-q-text">' + escapeHtml(q.prompt) + '</div>';
+                if (q.imageUrl) html += '<img src="' + escapeHtml(q.imageUrl) + '" class="exam-q-img" alt="" />';
+                html += '<ul class="exam-options">';
+                for (var i = 0; i < opts.length; i++) {
+                    html += '<li class="exam-opt" data-idx="' + i + '">' +
+                        '<span class="exam-opt-mark">' + optLabels[i] + '</span>' +
+                        '<span class="exam-opt-text">' + escapeHtml(opts[i]) + '</span></li>';
+                }
+                html += '</ul>';
+                html += '<button type="button" class="exam-submit" id="btnSubmitAns">呈交答卷</button>';
+                mount.innerHTML = html;
+                mount.classList.add('show');
+
+                mount.querySelectorAll('.exam-opt').forEach(function (opt) {
+                    opt.addEventListener('click', function () {
+                        mount.querySelectorAll('.exam-opt').forEach(function (o) { o.classList.remove('selected'); });
+                        opt.classList.add('selected');
+                    });
+                });
+                document.getElementById('btnSubmitAns').addEventListener('click', submitCourseAns);
+            }
+
+            async function submitCourseAns() {
+                if (!sessionId) return;
+                var sel = document.querySelector('#modalExamQuestion .exam-opt.selected');
+                if (!sel) { alert('请先选择答案'); return; }
+                var idx = parseInt(sel.getAttribute('data-idx'), 10);
+                var r = await fetch('/api/quiz/course/answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: sessionId, questionId: currentQuestionId, selectedIndex: idx })
+                });
+                var data = await r.json();
+                var res = document.getElementById('modalExamResult');
+                var isCorrect = !!data.correct;
+                res.className = 'exam-result show ' + (isCorrect ? 'correct' : 'wrong');
+                var stampText = isCorrect ? '✓ 甚好' : '✗ 再思';
+                var html = '<div class="exam-result-stamp">' + stampText + '</div>';
+                html += '<div class="exam-result-text">' + escapeHtml(data.explanation || '') + '</div>';
+                if (data.badgeEarned) {
+                    html += '<div class="exam-result-badge">🏅 解锁徽章：传习全对</div>';
+                }
+
+                if (data.sessionComplete && data.summary) {
+                    html += '<div class="exam-summary-box">';
+                    html += '<strong style="color:#5a3a1a;font-size:1.1rem;">本卷已结业</strong>';
+                    html += '<div class="cert">' + escapeHtml(data.summary.certificate || '') + '</div>';
+                    html += '<a href="/Account/UserCenter#tab-quiz" class="exam-next-btn" style="text-decoration:none;display:inline-block;">个人中心 · 修习记录</a> ';
+                    html += '<a href="/Course/Details/' + courseId + '" class="exam-next-btn" style="text-decoration:none;display:inline-block;margin-left:8px;">返回课程详情</a>';
+                    html += '</div>';
+                    progEl.textContent = '已答满 ' + data.summary.totalCount + ' 题，正确率 ' + data.summary.accuracyPercent + '%';
+                } else if (data.progress && data.nextQuestion) {
+                    progEl.textContent = '第 ' + data.progress.current + ' / ' + data.progress.total + ' 题';
+                    html += '<button type="button" class="exam-next-btn" id="btnExamNext">下一题</button>';
+                    res.innerHTML = html;
+                    document.getElementById('btnExamNext').addEventListener('click', function () {
+                        res.className = 'exam-result'; res.innerHTML = '';
+                        renderQuestion(data.nextQuestion);
+                    });
+                    return;
+                }
+                res.innerHTML = html;
+            }
+
+            function escapeHtml(s) {
+                if (!s) return '';
+                var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+            }
+        })();
+    </script>
+}

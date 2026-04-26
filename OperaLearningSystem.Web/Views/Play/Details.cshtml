@@ -1,0 +1,260 @@
+@model OperaLearningSystem.Core.Entities.Play
+
+@{
+    ViewData["Title"] = Model.Title;
+    bool isLiked = ViewBag.IsLikedByCurrentUser ?? false;
+    bool isFavorited = ViewBag.IsFavoritedByCurrentUser ?? false;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Play/detail.css" />
+}
+
+<div class="detail-page-container">
+
+    <div class="detail-grid">
+
+        <div class="play-profile-card" data-aos="fade-right">
+            <div class="poster-box">
+                <img src="@(Model.ImageUrl ?? Model.Category?.ImageUrl ?? $"https://picsum.photos/1200/800?random={Model.Id}")"
+                     alt="@Model.Title" class="poster-img">
+            </div>
+
+            <h1 class="play-title">@Model.Title</h1>
+
+            <div class="meta-tags">
+                @if (Model.Category != null)
+                {
+                    <span class="meta-badge badge-category">
+                        <i class="fas fa-tag"></i> @Model.Category.Name
+                    </span>
+                }
+                @if (Model.PlayMasters != null && Model.PlayMasters.Any())
+                {
+                    foreach (var playMaster in Model.PlayMasters)
+                    {
+                        <span class="meta-badge badge-master">
+                            <i class="fas fa-user-tie"></i> @playMaster.Master?.Name
+                        </span>
+                    }
+                }
+            </div>
+
+            <form id="interactionForm">
+                @Html.AntiForgeryToken()
+                <div class="interaction-bar">
+                    <button type="button" id="likeButton" class="btn-action btn-like @(isLiked ? "active" : "")" data-play-id="@Model.Id">
+                        <i class="bi @(isLiked ? "bi-heart-fill" : "bi-heart")"></i>
+                        <span>点赞 (<span id="likeCount">@Model.Likes.Count</span>)</span>
+                    </button>
+
+                    <button type="button" id="favoriteButton" class="btn-action btn-fav @(isFavorited ? "active" : "")" data-play-id="@Model.Id">
+                        <i class="bi @(isFavorited ? "bi-star-fill" : "bi-star")"></i>
+                        <span>收藏 (<span id="favoriteCount">@Model.Favorites.Count</span>)</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="play-content-area" data-aos="fade-left">
+
+            <div class="synopsis-card">
+                <h4 style="font-weight:bold; margin-bottom:15px; font-size:1.1rem; color:#9E2A2F;">
+                    <i class="fas fa-scroll"></i> 剧情梗概
+                </h4>
+                <div class="synopsis-content">@Model.Synopsis</div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.VideoUrl))
+            {
+                <div class="video-action-wrapper">
+                    <a href="javascript:void(0)" onclick="openVideoModal('@Model.VideoUrl')" class="video-btn-inline">
+                        <i class="bi bi-play-circle-fill"></i> 观看全本
+                    </a>
+                </div>
+            }
+
+            <div class="comments-section">
+                <h3 class="section-heading">戏迷品评 <span style="font-size:1rem; color:#999; font-weight:normal;">(<span id="commentSectionCount">@Model.Comments.Count</span>)</span></h3>
+
+                <div class="detail-body-card bg-white p-4 rounded shadow-sm border comment-thread-root"
+                     data-antiforgery-source="#commentForm"
+                     data-vote-url="@Url.Action("Vote", "Comment")"
+                     data-add-url="@Url.Action("Add", "Comment")"
+                     data-play-id="@Model.Id">
+
+                    <form id="commentForm" class="comment-input-area mb-4">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="playId" value="@Model.Id" />
+                        <div class="mb-3">
+                            <textarea class="form-control" id="commentContent" name="content" rows="3" placeholder="看官，请留下您的妙评，与大家共赏..."></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary px-4" style="background:#9E2A2F; border:none; border-radius:50px;">
+                                <i class="fas fa-paper-plane"></i> 提交评论
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="commentList">
+                        @foreach (var comment in Model.Comments.Where(c => c.ParentCommentId == null).OrderByDescending(c => c.CreatedAt))
+                        {
+                            <partial name="_CommentPartial" model="comment" />
+                        }
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <a asp-controller="Play" asp-action="Index" asp-route-categoryId="@(Model.CategoryId > 0 ? Model.CategoryId : (int?)null)" class="btn btn-link text-muted" style="text-decoration:none;">
+                        <i class="fas fa-arrow-left"></i> 返回剧目画廊
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="background: #111; border: 1px solid #333;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" style="color:#d4af37; font-family: 'Ma Shan Zheng', cursive;">戏影视界</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 75vh;">
+                <iframe id="videoIframe" src="" style="width:100%; height:100%; border:none;" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 1. 播放弹窗函数
+        function openVideoModal(url) {
+            let finalUrl = url;
+            // B站智能解析拦截
+            const bvidMatch = url.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/i);
+            if(bvidMatch) {
+                finalUrl = `//player.bilibili.com/player.html?bvid=${bvidMatch[1]}&page=1&high_quality=1&as_wide=1&danmaku=0`;
+            }
+            document.getElementById('videoIframe').src = finalUrl;
+            var myModal = new bootstrap.Modal(document.getElementById('videoModal'));
+            myModal.show();
+        }
+
+        // 2. 弹窗关闭时停止播放
+        document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('videoIframe').src = '';
+        });
+
+        // 3. AJAX 交互逻辑 (点赞、收藏、评论)
+        $(document).ready(function () {
+
+            const handleAjaxError = (xhr) => {
+                if (xhr.status === 401) {
+                    alert('请先登录再进行操作！');
+                    window.location.href = '/Account/Login?ReturnUrl=' + window.location.pathname;
+                } else {
+                    alert('请求失败，请稍后重试。');
+                }
+            };
+
+            const formParamByDataAttr = {
+                'course-id': 'courseId',
+                'play-id': 'playId',
+                'master-id': 'masterId'
+            };
+
+            const interactionHandler = (buttonSelector, url, idAttribute, countSelector, stateProp, activeClass) => {
+                $(buttonSelector).on('click', function (e) {
+                    e.preventDefault();
+                    let button = $(this);
+
+                    if (button.data('reqBusy')) return;
+
+                    let entityId = button.attr('data-' + idAttribute);
+                    if (entityId === undefined || entityId === '') return;
+
+                    let token = $('#interactionForm input[name="__RequestVerificationToken"]').val();
+                    let postData = { __RequestVerificationToken: token };
+                    postData[formParamByDataAttr[idAttribute]] = entityId;
+
+                    button.data('reqBusy', true);
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: postData,
+                        complete: function () {
+                            button.data('reqBusy', false);
+                        },
+                        success: function (response) {
+                            if (response && response.success) {
+                                let totalCount = response.totalLikes ?? response.totalFavorites ?? 0;
+                                $(countSelector).text(totalCount);
+
+                                let isInteracted = !!response[stateProp];
+                                let icon = button.find('i');
+
+                                if (isInteracted) {
+                                    button.addClass(activeClass);
+                                    if(activeClass === 'active') {
+                                        if(button.hasClass('btn-like')) icon.removeClass('bi-heart').addClass('bi-heart-fill');
+                                        if(button.hasClass('btn-fav')) icon.removeClass('bi-star').addClass('bi-star-fill');
+                                    }
+                                } else {
+                                    button.removeClass(activeClass);
+                                    if(button.hasClass('btn-like')) icon.removeClass('bi-heart-fill').addClass('bi-heart');
+                                    if(button.hasClass('btn-fav')) icon.removeClass('bi-star-fill').addClass('bi-star');
+                                }
+                            }
+                        },
+                        error: handleAjaxError
+                    });
+                });
+            };
+
+            // 绑定点赞事件
+            interactionHandler('#likeButton', '@Url.Action("TogglePlayLike", "Interaction")', 'play-id', '#likeCount', 'isLiked', 'active');
+
+            // 绑定收藏事件
+            interactionHandler('#favoriteButton', '@Url.Action("TogglePlayFavorite", "Interaction")', 'play-id', '#favoriteCount', 'isFavorited', 'active');
+
+            // 绑定发表评论事件
+            $('#commentForm').on('submit', function (e) {
+                e.preventDefault();
+                var form = $(this);
+
+                if (!$('#commentContent').val().trim()) {
+                    alert('评论内容不能为空！');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("Add", "Comment")',
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function (responseHtml) {
+                        if (responseHtml && typeof responseHtml === 'object' && responseHtml.success === false) {
+                            alert(responseHtml.message || '发表失败');
+                            return;
+                        }
+
+                        $('#commentList').prepend(responseHtml);
+                        $('#commentContent').val('');
+
+                        var el = $('#commentSectionCount');
+                        if (el.length) {
+                            el.text((parseInt(el.text(), 10) || 0) + 1);
+                        }
+                    },
+                    error: handleAjaxError
+                });
+            });
+        });
+    </script>
+
+    <partial name="_CommentThreadScripts" />
+}

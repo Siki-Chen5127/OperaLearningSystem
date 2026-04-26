@@ -1,0 +1,363 @@
+/* --- 彻底隐藏布局页自带的版权底部 --- */
+footer:not(.uc-bottom-nav) {
+    display: none !important;
+}
+
+/* --- 全屏容器设定 --- */
+.uc-dashboard-wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #FAF6F7; /* 统一的淡胭脂底色 */
+    font-family: 'Noto Serif SC', '思源宋体', serif;
+    overflow: hidden;
+}
+
+.uc-main-content {
+    flex: 1;
+    display: flex;
+    max-width: 1200px;
+    width: 100%;
+    margin: 20px auto 0;
+    gap: 20px;
+    padding: 0 15px;
+    min-height: 0;
+}
+
+/* --- 左侧名帖：马善政体标题 --- */
+.uc-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+}
+
+.uc-card-inner {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid rgba(181, 73, 91, 0.2);
+    height: 100%;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.uc-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #D4AF37;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 15px;
+}
+
+.uc-name {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 2.2rem;
+    color: #5A1C20;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.uc-bio {
+    font-size: 0.9rem;
+    color: #888;
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 25px;
+}
+
+/* 紧凑数据格 */
+.uc-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.info-cell {
+    background: #FAF6F7;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.info-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #9E2A2F;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.info-val {
+    font-weight: bold;
+    color: #333;
+    font-size: 1rem;
+}
+
+.uc-divider {
+    height: 1px;
+    background: #EED5B7;
+    margin: 15px 0;
+    opacity: 0.5;
+}
+
+.list-item {
+    font-size: 0.88rem;
+    color: #666;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.uc-persona-box {
+    background: #fdfaf2;
+    border: 1px solid #eee4d1;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    height: 100px;
+    overflow-y: auto;
+}
+.persona-text {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #7a6e5a;
+    margin: 0;
+}
+
+/* 操作小按钮 */
+.uc-action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 两两并排 */
+    gap: 10px;
+    margin-top: auto; /* 自动推到底部 */
+    padding-top: 15px;
+    border-top: 1px dashed #EED5B7;
+}
+.uc-btn-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 5px;
+    font-size: 0.85rem;
+    color: #5A1C20;
+    background: #FAF6F7;
+    border: 1px solid rgba(158, 42, 47, 0.2);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+}
+
+    .uc-btn-text:hover {
+        background: #5A1C20;
+        color: #fff !important;
+        border-color: #5A1C20;
+    }
+
+    /* 申请管理特殊颜色：雅韵金 */
+    .uc-btn-text.text-gold {
+        color: #8C5E18;
+        background: #fdfaf2;
+        border-color: #E6C585;
+    }
+
+        .uc-btn-text.text-gold:hover {
+            background: #D4AF37;
+            border-color: #D4AF37;
+        }
+
+    /* 退出按钮特殊颜色：灰色 */
+    .uc-btn-text.text-muted {
+        color: #888;
+        background: #f5f5f5;
+        border-color: #ddd;
+    }
+
+        .uc-btn-text.text-muted:hover {
+            background: #666;
+            border-color: #666;
+        }
+
+/* --- 右侧内容：宋体正文 --- */
+.uc-content-area {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid rgba(181, 73, 91, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.nav-tabs-custom {
+    display: flex;
+    background: #fcfcfc;
+    border-bottom: 1px solid #EED5B7;
+    padding: 0 10px;
+}
+
+.nav-item-custom {
+    padding: 18px 25px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.05rem;
+    color: #888;
+    cursor: pointer;
+    position: relative;
+    transition: 0.3s;
+}
+
+    .nav-item-custom.active {
+        color: #5A1C20;
+        font-weight: bold;
+    }
+
+        .nav-item-custom.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #5A1C20;
+        }
+
+.tab-viewport {
+    flex: 1;
+    overflow-y: auto;
+    padding: 25px;
+}
+
+/* 内容网格优化 */
+.content-grid-dense {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.card-mini {
+    display: block;
+    text-decoration: none;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #eee;
+    transition: 0.3s;
+}
+
+    .card-mini:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .card-mini img {
+        width: 100%;
+        height: 110px;
+        object-fit: cover;
+    }
+
+.card-mini-body {
+    padding: 10px;
+}
+
+.tag {
+    font-size: 0.7rem;
+    color: #D4AF37;
+    background: #fdfaf2;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.tag-like {
+    color: #B5495B;
+    background: #FAF6F7;
+}
+
+.title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #333;
+    margin-top: 6px;
+}
+
+/* 迷你表格 */
+.table-custom-mini {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+    .table-custom-mini th {
+        border-bottom: 2px solid #EED5B7;
+        padding: 12px;
+        color: #5A1C20;
+    }
+
+    .table-custom-mini td {
+        padding: 12px;
+        border-bottom: 1px solid #f5f5f5;
+        text-align: center;
+    }
+
+/* 帖子记录 */
+.post-stack-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.post-item-compact {
+    display: block;
+    text-decoration: none;
+    padding: 15px;
+    background: #FAF6F7;
+    border-radius: 8px;
+}
+
+.p-title {
+    font-weight: bold;
+    color: #4A312C;
+    font-size: 1.05rem;
+}
+
+.p-meta {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 5px;
+}
+
+/* --- 底部固定导航 --- */
+.uc-bottom-nav {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-top: 1px solid #EED5B7;
+}
+
+.btn-exit {
+    text-decoration: none;
+    color: #888;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.4rem;
+    transition: 0.3s;
+}
+
+    .btn-exit:hover {
+        color: #5A1C20;
+        letter-spacing: 2px;
+    }
+
+/* 美化滚动条 */
+.tab-viewport::-webkit-scrollbar, .uc-persona-box::-webkit-scrollbar {
+    width: 5px;
+}
+
+.tab-viewport::-webkit-scrollbar-thumb, .uc-persona-box::-webkit-scrollbar-thumb {
+    background: #EED5B7;
+    border-radius: 10px;
+}

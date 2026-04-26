@@ -1,0 +1,94 @@
+@using OperaLearningSystem.Core.DTOs
+@model PagedResult<OperaLearningSystem.Core.Entities.Category>
+@{
+    ViewData["Title"] = "探索剧种";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+    var searchString = ViewData["CurrentFilter"] as string;
+    var isEntranceEmbed = string.Equals(Context.Request.Query["entranceEmbed"].ToString(), "1", StringComparison.Ordinal);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Category/index.css" asp-append-version="true" />
+}
+
+<div class="container-fluid px-4">
+
+    <header class="hero-header" data-aos="fade-down">
+        <h1 class="hero-title">探索剧种</h1>
+        <p class="hero-subtitle">—— 九州戏苑 · 百花齐放 ——</p>
+    </header>
+
+    <div class="elegant-search-wrapper" data-aos="fade-up" data-aos-delay="100">
+        <form asp-action="Index" method="get" class="elegant-search">
+            @if (isEntranceEmbed)
+            {
+                <input type="hidden" name="entranceEmbed" value="1" />
+            }
+            <input type="text" name="searchString" class="search-input" placeholder="输入剧种寻源..." value="@searchString">
+            <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+        </form>
+    </div>
+
+    @if (Model.Items.Any())
+    {
+        <div class="poster-grid">
+            @foreach (var item in Model.Items)
+            {
+                var delay = (Model.Items.ToList().IndexOf(item) % 4) * 100;
+
+                <a asp-action="Details" asp-route-id="@item.Id" class="poster-card" data-aos="fade-up" data-aos-delay="@delay">
+                    <div class="poster-img-wrap">
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-play.jpg" : item.ImageUrl)" alt="@item.Name">
+                        <div class="poster-overlay"></div>
+                    </div>
+                    <div class="poster-content">
+                        <h2 class="poster-title">@item.Name</h2>
+                        <p class="poster-desc">@(string.IsNullOrEmpty(item.Description) ? "点击查阅方志详情，领略国粹风华。" : item.Description)</p>
+                    </div>
+                </a>
+            }
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="pagination-wrapper" data-aos="fade-up">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                            <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-searchString="@searchString" asp-route-entranceEmbed="@(isEntranceEmbed ? "1" : "")" class="page-link"><i class="fas fa-angle-left"></i></a>
+                        </li>
+                        @for (var i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a asp-action="Index" asp-route-pageNumber="@i" asp-route-searchString="@searchString" asp-route-entranceEmbed="@(isEntranceEmbed ? "1" : "")" class="page-link">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                            <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-searchString="@searchString" asp-route-entranceEmbed="@(isEntranceEmbed ? "1" : "")" class="page-link"><i class="fas fa-angle-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="far fa-sad-tear fa-3x text-muted mb-3"></i>
+            <p class="text-muted" style="font-size: 1.1rem;">方志中未寻得此剧种。</p>
+        </div>
+    }
+
+    @if (!isEntranceEmbed)
+    {
+        <div class="text-center mt-3 pb-5">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary" style="border-radius: 50px;">
+                <i class="fas fa-torii-gate"></i> 返回首页
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+}

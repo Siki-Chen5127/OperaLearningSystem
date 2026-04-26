@@ -1,0 +1,158 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "戏词雅集";
+    var authed = User.Identity?.IsAuthenticated == true;
+    var categories = ViewBag.Categories as SelectList;
+    var qsYsl = string.Equals(Context.Request.Query["yueshilouReturn"].ToString(), "1", StringComparison.Ordinal);
+}
+
+@section Styles {
+    <style>
+        body { background-color: #f5f2ea; }
+    </style>
+    <link rel="stylesheet" href="~/css/pages/Community/yaji-forum.css" asp-append-version="true" />
+}
+
+<div class="yaji-forum-body-wrap">
+    <div class="yaji-page">
+        <header class="yaji-hero" data-aos="fade-down">
+            <div class="yaji-hero-badge">
+                <i class="fas fa-seedling"></i> 阅是楼 · 雅集
+            </div>
+            <h1>戏词雅集</h1>
+            <p class="yaji-hero-sub">清谈戏曲、品鉴唱词 — 与同好共研一纸风华</p>
+            <div class="yaji-hero-links">
+                @if (qsYsl)
+                {
+                    <a asp-controller="Home" asp-action="Index" asp-route-yueshilouReturn="1" class="yaji-link-pill yaji-link-pill--primary"><i class="fas fa-book-open"></i> 返回阅是楼</a>
+                }
+                <a asp-controller="Community" asp-action="Checkin" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">戏台打卡</a>
+                <a asp-controller="Community" asp-action="Works" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">百宝阁</a>
+                <a asp-controller="QuoteBoard" asp-action="Index" asp-route-from="yaji" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">
+                    <i class="fas fa-fire-alt"></i> 梨园心灯
+                </a>
+                <a asp-controller="Home" asp-action="Index" class="yaji-link-pill">
+                    <i class="fas fa-torii-gate"></i> 梨园正门
+                </a>
+            </div>
+        </header>
+
+        <div class="yaji-toolbar-wrap" data-aos="fade-up">
+            <div class="yaji-toolbar">
+                <div class="yaji-sort-group" id="yajiSortGroup" role="tablist" aria-label="排序">
+                    <button type="button" class="yaji-sort-btn active" data-sort="smart">智能</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="time">最新</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="hot">热议</button>
+                    <button type="button" class="yaji-sort-btn" data-sort="region">地域序</button>
+                </div>
+                <div class="yaji-search-wrap">
+                    <input type="search" id="yajiSearch" autocomplete="off" placeholder="搜标题、正文、标签…" aria-label="搜索帖子" />
+                    <span class="yaji-search-icon"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" id="yajiRegion" placeholder="地域" title="只显示该地域相关帖" style="display:none;max-width:110px;border:none;border-bottom:2px solid #ddd;padding:8px 4px;font-size:0.85rem;background:transparent;" />
+                <button type="button" class="yaji-toolbar-compose" id="btnOpenLyricsCompose"><i class="fas fa-pen-fancy"></i> 提笔发帖</button>
+                <div class="yaji-toolbar-actions">
+                    <button type="button" class="yaji-icon-btn" id="yajiToggleRegion" title="按地域筛选">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </button>
+                    <button type="button" class="yaji-icon-btn" id="yajiRefresh" title="刷新">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <section class="yaji-wc-panel" data-aos="fade-up" data-aos-delay="80">
+            <div class="yaji-wc-head">
+                <h2 class="yaji-wc-title"><i class="fas fa-cloud"></i> 戏词云</h2>
+                <span class="yaji-wc-hint">点击词语可筛帖；再度点击取消</span>
+            </div>
+            <div class="yaji-wc-tags" id="yajiWordCloud">载入词云中…</div>
+        </section>
+
+        <div id="yajiFeedHost" class="yaji-feed" data-aos="fade-up" data-aos-delay="120">
+            <div class="yaji-loading"><i class="fas fa-circle-notch fa-spin"></i> 载入雅集…</div>
+        </div>
+    </div>
+</div>
+
+<div id="yajiLyricsModal" class="yaji-modal-root" aria-hidden="true">
+    <div class="yaji-modal-backdrop" onclick="yajiCloseModal('yajiLyricsModal')"></div>
+    <div class="yaji-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="yajiLyricsTitle">
+        <div class="yaji-modal-head">
+            <h3 id="yajiLyricsTitle">提笔发帖</h3>
+            <button type="button" class="yaji-modal-close" onclick="yajiCloseModal('yajiLyricsModal')" aria-label="关闭">&times;</button>
+        </div>
+        <div class="yaji-modal-body-scroll">
+            <label class="small text-muted d-block mb-1">标题</label>
+            <input type="text" id="ly-title" class="yaji-field" placeholder="帖子标题" maxlength="200" />
+            <label class="small text-muted d-block mb-1">所属分类</label>
+            <select id="ly-category" class="yaji-field" required>
+                <option value="">-- 请选择版块 --</option>
+                @if (categories != null)
+                {
+                    foreach (var opt in categories)
+                    {
+                        <option value="@opt.Value">@opt.Text</option>
+                    }
+                }
+            </select>
+            <label class="small text-muted d-block mb-1">正文</label>
+            <textarea id="ly-content" class="yaji-field" placeholder="请挥毫泼墨…"></textarea>
+            <div class="yaji-modal-actions">
+                <button type="button" class="yaji-btn-secondary" onclick="yajiCloseModal('yajiLyricsModal')">取消</button>
+                <button type="button" class="yaji-submit" id="ly-submit">确认发布</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/yaji-compose-modal.js" asp-append-version="true"></script>
+    <script src="~/js/community-yaji-feed.js" asp-append-version="true"></script>
+    <script>
+        initYajiFeed({
+            postKind: 0,
+            reactionSet: 'full',
+            showMediaInFeed: false,
+            authed: @authed.ToString().ToLowerInvariant(),
+            emptyHtml: '<div class="yaji-empty" data-aos="fade-in"><i class="far fa-scroll"></i>暂无非符合条件的帖子<br/><small>试试换个词云或排序，或点击工具栏「提笔发帖」。</small></div>'
+        });
+
+        (function () {
+            var authed = @authed.ToString().ToLowerInvariant();
+            document.getElementById('btnOpenLyricsCompose').addEventListener('click', function () {
+                if (!authed) {
+                    window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+                yajiOpenModal('yajiLyricsModal');
+            });
+
+            document.getElementById('ly-submit').addEventListener('click', async function () {
+                var title = document.getElementById('ly-title').value.trim();
+                var content = document.getElementById('ly-content').value.trim();
+                var cat = document.getElementById('ly-category').value;
+                if (!title || !content) { alert('请填写标题与正文'); return; }
+                if (!cat) { alert('请选择版块'); return; }
+                var r = await fetch('/api/community-feed/lyrics-post', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: title, content: content, categoryId: parseInt(cat, 10) || 0 })
+                });
+                if (r.ok) {
+                    document.getElementById('ly-title').value = '';
+                    document.getElementById('ly-content').value = '';
+                    document.getElementById('ly-category').value = '';
+                    yajiCloseModal('yajiLyricsModal');
+                    if (window.yajiReloadFeed) window.yajiReloadFeed();
+                    alert('发布成功');
+                } else {
+                    var msg = (await r.text()) || '发布失败';
+                    alert(msg);
+                }
+            });
+        })();
+    </script>
+}

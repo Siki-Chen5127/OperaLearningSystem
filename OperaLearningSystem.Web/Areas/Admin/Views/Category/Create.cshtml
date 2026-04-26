@@ -1,0 +1,71 @@
+﻿@model OperaLearningSystem.Web.Areas.Admin.ViewModels.CategoryCreateViewModel
+
+@{
+    ViewData["Title"] = "新建剧种";
+}
+
+<link rel="stylesheet" href="~/css/admin/category.css" asp-append-version="true" />
+
+<div id="category-edit-container">
+
+    <div class="page-title">
+        <i class="bi bi-plus-square text-muted"></i> 新建剧种档案
+    </div>
+
+    <div class="edit-card">
+        <form asp-action="Create" enctype="multipart/form-data" style="display: flex; flex-direction: column; height: 100%;">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="padding: 10px 25px 0;"></div>
+
+            <div class="form-grid">
+
+                <div class="left-column">
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">剧种名称 <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" placeholder="例如：京剧" />
+                        <span asp-validation-for="Name" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">封面展示图</label>
+                        <div class="image-preview-box">
+                            <div class="image-preview-placeholder">
+                                <i class="bi bi-image" style="font-size: 2rem; color: #ddd;"></i>
+                                <span>等待上传图片</span>
+                            </div>
+                        </div>
+
+                        <label asp-for="ImageFile" class="control-label" style="font-size: 0.85rem; color: #666;">请选择一张代表性图片</label>
+                        <input asp-for="ImageFile" type="file" class="form-control" style="padding: 6px;" />
+                        <span asp-validation-for="ImageFile" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+                <div class="right-column" style="display: flex; flex-direction: column;">
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label">剧种简介</label>
+                        <textarea asp-for="Description" class="form-control" style="height: 100px;" placeholder="简短概括该剧种的艺术特色..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
+                        <label asp-for="History" class="control-label">历史渊源</label>
+                        <textarea asp-for="History" class="form-control" style="flex: 1; min-height: 180px;" placeholder="详细记录其发展脉络、流派演变..."></textarea>
+                        <span asp-validation-for="History" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-cancel">取消返回</a>
+                <button type="submit" class="btn-save"><i class="bi bi-check2-circle"></i> 确认创建</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

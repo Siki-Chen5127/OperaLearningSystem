@@ -1,0 +1,201 @@
+﻿@model OperaLearningSystem.Core.Entities.User
+@using Microsoft.AspNetCore.Identity
+
+@{
+    ViewData["Title"] = "用户详情与管理 - " + Model.UserName;
+    var userRoles = ViewBag.UserRoles as IList<string> ?? new List<string>();
+    var allRoles = ViewBag.AllRoles as IEnumerable<IdentityRole<int>> ?? new List<IdentityRole<int>>();
+    var assignableRoles = allRoles.Where(r => !userRoles.Contains(r.Name)).ToList();
+    bool isLocked = Model.LockoutEnd.HasValue && Model.LockoutEnd.Value > DateTimeOffset.UtcNow;
+
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+<link rel="stylesheet" href="~/css/admin/usermanagement.css" asp-append-version="true" />
+
+<div id="user-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-person-badge text-muted"></i> 用户档案与权限面板
+    </div>
+    <p class="text-muted" style="margin-top: -15px; margin-bottom: 20px; font-size: 0.95rem; padding-left: 5px;">
+        当前管理账户：<strong style="color: #4A312C; font-size: 1.1rem;">@Model.UserName</strong>
+    </p>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="details-card">
+        <div class="form-grid">
+
+            <div class="left-column" style="border-right: 1px dashed #EED5B7; padding-right: 30px;">
+                <h4 class="column-header"><i class="bi bi-file-person"></i> 基础档案</h4>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">系统 ID</span>
+                        <span class="info-value text-muted">@Model.Id</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">电子邮箱</span>
+                        <span class="info-value">@Model.Email</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">邮箱验证状态</span>
+                        <span class="info-value">
+                            @if (Model.EmailConfirmed)
+                            {
+                                <span class="text-success"><i class="bi bi-check-circle"></i> 已验证</span>
+                            }
+                            else
+                            {
+
+                                <span class="text-warning"><i class="bi bi-exclamation-circle"></i> 未验证</span>
+                            }
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">注册时间</span>
+                        <span class="info-value">@Model.CreatedAt.ToString("yyyy年MM月dd日 HH:mm")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">当前账户状态</span>
+                        <span class="info-value">
+                            @if (isLocked)
+                            {
+                                <span class="status-badge locked"><i class="bi bi-lock-fill"></i> 被锁定至 @Model.LockoutEnd?.ToString("yyyy-MM-dd")</span>
+                            }
+                            else
+                            {
+
+                                <span class="status-badge normal"><i class="bi bi-check-circle-fill"></i> 正常</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column" style="padding-left: 10px;">
+
+                <h4 class="column-header" style="color: #B5495B;"><i class="bi bi-shield-lock"></i> 安全控制</h4>
+                <div class="action-box">
+                    <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 15px;">当发现该用户有违规行为时，可手动锁定其账户，禁止其登录前台系统。</p>
+                    <form asp-action="ToggleLockout" asp-route-id="@Model.Id" method="post">
+                        @if (isLocked)
+                        {
+                            <button type="submit" class="btn-action unlock-btn"><i class="bi bi-unlock-fill"></i> 解除锁定</button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn-action lock-btn"><i class="bi bi-lock-fill"></i> 锁定账户</button>
+                        }
+                    </form>
+                </div>
+
+                <hr class="section-divider" />
+
+                <h4 class="column-header" style="color: #4A7A8C;"><i class="bi bi-person-gear"></i> 角色与权限</h4>
+
+                <div class="role-list-container">
+                    <span class="meta-label">已授予的角色：</span>
+                    @if (userRoles.Any())
+                    {
+                        <div class="role-tags">
+                            @foreach (var role in userRoles)
+                            {
+                                <div class="role-tag">
+                                    <span>@role</span>
+                                    <form asp-action="RemoveRole" asp-route-userId="@Model.Id" asp-route-roleName="@role" method="post" style="display:inline;">
+                                        <button type="submit" class="role-remove-btn" title="撤销角色"><i class="bi bi-x"></i></button>
+                                    </form>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted" style="font-size: 0.9rem; margin-top: 5px;">暂无任何特殊角色，仅为普通学员。</p>
+                    }
+                </div>
+
+                @if (assignableRoles.Any())
+                {
+                    <div class="assign-role-box">
+                        <span class="meta-label mb-2 d-block">分配新角色：</span>
+                        <form asp-action="AssignRole" asp-route-userId="@Model.Id" method="post" class="d-flex gap-2">
+                            <select name="roleName" class="form-select d-none">
+                                <option value="">-- 选择角色 --</option>
+                                @foreach (var role in assignableRoles)
+                                {
+                                    <option value="@role.Name">@role.Name</option>
+                                }
+                            </select>
+
+                            <div class="custom-form-dropdown dropdown" style="flex: 1;">
+                                <button class="btn custom-select-btn dropdown-toggle w-100 d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                                    <span class="text-truncate text-muted" style="flex: 1; text-align: left;">-- 选择角色 --</span>
+                                </button>
+                                <ul class="dropdown-menu w-100 custom-dropdown-menu shadow">
+                                    <li><a class="dropdown-item active" href="#" data-value="">-- 选择角色 --</a></li>
+                                    @foreach (var role in assignableRoles)
+                                    {
+                                        <li><a class="dropdown-item" href="#" data-value="@role.Name">@role.Name</a></li>
+                                    }
+                                </ul>
+                            </div>
+
+                            <button type="submit" class="btn-assign"><i class="bi bi-plus-circle"></i> 分配</button>
+                        </form>
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn-cancel"><i class="bi bi-arrow-left"></i> 返回用户列表</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#FAF6F7' })
+                    .fire({ icon: 'success', title: successMsgEl.innerText });
+            }
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({ icon: 'error', title: '操作失败', text: errorMsgEl.innerText, confirmButtonColor: '#B5495B', background: '#FAF6F7' });
+            }
+
+            // 高级定制下拉菜单的联动逻辑
+            $('.custom-form-dropdown .dropdown-item').on('click', function (e) {
+                e.preventDefault();
+                var val = $(this).data('value');
+                var text = $(this).text();
+                var $form = $(this).closest('form');
+
+                $form.find('select[name="roleName"]').val(val);
+
+                var $btnSpan = $form.find('.custom-select-btn span');
+                $btnSpan.text(text);
+                $btnSpan.removeClass('text-muted').css('color', val === '' ? '#666' : '#333');
+
+                $(this).closest('.dropdown-menu').find('.dropdown-item').removeClass('active');
+                if (val !== "") $(this).addClass('active');
+            });
+        });
+    </script>
+}

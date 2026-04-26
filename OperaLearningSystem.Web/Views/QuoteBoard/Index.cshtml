@@ -1,0 +1,244 @@
+@using OperaLearningSystem.Core.Entities
+@model IEnumerable<OperaQuote>
+
+@{
+    ViewData["Title"] = "梨园心灯";
+    var canSendQuote = User.Identity?.IsAuthenticated == true;
+    var returnToYaji = ViewBag.ReturnToYaji as bool? == true;
+    var returnToYueshilou = ViewBag.ReturnToYueshilou as bool? == true;
+    var stackTop = 100;
+    int? backTopYsl = returnToYueshilou ? stackTop : null;
+    if (returnToYueshilou) stackTop += 30;
+    int? backTopYaji = returnToYaji ? stackTop : null;
+    if (returnToYaji) stackTop += 30;
+    var backTopHome = stackTop;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/QuoteBoard/index.css" />
+}
+
+<!-- 1. 全屏天空容器 -->
+<div class="sky-container" id="sky">
+    <div class="sky-bg-scene" id="quoteParallaxBg" aria-hidden="true"></div>
+
+    @if (backTopYsl.HasValue)
+    {
+        <a asp-controller="Home" asp-action="Index" asp-route-yueshilouReturn="1" class="btn-back-float" style="top: @(backTopYsl.Value)px;">
+            <i class="fas fa-arrow-left"></i> 返回阅是楼
+        </a>
+    }
+    @if (backTopYaji.HasValue)
+    {
+        <a asp-controller="Community" asp-action="Index" asp-route-yueshilouReturn="@(returnToYueshilou ? "1" : null)" class="btn-back-float" style="top: @(backTopYaji.Value)px;">
+            <i class="fas fa-arrow-left"></i> 返回戏词雅集
+        </a>
+    }
+    <a asp-controller="Home" asp-action="Index" class="btn-back-float" style="top: @(backTopHome)px;">
+        <i class="fas fa-arrow-left"></i> 返回梨园
+    </a>
+
+    <!-- 2. 底部控制台 -->
+    <div class="control-dock">
+        <input type="text" id="quote-input" class="quote-input" placeholder="@(canSendQuote ? "写下一句戏词，点亮一盏心灯..." : "登录账号后即可放飞心灯")" maxlength="50" autocomplete="off" @(canSendQuote ? "" : "disabled")>
+        <button id="btn-send" class="btn-fly" title="放飞心灯" @(canSendQuote ? "" : "disabled")>
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+
+</div>
+
+<div id="lantern-detail-modal" class="lantern-detail-modal" aria-hidden="true" role="dialog" aria-labelledby="ld-content">
+    <div class="lantern-detail-backdrop" id="ld-backdrop"></div>
+    <div class="lantern-detail-panel">
+        <button type="button" class="lantern-detail-close" id="ld-close" aria-label="关闭">&times;</button>
+        <img id="ld-avatar" class="lantern-detail-avatar" alt="" />
+        <p id="ld-content" class="lantern-detail-content"></p>
+        <div id="ld-author" class="lantern-detail-author"></div>
+        <div id="ld-meta" class="lantern-detail-meta"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            (function initQuoteParallaxBg() {
+                var bg = document.getElementById('quoteParallaxBg');
+                if (!bg) return;
+                document.addEventListener('mousemove', function (e) {
+                    var rx = (e.clientX / window.innerWidth - 0.5);
+                    var ry = (e.clientY / window.innerHeight - 0.5);
+                    bg.style.transform = 'scale(1.08) translate(' + (-rx * 22) + 'px,' + (-ry * 16) + 'px)';
+                });
+            })();
+
+            const sky = document.getElementById("sky");
+            const input = document.getElementById("quote-input");
+            const btnSend = document.getElementById("btn-send");
+            const canSendQuote = @Json.Serialize(canSendQuote);
+
+            const modal = document.getElementById("lantern-detail-modal");
+            const ldBackdrop = document.getElementById("ld-backdrop");
+            const ldClose = document.getElementById("ld-close");
+            const ldAvatar = document.getElementById("ld-avatar");
+            const ldContent = document.getElementById("ld-content");
+            const ldAuthor = document.getElementById("ld-author");
+            const ldMeta = document.getElementById("ld-meta");
+
+            const lanternDataMap = new WeakMap();
+
+            const initialQuotes = @Json.Serialize(Model.Select(q => new {
+                id = q.Id,
+                content = q.Content,
+                authorName = q.Author.Nickname ?? q.Author.UserName,
+                avatarUrl = q.Author.AvatarUrl ?? "/images/default_avatar.png",
+                createdTime = q.CreatedTime
+            }));
+
+            function escapeHtml(s) {
+                if (s == null || s === '') return '';
+                const d = document.createElement('div');
+                d.textContent = s;
+                return d.innerHTML;
+            }
+
+            function formatQuoteTime(v) {
+                if (v == null) return '';
+                try {
+                    const d = v instanceof Date ? v : new Date(v);
+                    if (isNaN(d.getTime())) return '';
+                    return d.toLocaleString('zh-CN', { dateStyle: 'medium', timeStyle: 'short' });
+                } catch (e) { return ''; }
+            }
+
+            function openLanternDetail(data) {
+                if (!data || !modal) return;
+                ldAvatar.src = data.avatar || '/images/default_avatar.png';
+                ldAvatar.alt = data.author || '';
+                ldContent.textContent = data.content || '';
+                ldAuthor.textContent = data.author ? ('— ' + data.author) : '';
+                var mt = [];
+                if (data.id != null) mt.push('#' + data.id);
+                var ft = formatQuoteTime(data.createdAt);
+                if (ft) mt.push(ft);
+                ldMeta.textContent = mt.join(' · ');
+                modal.classList.add('open');
+                modal.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeLanternDetail() {
+                if (!modal) return;
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+
+            if (ldBackdrop) ldBackdrop.addEventListener('click', closeLanternDetail);
+            if (ldClose) ldClose.addEventListener('click', closeLanternDetail);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeLanternDetail();
+            });
+
+            function createLantern(content, author, avatar, isNew, quoteId, createdAt) {
+                const wrapper = document.createElement("div");
+                wrapper.className = "lantern-wrapper";
+                wrapper.setAttribute("role", "button");
+                wrapper.setAttribute("tabindex", "0");
+                wrapper.setAttribute("aria-label", "查看这句戏词");
+
+                const sizeScale = 0.6 + Math.random() * 0.5;
+                const duration = 18 + Math.random() * 25;
+                const leftPos = 5 + Math.random() * 90;
+                const drift = (Math.random() - 0.5) * 150 + "px";
+                const rot = (Math.random() - 0.5) * 8 + "deg";
+                const delay = isNew ? 0 : Math.random() * -30;
+
+                wrapper.style.left = leftPos + "%";
+                wrapper.style.setProperty('--drift', drift);
+                wrapper.style.setProperty('--rot', rot);
+                wrapper.style.animation = `floatUp ${duration}s linear infinite`;
+                wrapper.style.animationDelay = delay + "s";
+                wrapper.style.transform = `scale(${sizeScale})`;
+                wrapper.style.zIndex = Math.floor(sizeScale * 100);
+
+                lanternDataMap.set(wrapper, {
+                    id: quoteId,
+                    content: content,
+                    author: author,
+                    avatar: avatar,
+                    createdAt: createdAt
+                });
+
+                wrapper.innerHTML =
+                    '<img class="lantern-avatar" alt="">' +
+                    '<div class="lantern-body">' +
+                    '<div class="lantern-text">' + escapeHtml(content) + '</div>' +
+                    '<div class="lantern-author">' + escapeHtml(author) + '</div>' +
+                    '<div class="lantern-flame"></div>' +
+                    '</div>';
+                var imgEl = wrapper.querySelector('.lantern-avatar');
+                if (imgEl) imgEl.src = avatar || '/images/default_avatar.png';
+
+                function onActivate(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openLanternDetail(lanternDataMap.get(wrapper));
+                }
+                wrapper.addEventListener('click', onActivate);
+                wrapper.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') onActivate(e);
+                });
+
+                sky.appendChild(wrapper);
+            }
+
+            const maxHistory = 30;
+            const displayQuotes = initialQuotes.slice(0, maxHistory);
+            displayQuotes.forEach(function (q) {
+                createLantern(q.content, q.authorName, q.avatarUrl, false, q.id, q.createdTime);
+            });
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/quoteHub")
+                .build();
+
+            connection.on("ReceiveQuote", function (id, content, authorName, avatarUrl, timestamp) {
+                createLantern(content, authorName, avatarUrl, true, id, timestamp);
+            });
+
+            async function sendQuote() {
+                if (!canSendQuote) return;
+                const text = input.value.trim();
+                if (!text) return;
+                if (text.length > 50) { alert("戏词太长啦，灯笼载不动（限50字）"); return; }
+
+                try {
+                    await connection.invoke("SendQuote", text);
+                    input.value = "";
+                    input.focus();
+                } catch (err) {
+                    console.error(err);
+                    alert("放飞失败，请先登录或检查网络");
+                }
+            }
+
+            btnSend.addEventListener("click", sendQuote);
+            input.addEventListener("keypress", function (e) {
+                if (e.key === "Enter" && canSendQuote) sendQuote();
+            });
+
+            async function start() {
+                try {
+                    await connection.start();
+                    if (canSendQuote) btnSend.disabled = false;
+                } catch (err) {
+                    setTimeout(start, 5000);
+                }
+            }
+
+            if (canSendQuote) btnSend.disabled = true;
+            start();
+        });
+    </script>
+}

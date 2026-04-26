@@ -1,0 +1,99 @@
+﻿@{
+    ViewData["Title"] = "隐私政策";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Home/home-privacy.css" />
+}
+
+<div class="container privacy-container">
+
+    <!-- 榜文主体 -->
+    <div class="notice-board" data-aos="zoom-in-up" data-aos-duration="800">
+
+        <!-- 红头装饰 -->
+        <div class="notice-top-bar"></div>
+
+        <div class="notice-content-wrapper">
+            <!-- 四角装饰 -->
+            <div class="corner-deco top-left"></div>
+            <div class="corner-deco top-right"></div>
+            <div class="corner-deco bottom-left"></div>
+            <div class="corner-deco bottom-right"></div>
+
+            <!-- 头部 -->
+            <div class="notice-header">
+                <h1 class="notice-title">隐私保护告示</h1>
+                <p class="notice-subtitle">畅音雅韵 · 用户权益保障书</p>
+            </div>
+
+            <!-- 条款内容 -->
+            <div class="policy-content">
+
+                <div class="policy-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="policy-heading">壹 · 采集之意</div>
+                    <p class="policy-text">
+                        本平台（畅音雅韵）仅在您自愿注册名帖（账号）时，采集必要的电子信箱、昵称等基础信息。
+                        此举旨在为您提供个性化的戏曲推荐、保存您的点赞与收藏记录，绝无他用。
+                    </p>
+                </div>
+
+                <div class="policy-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="policy-heading">贰 · 守护之责</div>
+                    <p class="policy-text">
+                        我们将采用业界通行的加密技术（如 HTTPS 传输、哈希加密存储），如守护珍稀孤本一般，
+                        严密保护您的个人信息不被泄露、篡改或丢失。非经您授权或法律要求，绝不向外人透露半字。
+                    </p>
+                </div>
+
+                <div class="policy-item" data-aos="fade-up" data-aos-delay="300">
+                    <div class="policy-heading">叁 · 饼干之用 (Cookies)</div>
+                    <p class="policy-text">
+                        为确保您在“茶馆”畅所欲言、在“私塾”安心修习时无需反复登录，
+                        我们会使用 Cookies 技术记录您的登录状态。这就像是老茶馆掌柜记住了熟客的脸，只为给您更便捷的服务。
+                    </p>
+                </div>
+
+                <div class="policy-item" data-aos="fade-up" data-aos-delay="400">
+                    <div class="policy-heading">肆 · 您的权利</div>
+                    <p class="policy-text">
+                        您拥有随时查阅、修改或撤回您个人名帖（注销账号）的权利。
+                        若您对隐私事宜有任何疑虑，可随时通过“联系我们”与掌柜取得联系。
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- 落款与印章 -->
+            <div class="notice-footer">
+                <div class="date-sign">畅音雅韵 敬启</div>
+                <div class="date-sign">@DateTime.Now.ToString("yyyy年MM月")</div>
+                <!-- 红色印章 (初始隐藏，JS触发盖章) -->
+                <div class="seal-stamp" id="officialSeal">
+                    梨园<br>雅韵
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 返回首页 -->
+    <div class="back-btn-wrapper" data-aos="fade-in" data-aos-delay="800">
+        <a asp-controller="Home" asp-action="Index" class="btn-back">
+            <i class="fas fa-arrow-left"></i> 返回大厅
+        </a>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const seal = document.getElementById('officialSeal');
+                if(seal) {
+                    seal.classList.add('stamped');
+                }
+            }, 1000);
+        });
+    </script>
+}

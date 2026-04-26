@@ -1,0 +1,415 @@
+/* --- 1. 全局环境：天坛夜色为幕（与戏词心灯页统一） --- */
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #0a0806;
+    font-family: 'Noto Serif SC', serif;
+    height: 100vh;
+    width: 100vw;
+}
+
+main {
+    padding-top: 0 !important;
+}
+
+footer {
+    display: none;
+}
+
+.sky-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    perspective: 1000px;
+    overflow: hidden;
+    background: #0a0806;
+}
+
+/* 天坛底图：略放大供视差平移，与首页 parallax-bg 同类交互 */
+.sky-bg-scene {
+    position: absolute;
+    inset: -6%;
+    z-index: 0;
+    pointer-events: none;
+    background: #0a0806 url('/images/entrance/tiantan.png') center center / cover no-repeat;
+    transform-origin: 50% 45%;
+    will-change: transform;
+    transition: transform 0.14s ease-out;
+}
+
+.sky-bg-scene::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 38%,
+            rgba(10, 8, 6, 0.2) 0%,
+            rgba(5, 3, 2, 0.72) 62%,
+            rgba(0, 0, 0, 0.92) 100%);
+    pointer-events: none;
+}
+
+/* 底部夜色过渡，与孔明灯升空区域融合 */
+.sky-bg-scene::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 42%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent);
+    pointer-events: none;
+}
+
+/* --- 针对夜空的导航栏特调 (Glassmorphism) --- */
+/* 强制覆盖全局导航栏样式 */
+nav.navbar {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* 极淡的白 */
+    backdrop-filter: blur(10px) !important; /* 毛玻璃 */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: none !important;
+}
+
+    nav.navbar .navbar-brand {
+        color: #ffecb3 !important; /* 浅金 Logo */
+        text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+    }
+
+    nav.navbar .nav-link {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+        nav.navbar .nav-link:hover {
+            color: #fff !important;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
+    /* 管理员按钮适配 */
+    nav.navbar .btn-outline-custom {
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        color: #fff !important;
+    }
+
+        nav.navbar .btn-outline-custom:hover {
+            background-color: #fff !important;
+            color: #333 !important;
+        }
+
+/* --- 2. 核心元素：孔明灯（浮于天坛前景） --- */
+.lantern-wrapper {
+    position: absolute;
+    cursor: pointer;
+    z-index: 10;
+    /* 确保该元素能响应鼠标 */
+    pointer-events: auto;
+    /* 初始位置在屏幕外，由 JS 设置具体位置 */
+}
+
+    /* 悬停时：父容器暂停飞行，层级最高 */
+    .lantern-wrapper:hover {
+        animation-play-state: paused !important;
+        z-index: 1000 !important;
+    }
+
+.lantern-body {
+    width: 130px;
+    min-height: 170px;
+    /* [优化] 拟真纸感：中心亮（烛火），边缘暗（纸张重叠） */
+    background: radial-gradient(circle at 50% 65%, rgba(255, 255, 240, 0.95) 10%, /* 烛芯极亮 */
+    rgba(255, 213, 79, 0.9) 40%, /* 暖黄光晕 */
+    rgba(255, 111, 0, 0.85) 85%, /* 橙红边缘 */
+    rgba(191, 54, 12, 0.9) 100% /* 深红折痕 */
+    );
+    /* 形状：上宽下窄，底部收口 */
+    border-radius: 20px 20px 50px 50px;
+    /* 内发光 + 外光晕 */
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3), /* 纸张透光感 */
+    0 0 20px rgba(255, 111, 0, 0.4); /* 环境光 */
+
+    padding: 20px 15px;
+    color: #3e2723; /* 深褐墨字 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    /* 竖排文字 */
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    /* 边框线 */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s;
+}
+
+/* 悬停时：子容器平滑放大，变亮 */
+.lantern-wrapper:hover .lantern-body {
+    transform: scale(1.3);
+    background: radial-gradient(circle at 50% 65%, #fff 15%, #ffe082 50%, #ff8f00 100%);
+    box-shadow: 0 0 60px rgba(255, 143, 0, 0.8);
+}
+
+/* 灯笼底部的烛火 */
+.lantern-flame {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, #fff, #ffeb3b, transparent);
+    border-radius: 50%;
+    filter: blur(2px);
+    animation: flameFlicker 0.15s infinite alternate;
+}
+
+@keyframes flameFlicker {
+    from {
+        opacity: 0.7;
+        transform: translateX(-50%) scale(1);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.2);
+    }
+}
+
+/* 顶部提线装饰 */
+.lantern-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: rgba(255,255,255,0.3);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+}
+
+.lantern-text {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow: hidden;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.4); /* 文字雕刻感 */
+}
+
+.lantern-author {
+    font-size: 0.75rem;
+    margin-top: 12px;
+    color: #5d4037;
+    border-top: 1px solid rgba(93, 64, 55, 0.3); /* 竖排的右边线 */
+    padding-top: 6px;
+    font-weight: bold;
+}
+
+/* 悬停显示的头像 */
+.lantern-avatar {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ffca28;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s, top 0.3s;
+    z-index: -1; /* 在灯笼后面升起 */
+}
+
+.lantern-wrapper:hover .lantern-avatar {
+    opacity: 1;
+    top: -50px; /* 悬停时头像升起 */
+}
+
+/* --- 3. 底部控制台 --- */
+.control-dock {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 600px;
+    background: rgba(20, 20, 20, 0.6); /* 深色半透 */
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    padding: 10px 10px 10px 25px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    z-index: 2100;
+    transition: all 0.3s;
+}
+
+    .control-dock:focus-within {
+        background: rgba(30, 30, 30, 0.85);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+.quote-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.1rem;
+    font-family: 'Noto Serif SC', serif;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+    .quote-input::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+
+    .quote-input:focus {
+        outline: none;
+    }
+
+.btn-fly {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #9E2A2F, #b71c1c);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(158, 42, 47, 0.6);
+    transition: all 0.3s;
+    margin-left: 10px;
+}
+
+    .btn-fly:hover {
+        transform: scale(1.15) rotate(15deg);
+        background: linear-gradient(135deg, #b71c1c, #d32f2f);
+        box-shadow: 0 0 30px rgba(255, 50, 50, 0.8);
+    }
+
+.btn-back-float {
+    position: fixed;
+    top: 100px;
+    left: 30px;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 0.9rem;
+    z-index: 2100;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+    .btn-back-float:hover {
+        color: #fff;
+        text-shadow: 0 0 10px #fff;
+    }
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(110vh) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-20vh) translateX(var(--drift)) rotate(var(--rot));
+        opacity: 0.9;
+    }
+}
+
+/* --- 心灯详情（点击灯笼） --- */
+.lantern-detail-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.lantern-detail-modal.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.lantern-detail-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+}
+.lantern-detail-panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    padding: 28px 26px 24px;
+    border-radius: 18px;
+    background: linear-gradient(165deg, rgba(45, 30, 28, 0.97), rgba(22, 14, 12, 0.98));
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 40px rgba(255, 140, 60, 0.12);
+    text-align: center;
+    transform: scale(0.92);
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.lantern-detail-modal.open .lantern-detail-panel {
+    transform: scale(1);
+}
+.lantern-detail-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.lantern-detail-close:hover {
+    background: rgba(158, 42, 47, 0.5);
+    color: #fff;
+}
+.lantern-detail-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 202, 40, 0.6);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    margin: 0 auto 16px;
+    display: block;
+}
+.lantern-detail-content {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.35rem;
+    color: #f5e6c8;
+    line-height: 1.65;
+    margin: 0 0 14px;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+.lantern-detail-author {
+    font-size: 0.88rem;
+    color: rgba(255, 200, 120, 0.85);
+    margin-bottom: 8px;
+}
+.lantern-detail-meta {
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.38);
+}

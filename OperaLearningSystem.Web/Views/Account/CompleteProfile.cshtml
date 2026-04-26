@@ -1,0 +1,198 @@
+﻿@model OperaLearningSystem.Web.ViewModels.Account.CompleteProfileViewModel
+@{
+    ViewData["Title"] = "完善个人资料";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Account/completeprofile.css" />
+}
+
+<div class="profile-page-wrapper">
+    <div class="profile-card">
+        <div class="card-header-deco"></div>
+
+        <div class="card-body">
+            <div class="header-section">
+                <h1 class="header-title">梨园名帖</h1>
+                <p class="header-subtitle">完善个人资料，结交戏迷知音</p>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success text-center" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb;">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            <div asp-validation-summary="ModelOnly" class="text-danger text-center mb-3"></div>
+
+            <form id="profileForm" asp-action="CompleteProfile" method="post" enctype="multipart/form-data" class="form-container-flex" onsubmit="return validateProfileJS()">
+
+                <div class="avatar-section">
+                    <div class="avatar-wrapper" onclick="document.getElementById('avatarUpload').click()">
+                        @{
+                            var avatarSrc = "https://via.placeholder.com/150/FDEEF4/9E2A2F?text=点击上传";
+                            if (!string.IsNullOrEmpty(Model.ExistingAvatarUrl))
+                            {
+                                avatarSrc = Url.Content(Model.ExistingAvatarUrl);
+                            }
+                        }
+                        <img src="@avatarSrc" alt="头像" class="avatar-img" id="avatarPreview" style="object-fit: cover;">
+                        <div class="avatar-overlay">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <input asp-for="AvatarImage" type="file" id="avatarUpload" hidden accept="image/*" onchange="previewImage(this)">
+                    </div>
+                    <p class="avatar-tip">点击绣像上传<br><span style="font-size:0.8em;color:#ccc">支持 JPG, PNG</span></p>
+                    <span asp-validation-for="AvatarImage" class="text-danger"></span>
+                </div>
+
+                <div class="fields-section">
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label asp-for="Nickname" class="form-label">梨园艺名 (昵称)</label>
+                            <input asp-for="Nickname" class="form-input" id="nicknameInput" placeholder="取个好听的名字" />
+                            <div class="js-error-msg" id="nicknameError">请输入您的艺名</div>
+                            <span asp-validation-for="Nickname" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Email" class="form-label">注册信箱 (不可修)</label>
+                            <input asp-for="Email" class="form-input" readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Gender" class="form-label">乾坤 (性别)</label>
+                            <div class="gender-options" id="genderGroup">
+                                <label class="radio-label">
+                                    <input asp-for="Gender" type="radio" value="男" name="Gender" />
+                                    <span>男</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input asp-for="Gender" type="radio" value="女" name="Gender" />
+                                    <span>女</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input asp-for="Gender" type="radio" value="保密" name="Gender" />
+                                    <span>保密</span>
+                                </label>
+                            </div>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="BirthDate" class="form-label">生辰 (出生年月)</label>
+                            <input asp-for="BirthDate" type="date" class="form-input" />
+                            <span asp-validation-for="BirthDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="SelectedProvince" class="form-label">故里 (籍贯)</label>
+                            <select asp-for="SelectedProvince" asp-items="@Model.ProvinceOptions" class="form-input" id="provinceInput" style="appearance: none; -webkit-appearance: none; cursor: pointer;">
+                                <option value="" disabled selected>-- 请选择省份 --</option>
+                            </select>
+                            <i class="fas fa-chevron-down" style="position: absolute; right: 5px; bottom: 15px; color: #999; pointer-events: none; font-size: 0.8rem;"></i>
+                            <div class="js-error-msg" id="provinceError">请选择您的故里</div>
+                            <span asp-validation-for="SelectedProvince" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">偏好剧种 (多选)</label>
+                            <div class="tags-container" id="hobbyContainer">
+                                @for (int i = 0; i < Model.HobbyOptions.Count; i++)
+                                {
+                                    <label class="tag-item">
+                                        <input type="hidden" asp-for="HobbyOptions[i].CategoryId" />
+                                        <input type="hidden" asp-for="HobbyOptions[i].Name" />
+                                        <input asp-for="HobbyOptions[i].IsSelected" type="checkbox" class="hobby-check" />
+                                        <span class="tag-visual">@Model.HobbyOptions[i].Name</span>
+                                    </label>
+                                }
+                            </div>
+                            <div class="js-error-msg" id="hobbyError">请至少选择一种您偏好的剧种</div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label asp-for="Bio" class="form-label">戏缘寄语 (个人简介)</label>
+                            <textarea asp-for="Bio" class="form-textarea" placeholder="写下您与戏曲的不解之缘..."></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="action-bar">
+                        <a asp-controller="Home" asp-action="Index" class="btn-custom btn-skip">跳过，以后再说</a>
+                        <button type="reset" class="btn-custom btn-reset">重置</button>
+                        <button type="submit" class="btn-custom btn-save">保存名帖</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function validateProfileJS() {
+            var isValid = true;
+            var nickname = document.getElementById("nicknameInput");
+            var province = document.getElementById("provinceInput");
+            var hobbies = document.getElementsByClassName("hobby-check");
+
+            function toggleError(elementId, inputElement, isError) {
+                var errorDiv = document.getElementById(elementId);
+                if (isError) {
+                    errorDiv.style.display = "block";
+                    if(inputElement) inputElement.classList.add("js-error-input");
+                } else {
+                    errorDiv.style.display = "none";
+                    if(inputElement) inputElement.classList.remove("js-error-input");
+                }
+            }
+
+            if (!nickname.value.trim()) {
+                toggleError("nicknameError", nickname, true);
+                isValid = false;
+            } else {
+                toggleError("nicknameError", nickname, false);
+            }
+
+            if (!province.value) {
+                toggleError("provinceError", province, true);
+                isValid = false;
+            } else {
+                toggleError("provinceError", province, false);
+            }
+
+            var hobbyChecked = false;
+            for (var i = 0; i < hobbies.length; i++) {
+                if (hobbies[i].checked) {
+                    hobbyChecked = true;
+                    break;
+                }
+            }
+            if (!hobbyChecked) {
+                toggleError("hobbyError", null, true);
+                isValid = false;
+            } else {
+                toggleError("hobbyError", null, false);
+            }
+
+            if (!isValid) {
+                return false;
+            }
+            return true;
+        }
+    </script>
+}

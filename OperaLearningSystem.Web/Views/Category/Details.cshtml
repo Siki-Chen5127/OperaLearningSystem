@@ -1,0 +1,83 @@
+﻿@model OperaLearningSystem.Core.Entities.Category
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/Category/details.css" asp-append-version="true" />
+}
+
+<div class="category-detail-container">
+
+    <div class="cinematic-window">
+        <div class="blur-backdrop" style="background-image: url('@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/default-play.jpg" : Model.ImageUrl)');"></div>
+        <div class="sharp-image-box" data-aos="zoom-in" data-aos-duration="1000">
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/default-play.jpg" : Model.ImageUrl)" alt="@Model.Name" class="sharp-image">
+        </div>
+        <div class="window-title" data-aos="fade-up" data-aos-delay="300">@Model.Name</div>
+    </div>
+
+    <div class="main-card">
+
+        <div class="content-columns">
+
+            <div class="column-left">
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="intro-text" data-aos="fade-up" data-aos-delay="100">
+                        @Model.Description
+                    </div>
+                }
+
+                <h3 class="section-title align-left" data-aos="fade-up" data-aos-delay="200">源流考据</h3>
+                <div class="history-section" data-aos="fade-up" data-aos-delay="250">
+                    <div class="history-content">@(string.IsNullOrEmpty(Model.History) ? "暂无历史记载，有待后续补遗。" : Model.History)</div>
+                </div>
+            </div>
+
+            <div class="column-right">
+                <h3 class="section-title align-left" data-aos="fade-up" data-aos-delay="150">资源宝库</h3>
+                <div class="resource-grid-vertical">
+
+                    <a asp-controller="Play" asp-action="Index" asp-route-categoryId="@Model.Id" class="gate-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="gate-corner top-left"></div><div class="gate-corner bottom-right"></div>
+                        <div class="gate-content-flex">
+                            <i class="bi bi-film gate-icon"></i>
+                            <div class="gate-text-group">
+                                <span class="gate-count">@(Model.Plays?.Count() ?? 0)</span>
+                                <span class="gate-label">部经典剧目</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a asp-controller="Master" asp-action="Index" asp-route-categoryId="@Model.Id" class="gate-card" data-aos="fade-up" data-aos-delay="250">
+                        <div class="gate-corner top-left"></div><div class="gate-corner bottom-right"></div>
+                        <div class="gate-content-flex">
+                            <i class="bi bi-person-badge gate-icon"></i>
+                            <div class="gate-text-group">
+                                <span class="gate-count">@(Model.Masters?.Count() ?? 0)</span>
+                                <span class="gate-label">位艺术大师</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a asp-controller="Course" asp-action="Index" asp-route-categoryId="@Model.Id" class="gate-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="gate-corner top-left"></div><div class="gate-corner bottom-right"></div>
+                        <div class="gate-content-flex">
+                            <i class="bi bi-journal-bookmark gate-icon"></i>
+                            <div class="gate-text-group">
+                                <span class="gate-count">@(Model.Courses?.Count() ?? 0)</span>
+                                <span class="gate-label">门研修课程</span>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+
+        </div> <div class="back-btn-wrapper" data-aos="fade-up" data-aos-delay="400">
+            <a asp-action="Index" class="btn-back"><i class="bi bi-arrow-left"></i> 返回方志目录</a>
+        </div>
+
+    </div>
+</div>

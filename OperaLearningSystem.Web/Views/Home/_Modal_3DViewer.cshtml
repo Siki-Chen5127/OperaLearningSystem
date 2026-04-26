@@ -1,0 +1,61 @@
+﻿<!-- 3D模型查看器气泡窗 -->
+<script type="module" src="~/lib/model-viewer/model-viewer.min.js" asp-append-version="true"></script>
+<div id="model-viewer-backdrop" class="model-viewer-backdrop" style="display:none;" onclick="if(event.target===this)close3DViewer()" aria-hidden="true"></div>
+<div id="model-viewer-modal" class="modal-bubble" style="display:none;">
+    <div class="modal-bubble-header">
+        <h3 id="model-bubble-title"><i class="fas fa-cube"></i> 畅音阁屋顶构造</h3>
+        <div class="model-quality-wrap">
+            <label for="model-quality-select" class="model-quality-label">清晰度</label>
+            <select id="model-quality-select" class="model-quality-select" onchange="changeModelQuality(this.value)">
+                <option value="fast">流畅（推荐）</option>
+                <option value="balanced">标准</option>
+                <option value="ultra">极致</option>
+            </select>
+            <span id="model-quality-tip" class="model-quality-tip">建议优先使用「流畅 / 标准」，避免设备卡顿。</span>
+        </div>
+        <button onclick="close3DViewer()" class="fenmo-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-bubble-body">
+        <model-viewer id="gltf-model-viewer"
+                      style="width:100%;height:100%;background:#1a1510;"
+                      camera-controls touch-action="pan-y"
+                      shadow-intensity="1"
+                      alt="3D模型预览">
+            <div slot="poster" id="gltf-poster-overlay" class="gltf-poster-overlay">
+                <i class="fas fa-cube gltf-poster-icon"></i>
+                <span id="gltf-poster-status" class="gltf-poster-status">3D 模型加载中…</span>
+                <div class="gltf-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gltf-progress-track">
+                    <div id="gltf-load-bar-fill" class="gltf-progress-fill"></div>
+                </div>
+                <span id="gltf-load-pct" class="gltf-load-pct">0%</span>
+            </div>
+        </model-viewer>
+    </div>
+</div>
+
+<!-- 高清图片气泡图 -->
+<link rel="stylesheet" href="~/css/pages/Home/home-entrance.css" asp-append-version="true" />
+<div id="image-viewer-backdrop" class="gallery-backdrop" style="display:none;" onclick="if(event.target===this)window.closeHDImageViewer()"></div>
+
+<div id="image-viewer-modal" class="gallery-bubble" style="display:none;">
+    <div id="gallery-drag-handle" class="gallery-header">
+        <h3 style="margin:0; color:#e2c079; font-family:'Ma Shan Zheng', cursive; font-size:1.4rem; pointer-events:none;">
+            <i class="fas fa-image"></i> 畅音阁建筑照
+        </h3>
+        <button onclick="window.closeHDImageViewer()" class="gallery-close-btn"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="gallery-body">
+        <button class="gallery-nav-btn prev-btn" onclick="changeGalleryImage(-1)">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <img id="gallery-main-img" src="" alt="高清图" />
+
+        <button class="gallery-nav-btn next-btn" onclick="changeGalleryImage(1)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <div id="gallery-counter" class="gallery-counter-badge">1 / 1</div>
+    </div>
+</div>

@@ -1,0 +1,89 @@
+﻿@model OperaLearningSystem.Web.Areas.Admin.ViewModels.MasterEditViewModel
+
+@{
+    ViewData["Title"] = "编辑名家 - " + Model.Name;
+}
+
+<link rel="stylesheet" href="~/css/admin/master.css" asp-append-version="true" />
+
+<div id="master-edit-container">
+
+    <div class="page-title">
+        <i class="bi bi-pencil-square text-muted"></i> 编辑名家档案
+    </div>
+
+    <div class="edit-card">
+        <form asp-action="Edit" enctype="multipart/form-data" style="display: flex; flex-direction: column; height: 100%;">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="padding: 10px 25px 0;"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ExistingImageUrl" />
+
+            <div class="form-grid">
+
+                <div class="left-column">
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">名家姓名 <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="CategoryId" class="control-label">所属剧种 <span class="text-danger">*</span></label>
+                        <select asp-for="CategoryId" class="form-select custom-select" asp-items="Model.CategoryOptions"></select>
+                        <span asp-validation-for="CategoryId" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Rating" class="control-label">推荐评级 (1-5)</label>
+                        <div class="rating-input-wrapper">
+                            <input asp-for="Rating" class="form-control" type="number" min="1" max="5" />
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <span asp-validation-for="Rating" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 25px;">
+                        <label class="control-label">名家照片</label>
+                        <div class="image-preview-box avatar-preview-box">
+                            @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
+                            {
+                                <img src="@Model.ExistingImageUrl" alt="当前照片" />
+                            }
+                            else
+                            {
+                                <div class="image-preview-placeholder">
+                                    <i class="bi bi-person-bounding-box" style="font-size: 2rem; color: #ddd;"></i>
+                                    <span>暂无照片</span>
+                                </div>
+                            }
+                        </div>
+
+                        <label asp-for="ImageFile" class="control-label" style="font-size: 0.85rem; color: #666;">更换新照片（留空则不修改）</label>
+                        <input asp-for="ImageFile" type="file" class="form-control" style="padding: 6px;" />
+                        <span asp-validation-for="ImageFile" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+                <div class="right-column" style="display: flex; flex-direction: column;">
+                    <div class="form-group" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
+                        <label asp-for="Introduction" class="control-label">生平简介与艺术特色</label>
+                        <textarea asp-for="Introduction" class="form-control" style="flex: 1; min-height: 350px;"></textarea>
+                        <span asp-validation-for="Introduction" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-cancel">取消返回</a>
+                <button type="submit" class="btn-save"><i class="bi bi-check2-circle"></i> 保存更改</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

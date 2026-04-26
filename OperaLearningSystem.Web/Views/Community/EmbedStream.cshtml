@@ -1,0 +1,86 @@
+@model List<OperaLearningSystem.Core.Entities.CommunityPost>
+@using System.Linq
+@using System.Text.RegularExpressions
+@{
+    Layout = null;
+    string Plain(string? html, int max)
+    {
+        var t = string.IsNullOrEmpty(html) ? "" : Regex.Replace(html, "<.*?>", "");
+        if (t.Length > max) return t[..max] + "…";
+        return t;
+    }
+}
+<!DOCTYPE html>
+<html lang="zh-CN" class="yaji-embed-root">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>戏词雅集</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/pages/Community/yaji-forum.css" asp-append-version="true" />
+</head>
+<body class="yaji-embed-root">
+    <div class="yaji-forum-body-wrap">
+        <div class="yaji-page">
+            <div class="yaji-wc-panel" style="margin-bottom:14px;">
+                <div class="yaji-wc-head">
+                    <h2 class="yaji-wc-title" style="font-size:1rem;"><i class="fas fa-cloud"></i> 戏词云</h2>
+                </div>
+                <div class="yaji-wc-tags" id="wcBar" style="min-height:1.5em;">词云载入中…</div>
+            </div>
+            <div class="yaji-feed">
+                @foreach (var p in Model)
+                {
+                    var excerpt = Plain(p.Content, 200);
+                    <article class="yaji-row" style="display:grid;grid-template-columns:44px 1fr;gap:12px;padding:14px 16px;">
+                        <img class="yaji-avatar" style="width:44px;height:44px;" src="@(string.IsNullOrWhiteSpace(p.Author?.AvatarUrl) ? "/images/default_avatar.png" : p.Author!.AvatarUrl)" alt="" width="44" height="44" />
+                        <div class="yaji-row-main">
+                            <div class="yaji-row-title-row">
+                                <a class="yaji-row-title" style="font-size:1.1rem;" href="/Community/Details/@p.Id" target="_blank" rel="noopener">@p.Title</a>
+                                <span class="yaji-row-meta">@(p.Author?.Nickname ?? p.Author?.UserName ?? "戏友") · @p.CreatedTime.ToString("yyyy-MM-dd")</span>
+                            </div>
+                            <p class="yaji-row-excerpt" style="-webkit-line-clamp:4;">@excerpt</p>
+                            <div class="yaji-actions" style="border-top:none;padding-top:4px;">
+                                <a href="/Community/Details/@p.Id" target="_blank" rel="noopener" class="yaji-react" style="text-decoration:none;"><i class="fas fa-book-open"></i> 阅帖</a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="yaji-empty" style="padding:28px;"><i class="far fa-scroll"></i>暂无帖子，请到戏词雅集发帖。</div>
+            }
+        </div>
+    </div>
+    <script>
+        fetch('/api/community-feed/word-cloud?kind=0', { cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .then(function (words) {
+                var el = document.getElementById('wcBar');
+                if (!words || !words.length) {
+                    el.textContent = '戏词雅集板块暂无词云数据，发帖或评论后即可显示。';
+                    el.style.fontSize = '0.78rem';
+                    el.style.color = 'rgba(100,90,80,0.75)';
+                    return;
+                }
+                var vals = words.map(function (w) { return w.value; }).filter(function (v) { return typeof v === 'number'; });
+                var max = vals.length ? Math.max.apply(null, vals) : 0;
+                if (!max) {
+                    el.textContent = '戏词雅集板块暂无词云数据，发帖或评论后即可显示。';
+                    el.style.fontSize = '0.78rem';
+                    el.style.color = 'rgba(100,90,80,0.75)';
+                    return;
+                }
+                function esc(s) {
+                    var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+                }
+                el.innerHTML = words.slice(0, 24).map(function (w) {
+                    var sz = 0.78 + (w.value / max) * 0.75;
+                    return '<span class="yaji-wc-span" style="cursor:default;font-size:' + sz.toFixed(2) + 'rem">' + esc(w.text) + '</span>';
+                }).join('');
+            }).catch(function () { document.getElementById('wcBar').textContent = ''; });
+    </script>
+</body>
+</html>

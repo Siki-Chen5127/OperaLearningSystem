@@ -1,0 +1,130 @@
+@model OperaLearningSystem.Web.Areas.Admin.ViewModels.CourseQuizQuestionsPageViewModel
+@{
+    ViewData["Title"] = "专属题库 · " + Model.CourseName;
+    var optLetters = new[] { "甲 (A)", "乙 (B)", "丙 (C)", "丁 (D)" };
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+<link rel="stylesheet" href="~/css/admin/course.css" asp-append-version="true" />
+
+<div id="course-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-ui-checks text-muted" style="font-size: 1.5rem;"></i> 专属题库管理
+    </div>
+    <p class="text-muted" style="margin-top: -15px; margin-bottom: 20px; font-size: 0.95rem; padding-left: 5px;">
+        当前课程：<strong>@Model.CourseName</strong> （仅下列题目会出现在学员本课的传习结业卷中）
+    </p>
+
+    <div class="top-action-bar">
+        <div class="left-actions">
+            <a asp-action="QuizQuestionEdit" asp-route-courseId="@Model.CourseId" class="btn-create" style="background-color: #4A7A8C;">
+                <i class="bi bi-plus-lg"></i> 手动新增题目
+            </a>
+        </div>
+        <div class="right-actions">
+            <a asp-action="Edit" asp-route-id="@Model.CourseId" class="action-link link-edit" style="font-size: 1rem;">
+                <i class="bi bi-pencil"></i> 返回编辑课程
+            </a>
+            <span class="divider">|</span>
+            <a asp-action="Index" class="action-link" style="color: #666; font-size: 1rem;">课程列表</a>
+        </div>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+
+    @if (!Model.Questions.Any())
+    {
+        <div class="empty-state" style="background: #fff; border: 1px dashed #EED5B7; border-radius: 8px; padding: 60px 20px; text-align: center; color: #999;">
+            <i class="bi bi-journal-x" style="font-size: 3rem; color: #EED5B7; margin-bottom: 15px; display: block;"></i>
+            <p>本题库暂无题目。</p>
+            <p style="font-size: 0.9rem;">可使用课程编辑页的「AI 生成考卷」或点击上方「手动新增题目」创建。</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <div style="overflow-x: auto;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Id</th>
+                            <th style="width: 40%; text-align: left; padding-left: 20px;">题干摘要</th>
+                            <th style="width: 120px;">正确项</th>
+                            <th style="width: 150px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int rowIndex = 0;
+                        }
+                        @foreach (var q in Model.Questions)
+                        {
+                            var delay = rowIndex * 0.05;
+                            <tr class="table-row" style="animation-delay: @(delay)s;">
+                                <td><span class="status-badge normal" style="background: #f4f4f4; border: none;">@q.Id</span></td>
+                                <td style="text-align: left; padding-left: 20px; color: #4A312C;">@q.PromptPreview</td>
+                                <td>
+                                    <strong style="color: #B5495B;">
+                                        @(q.CorrectIndex >= 0 && q.CorrectIndex < 4 ? optLetters[q.CorrectIndex] : q.CorrectIndex.ToString())
+                                    </strong>
+                                </td>
+                                <td>
+                                    <a asp-action="QuizQuestionEdit" asp-route-courseId="@Model.CourseId" asp-route-id="@q.Id" class="action-link link-edit">编辑</a>
+                                    <span class="divider">|</span>
+                                    <button data-id="@q.Id" class="action-link link-delete delete-btn">删除</button>
+                                </td>
+                            </tr>
+                            rowIndex++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<form id="deleteForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="delQuestionId" value="" />
+    <input type="hidden" name="courseId" value="@Model.CourseId" />
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#FAF6F7' })
+                    .fire({ icon: 'success', title: successMsgEl.innerText });
+            }
+
+            $('.delete-btn').on('click', function (e) {
+                e.preventDefault();
+                var qId = $(this).data('id');
+                $('#delQuestionId').val(qId);
+                var form = $('#deleteForm');
+                form.attr('action', '@Url.Action("QuizQuestionDelete", "Course")');
+
+                Swal.fire({
+                    title: '确认删除该题？',
+                    text: '删除后学员将无法抽取到此题。',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '删除',
+                    cancelButtonText: '取消',
+                    confirmButtonColor: '#B5495B'
+                }).then((result) => {
+                    if (result.isConfirmed) form.submit();
+                });
+            });
+        });
+    </script>
+}

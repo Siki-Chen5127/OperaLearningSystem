@@ -1,0 +1,441 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var isHomePage = string.Equals(controller, "Home", StringComparison.OrdinalIgnoreCase)
+                  && string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase);
+    var isCategoryDetails = string.Equals(controller, "Category", StringComparison.OrdinalIgnoreCase)
+                         && string.Equals(action, "Details", StringComparison.OrdinalIgnoreCase);
+    var isAiRoleplay = string.Equals(controller, "AiRoleplay", StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase);
+    var isDreamDresser = string.Equals(controller, "AiRoleplay", StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(action, "Dresser", StringComparison.OrdinalIgnoreCase);
+    var isQuoteBoardHeartLantern = string.Equals(controller, "QuoteBoard", StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase);
+    var isCommunityHub = string.Equals(controller, "Community", StringComparison.OrdinalIgnoreCase)
+        && (string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase)
+         || string.Equals(action, "Checkin", StringComparison.OrdinalIgnoreCase)
+         || string.Equals(action, "Works", StringComparison.OrdinalIgnoreCase));
+
+    var isTransparentNavPage = isHomePage || isCategoryDetails || isAiRoleplay || isDreamDresser || isQuoteBoardHeartLantern;
+    var isAccountPage = string.Equals(controller, "Account", StringComparison.OrdinalIgnoreCase);
+    var isEntranceEmbed = string.Equals(Context.Request.Query["entranceEmbed"].ToString(), "1", StringComparison.Ordinal);
+    var hideXiaoli = isAccountPage || isEntranceEmbed;
+
+    // 面包屑路径
+    var breadcrumbItems = new List<(string Label, string Url)>();
+    breadcrumbItems.Add(("梨园", "/"));
+    if (!isHomePage)
+    {
+        var controllerDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            {"Play", "品鉴剧目"}, {"Master", "名家风采"}, {"Category", "探索剧种"},
+            {"Course", "在线课程"}, {"Community", "戏词雅集"}, {"QuoteBoard", "梨园心灯"},
+            {"AiRoleplay", "梨园梦境"},
+            {"UserCenter", "个人中心"}, {"Admin", "管理后台"}, {"Audit", "审核大厅"}
+        };
+        var isCommunityBookmarks = string.Equals(controller, "Community", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(action, "Bookmarks", StringComparison.OrdinalIgnoreCase);
+        if (isCommunityBookmarks)
+        {
+            breadcrumbItems.Add(("个人中心", "/Account/UserCenter"));
+            breadcrumbItems.Add(("帖子收藏", ""));
+        }
+        else if (controller != null && controllerDisplayNames.TryGetValue(controller, out var displayName))
+        {
+            breadcrumbItems.Add((displayName, $"/{controller}"));
+            if (action != null && !string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase))
+            {
+                var title = ViewData["Title"]?.ToString() ?? action;
+                breadcrumbItems.Add((title, ""));
+            }
+        }
+    }
+}
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<OperaLearningSystem.Core.Entities.User> UserManager
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>@ViewData["Title"] - 畅音雅韵</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/OperaLearningSystem.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @await RenderSectionAsync("Styles", required: false)
+
+</head>
+
+<body class="d-flex flex-column min-vh-100 @(isTransparentNavPage ? "transparent-nav-body" : "") @(isEntranceEmbed ? "entrance-embed-body" : "")" data-hide-companion="@(hideXiaoli ? "true" : "false")" data-entrance-embed="@(isEntranceEmbed ? "true" : "false")">
+
+    <!-- ========== 全局顶部UI：面包屑(左) + 召唤铃(右) ========== -->
+    @if (!isHomePage && !isEntranceEmbed && !isCommunityHub)
+    {
+        <div id="global-top-bar">
+            <nav id="breadcrumb-bar" aria-label="breadcrumb">
+                @for (int i = 0; i < breadcrumbItems.Count; i++)
+                {
+                    var item = breadcrumbItems[i];
+                    if (i < breadcrumbItems.Count - 1)
+                    {
+                        <a href="@item.Url" class="breadcrumb-link">@item.Label</a>
+                        <span class="breadcrumb-sep">›</span>
+                    }
+                    else
+                    {
+                        <span class="breadcrumb-current">@item.Label</span>
+                    }
+                }
+            </nav>
+        </div>
+    }
+
+    <!-- 召唤按钮：所有页面右上角固定(首页由JS控制显隐) -->
+    <button id="nav-summon-btn" class="nav-summon-btn" onclick="toggleNavOverlay()" style="@(isHomePage || isEntranceEmbed ? "display:none;" : "")">
+        <i class="fas fa-compass"></i>
+    </button>
+
+    <!-- ========== 全屏覆盖式导航面板 ========== -->
+    <div id="nav-overlay" class="nav-overlay">
+        <div class="nav-overlay-inner">
+            <button class="nav-overlay-close" onclick="toggleNavOverlay()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="nav-overlay-brand">
+                <span class="nav-overlay-seal">戏</span>
+                <span class="nav-overlay-title">畅音雅韵</span>
+            </div>
+            <div class="nav-overlay-links">
+                <a href="/" class="nav-overlay-link"><i class="fas fa-torii-gate"></i> 回到畅音阁</a>
+                <a asp-controller="Play" asp-action="Index" class="nav-overlay-link"><i class="fas fa-theater-masks"></i> 品鉴剧目</a>
+                <a asp-controller="Master" asp-action="Index" class="nav-overlay-link"><i class="fas fa-user-tie"></i> 名家风采</a>
+                <a asp-controller="Category" asp-action="Index" class="nav-overlay-link"><i class="fas fa-search"></i> 探索剧种</a>
+                <a asp-controller="Course" asp-action="Index" class="nav-overlay-link"><i class="fas fa-book-open"></i> 传习私塾</a>
+                <a asp-controller="Community" asp-action="Index" class="nav-overlay-link"><i class="fas fa-comments"></i> 戏词雅集</a>
+                <a asp-controller="Community" asp-action="Checkin" class="nav-overlay-link"><i class="fas fa-map-marker-alt"></i> 戏台打卡</a>
+                <a asp-controller="Community" asp-action="Works" class="nav-overlay-link"><i class="fas fa-gem"></i> 百宝阁</a>
+                <a asp-controller="QuoteBoard" asp-action="Index" class="nav-overlay-link"><i class="fas fa-feather-alt"></i> 梨园心灯</a>
+                <a asp-controller="AiRoleplay" asp-action="Dresser" class="nav-overlay-link"><i class="fas fa-moon"></i> 梨园梦境</a>
+            </div>
+            <div class="nav-overlay-user">
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    var currentUser = await UserManager.GetUserAsync(User);
+                    var displayName = currentUser?.Nickname ?? User.Identity?.Name?.Split('@')[0] ?? "戏友";
+                    <a asp-controller="Account" asp-action="UserCenter" class="nav-overlay-user-link">
+                        <i class="fas fa-user-circle"></i> 欢迎，@displayName
+                    </a>
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-overlay-user-link"><i class="fas fa-crown"></i> 管理后台</a>
+                        <a asp-controller="Audit" asp-action="Index" class="nav-overlay-user-link"><i class="fas fa-gavel"></i> 审核大厅</a>
+                    }
+                    else if (User.IsInRole("Admin"))
+                    {
+                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-overlay-user-link"><i class="fas fa-cog"></i> 管理后台</a>
+                    }
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                        <button type="submit" class="nav-overlay-logout"><i class="fas fa-sign-out-alt"></i> 退出梨园</button>
+                    </form>
+                }
+                else
+                {
+                    <a href="/Account/Login" class="nav-overlay-user-link"><i class="fas fa-sign-in-alt"></i> 登录 / 注册</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- 传统导航栏保留DOM但始终隐藏(供Tag Helper生成URL) -->
+    <header style="display:none !important;">
+        <nav id="mainNavbar" class="navbar" style="display:none !important;"></nav>
+    </header>
+
+    <main role="main" class="flex-grow-1" style="@(isHomePage || isEntranceEmbed ? "padding: 0; margin: 0;" : "padding-top: 50px;")">
+        @RenderBody()
+    </main>
+
+    @if (!isHomePage && !isEntranceEmbed)
+    {
+        <footer class="border-top footer text-muted py-4">
+            <div class="container text-center">
+                <p class="mb-2">&copy; @DateTime.Now.Year - 畅音雅韵</p>
+                <p class="small mb-0">
+                    <a asp-controller="Home" asp-action="Privacy">隐私政策</a> &middot;
+                    <a asp-controller="Home" asp-action="About">关于作者</a>
+                </p>
+            </div>
+        </footer>
+    }
+
+    @if (isEntranceEmbed)
+    {
+        <button type="button" id="entrance-embed-back-btn" class="entrance-embed-back-btn" title="返回戏折" aria-label="返回戏折">
+            <i class="fas fa-reply"></i> 返回戏折
+        </button>
+    }
+
+    <!--全局玉佩BGM-->
+    <div id="bgm-container" onclick="toggleBgm()" style="@(isEntranceEmbed ? "display:none !important;opacity:0 !important;" : "display: none; opacity: 0;")">
+        <img src="~/images/home-cards/yupei.png" alt="播放音乐" id="bgm-yupei" />
+        <audio id="bgm-audio" loop>
+            <source src="~/audios/wannianhuan.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- 梨园书童（首页和登录页隐藏，开门后或其他页面显示） -->
+    <div id="aiWidget" class="companion-widget" style="@(hideXiaoli ? "display:none;" : "")">
+        <div id="aiChatBox" class="chat-bubble-container">
+            <div class="chat-header">
+                <span class="chat-title">🍐 梨园书童 · 小梨</span>
+                <span class="chat-close" onclick="toggleCompanion(event)">&times;</span>
+            </div>
+            <div class="chat-messages" id="aiMsgList"></div>
+            <div class="chat-input-area">
+                <div class="input-capsule">
+                    <input type="text" id="aiInput" class="chat-input" placeholder="请赐教..." onkeypress="handleAiEnter(event)">
+                    <button class="chat-send" onclick="sendAiMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <img src="~/images/auth/avatar6.png" class="companion-avatar animate__animated" id="companionAvatar" onclick="toggleCompanion()" alt="小梨">
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="~/js/marked.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // === 全屏导航覆盖层 ===
+        function toggleNavOverlay() {
+            const overlay = document.getElementById('nav-overlay');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = overlay.classList.contains('active') ? 'hidden' : '';
+        }
+
+        // 点击覆盖层空白区域关闭
+        document.getElementById('nav-overlay').addEventListener('click', function(e) {
+            if (e.target === this) toggleNavOverlay();
+        });
+
+        // === AI 小梨逻辑 ===
+        document.addEventListener("DOMContentLoaded", function () {
+            initCompanion();
+            if (document.body.getAttribute('data-entrance-embed') === 'true') {
+                var eb = document.getElementById('entrance-embed-back-btn');
+                if (eb) {
+                    eb.addEventListener('click', function () {
+                        if (window.parent && window.parent !== window) {
+                            window.parent.postMessage({ type: 'floor1BookMenu' }, '*');
+                        }
+                    });
+                }
+                document.querySelectorAll('a[href]').forEach(function (a) {
+                    var href = a.getAttribute('href');
+                    if (!href || href.charAt(0) !== '/' || href.indexOf('//') === 0) return;
+                    if (href.indexOf('entranceEmbed=') >= 0) return;
+                    var u;
+                    try { u = new URL(href, window.location.origin); } catch (e) { return; }
+                    if (u.origin !== window.location.origin) return;
+                    u.searchParams.set('entranceEmbed', '1');
+                    a.setAttribute('href', u.pathname + u.search + u.hash);
+                });
+                document.querySelectorAll('form').forEach(function (f) {
+                    var m = (f.getAttribute('method') || 'get').toLowerCase();
+                    if (m !== 'get') return;
+                    if (f.querySelector('input[name="entranceEmbed"]')) return;
+                    var inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'entranceEmbed';
+                    inp.value = '1';
+                    f.appendChild(inp);
+                });
+            }
+        });
+
+        const chatBox = document.getElementById('aiChatBox');
+        const msgList = document.getElementById('aiMsgList');
+        const avatar = document.getElementById('companionAvatar');
+        const input = document.getElementById('aiInput');
+
+        let aiMemoryArray = [];
+        function initCompanion() {
+            if (document.body.getAttribute('data-hide-companion') === 'true') return;
+            const savedHistoryHtml = sessionStorage.getItem('ai_history_html');
+            if (savedHistoryHtml) {
+                msgList.innerHTML = savedHistoryHtml;
+            }
+            msgList.scrollTop = msgList.scrollHeight;
+
+            const savedMemory = sessionStorage.getItem('ai_memory_array');
+            if (savedMemory) {
+                aiMemoryArray = JSON.parse(savedMemory);
+            }
+            const savedState = sessionStorage.getItem('ai_open');
+            if (savedState === 'true') chatBox.classList.add('active');
+
+            if (!savedHistoryHtml) {
+                setTimeout(() => {
+                    chatBox.classList.add('active');
+                    sessionStorage.setItem('ai_open', 'true');
+
+                    const loadingId = 'loading-greet';
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'msg-row bot';
+                    loadingDiv.id = loadingId;
+                    loadingDiv.innerHTML = `<div class="msg-content"><i class="fas fa-ellipsis-h fa-fade"></i></div>`;
+                    msgList.appendChild(loadingDiv);
+                    msgList.scrollTop = msgList.scrollHeight;
+
+                    setTimeout(() => {
+                        const loadingEl = document.getElementById(loadingId);
+                        if(loadingEl) loadingEl.remove();
+
+                        const greetingText = '看官您好！我是小梨，您的专属向导。今日想听点什么戏？或者需要小梨带您逛逛本站的【名家风采】吗？';
+                        appendMsg('bot', greetingText);
+                        aiMemoryArray.push({ role: 'assistant', content: greetingText });
+                        sessionStorage.setItem('ai_memory_array', JSON.stringify(aiMemoryArray));
+                    }, 2200);
+                }, 2500);
+            }
+        }
+
+        function toggleCompanion(e) {
+            if(e) e.stopPropagation();
+            chatBox.classList.toggle('active');
+            const isOpen = chatBox.classList.contains('active');
+            sessionStorage.setItem('ai_open', isOpen);
+            if (isOpen) {
+                input.focus();
+                avatar.classList.remove('animate__bounce');
+            }
+        }
+
+        function handleAiEnter(e) {
+            if (e.key === 'Enter') sendAiMessage();
+        }
+
+        async function sendAiMessage() {
+            const text = input.value.trim();
+            if (!text) return;
+            appendMsg('user', text);
+            input.value = '';
+            aiMemoryArray.push({ role: 'user', content: text });
+            sessionStorage.setItem('ai_memory_array', JSON.stringify(aiMemoryArray));
+
+            const loadingId = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'msg-row bot';
+            loadingDiv.id = loadingId;
+            loadingDiv.innerHTML = `<div class="msg-content"><i class="fas fa-spinner fa-spin"></i> 小梨正在翻阅典籍...</div>`;
+            msgList.appendChild(loadingDiv);
+            msgList.scrollTop = msgList.scrollHeight;
+
+            try {
+                const response = await fetch('/api/Ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, history: aiMemoryArray })
+                });
+                const data = await response.json();
+                let replyText = data.reply;
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+
+                const redirectMatch = replyText.match(/COMMAND:REDIRECT\|([^ \n<"']*)/);
+                if (redirectMatch) {
+                    const targetUrl = redirectMatch[1];
+                    appendMsg('bot', `明白，小梨这就带您前往... <i class="fas fa-running"></i>`);
+                    setTimeout(() => { window.location.href = targetUrl; }, 1000);
+                } else {
+                    aiMemoryArray.push({ role: 'assistant', content: replyText });
+                    sessionStorage.setItem('ai_memory_array', JSON.stringify(aiMemoryArray));
+                    if (typeof marked !== 'undefined' && marked.parse) {
+                        const htmlContent = marked.parse(replyText.trim());
+                        appendMsg('bot', htmlContent);
+                    } else {
+                        appendMsg('bot', replyText);
+                    }
+                }
+            } catch (error) {
+                console.error("AI Error:", error);
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+                appendMsg('bot', "哎呀，小梨的网线被小猫绊断了，请稍后再试~");
+                aiMemoryArray.pop();
+            }
+        }
+
+        function appendMsg(role, content) {
+            const div = document.createElement('div');
+            div.className = `msg-row ${role}`;
+            div.innerHTML = `<div class="msg-content">${content}</div>`;
+            msgList.appendChild(div);
+            msgList.scrollTop = msgList.scrollHeight;
+            if (!content.includes('fa-spinner')) {
+                sessionStorage.setItem('ai_history_html', msgList.innerHTML);
+            }
+        }
+
+        // === 全局 BGM 逻辑 ===
+        document.addEventListener("DOMContentLoaded", function () {
+            const bgmContainer = document.getElementById('bgm-container');
+            const bgmAudio = document.getElementById('bgm-audio');
+
+            const savedTime = sessionStorage.getItem('bgm_time');
+            if (savedTime && bgmAudio) {
+                bgmAudio.currentTime = parseFloat(savedTime);
+            }
+
+            var isHomePage = @Json.Serialize(isHomePage);
+            var isEntranceEmbed = @Json.Serialize(isEntranceEmbed);
+            const introSeen = sessionStorage.getItem('intro_seen') === 'true';
+
+            if (!isEntranceEmbed && (!isHomePage || introSeen)) {
+                bgmContainer.style.display = 'block';
+                setTimeout(() => bgmContainer.style.opacity = '1', 50);
+            }
+
+            if (sessionStorage.getItem('bgm_playing') === 'true') {
+                bgmAudio.play().then(() => {
+                    bgmContainer.classList.add('yupei-swing');
+                }).catch(e => console.log("浏览器限制自动播放"));
+            }
+
+            window.addEventListener("beforeunload", function () {
+                if (bgmAudio) {
+                    sessionStorage.setItem('bgm_time', bgmAudio.currentTime);
+                }
+            });
+        });
+
+        function toggleBgm() {
+            const audio = document.getElementById('bgm-audio');
+            const container = document.getElementById('bgm-container');
+            if (audio.paused) {
+                audio.play();
+                container.classList.add('yupei-swing');
+                sessionStorage.setItem('bgm_playing', 'true');
+            } else {
+                audio.pause();
+                container.classList.remove('yupei-swing');
+                sessionStorage.setItem('bgm_playing', 'false');
+            }
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,138 @@
+﻿@using OperaLearningSystem.Core.DTOs
+@model PagedResult<OperaLearningSystem.Core.Entities.User>
+@{
+    ViewData["Title"] = "用户管理";
+    var totalPages = (int)Math.Ceiling((double)Model.TotalItems / Model.PageSize);
+    var currentPage = Model.PageNumber;
+    var searchString = ViewData["CurrentFilter"] as string;
+
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+}
+
+<link rel="stylesheet" href="~/css/admin/usermanagement.css" asp-append-version="true" />
+
+<div id="user-management-container">
+
+    <div class="page-title">
+        <i class="bi bi-people text-muted" style="font-size: 1.5rem;"></i> 用户档案与权限管理
+    </div>
+
+    <div class="top-action-bar">
+        <form asp-action="Index" method="get" style="margin: 0;">
+            <div class="search-input-group">
+                <input type="text" name="searchString" placeholder="输入用户名或邮箱搜索..." value="@searchString">
+                <button type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+        <div class="right-actions text-muted" style="font-size: 0.9rem;">
+            共 @Model.TotalItems 名注册用户
+        </div>
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="table-wrapper">
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">用户名</th>
+                        <th style="width: 15%;">用户昵称</th>
+                        <th style="width: 25%;">电子邮箱</th>
+                        <th style="width: 18%;">注册时间</th>
+                        <th style="width: 12%;">账户状态</th>
+                        <th style="width: 150px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int rowIndex = 0;
+                    }
+                    @foreach (var item in Model.Items)
+                    {
+                        var delay = rowIndex * 0.05;
+                        <tr class="table-row" style="animation-delay: @(delay)s;">
+                            <td>
+                                <strong style="font-size: 1.05rem; color: #4A312C;">@item.UserName</strong>
+                            </td>
+
+                            <td>
+                                <span style="color: #666; font-weight: 500;">
+                                    @(string.IsNullOrWhiteSpace(item.Nickname) ? "—" : item.Nickname)
+                                </span>
+                            </td>
+
+                            <td><span style="color: #666;">@item.Email</span></td>
+                            <td><span style="color: #888; font-size: 0.9rem;">@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span></td>
+                            <td>
+                                @if (item.LockoutEnd.HasValue && item.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                                {
+                                    <span class="status-badge locked"><i class="bi bi-lock-fill"></i> 已锁定</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge normal"><i class="bi bi-check-circle-fill"></i> 正常</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="action-link link-view"><i class="bi bi-shield-lock"></i> 权限管理</a>
+                            </td>
+                        </tr>
+                        rowIndex++;
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #999;">暂无匹配的用户。</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container">
+            <ul class="pagination">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="1" asp-route-searchString="@searchString" class="page-link">首页</a>
+                </li>
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-searchString="@searchString" class="page-link">上一页</a>
+                </li>
+
+                @for (var i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a asp-action="Index" asp-route-pageNumber="@i" asp-route-searchString="@searchString" class="page-link">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-searchString="@searchString" class="page-link">下一页</a>
+                </li>
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@totalPages" asp-route-searchString="@searchString" class="page-link">尾页</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#FAF6F7' })
+                    .fire({ icon: 'success', title: successMsgEl.innerText });
+            }
+        });
+    </script>
+}

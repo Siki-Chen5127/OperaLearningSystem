@@ -1,0 +1,142 @@
+@model OperaLearningSystem.Web.Areas.Admin.ViewModels.CourseQuizQuestionEditViewModel
+@{
+    var isNew = Model.Id <= 0;
+    ViewData["Title"] = (isNew ? "新增题目" : "编辑题目") + " · " + Model.CourseName;
+}
+
+<link rel="stylesheet" href="~/css/admin/course.css" asp-append-version="true" />
+
+<div id="course-edit-container">
+
+    <div class="page-title">
+        <i class="bi bi-pencil-square text-muted"></i> @(isNew ? "新增考题" : "编辑考题")
+    </div>
+    <p class="text-muted" style="margin-top: -15px; margin-bottom: 20px; font-size: 0.95rem; padding-left: 5px;">
+        所属课程：<strong>@Model.CourseName</strong>
+    </p>
+
+    <div class="edit-card">
+        <form asp-action="QuizQuestionEdit" method="post" style="display: flex; flex-direction: column; height: 100%;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CourseId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="padding: 10px 25px 0;"></div>
+
+            <div class="form-grid">
+
+                <div class="left-column" style="display: flex; flex-direction: column;">
+                    <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+                        <label asp-for="Prompt" class="control-label">题干描述 <span class="text-danger">*</span></label>
+                        <textarea asp-for="Prompt" class="form-control" style="flex: 1; min-height: 150px; font-size: 1.05rem;" placeholder="请输入题目内容..."></textarea>
+                        <span asp-validation-for="Prompt" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
+                        <label asp-for="Explanation" class="control-label">答案解析 (选填)</label>
+                        <textarea asp-for="Explanation" class="form-control" style="flex: 1; min-height: 150px;" placeholder="学员答错或未选时可见的简短解析..."></textarea>
+                        <span asp-validation-for="Explanation" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="form-group">
+                        <label class="control-label">选项配置 <span class="text-danger">*</span></label>
+
+                        <div class="input-group mb-2" style="border: 1px solid #EAEAEA; border-radius: 4px; overflow: hidden;">
+                            <span class="input-group-text" style="background: #FAF6F7; border: none; color: #8C5E18; font-weight: bold;">甲</span>
+                            <input asp-for="Option0" class="form-control" style="border: none;" placeholder="选项 A 内容" />
+                        </div>
+                        <span asp-validation-for="Option0" class="text-danger d-block mb-2" style="font-size: 0.85rem;"></span>
+
+                        <div class="input-group mb-2" style="border: 1px solid #EAEAEA; border-radius: 4px; overflow: hidden;">
+                            <span class="input-group-text" style="background: #FAF6F7; border: none; color: #8C5E18; font-weight: bold;">乙</span>
+                            <input asp-for="Option1" class="form-control" style="border: none;" placeholder="选项 B 内容" />
+                        </div>
+                        <span asp-validation-for="Option1" class="text-danger d-block mb-2" style="font-size: 0.85rem;"></span>
+
+                        <div class="input-group mb-2" style="border: 1px solid #EAEAEA; border-radius: 4px; overflow: hidden;">
+                            <span class="input-group-text" style="background: #FAF6F7; border: none; color: #8C5E18; font-weight: bold;">丙</span>
+                            <input asp-for="Option2" class="form-control" style="border: none;" placeholder="选项 C 内容" />
+                        </div>
+                        <span asp-validation-for="Option2" class="text-danger d-block mb-2" style="font-size: 0.85rem;"></span>
+
+                        <div class="input-group mb-4" style="border: 1px solid #EAEAEA; border-radius: 4px; overflow: hidden;">
+                            <span class="input-group-text" style="background: #FAF6F7; border: none; color: #8C5E18; font-weight: bold;">丁</span>
+                            <input asp-for="Option3" class="form-control" style="border: none;" placeholder="选项 D 内容" />
+                        </div>
+                        <span asp-validation-for="Option3" class="text-danger d-block" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="CorrectIndex" class="control-label">正确答案 <span class="text-danger">*</span></label>
+                        <select asp-for="CorrectIndex" class="form-select" style="display: none;">
+                            <option value="0">0 — 甲 (A)</option>
+                            <option value="1">1 — 乙 (B)</option>
+                            <option value="2">2 — 丙 (C)</option>
+                            <option value="3">3 — 丁 (D)</option>
+                        </select>
+                        <div class="custom-form-dropdown dropdown">
+                            @{
+                                var opts = new[] { "0 — 甲 (A)", "1 — 乙 (B)", "2 — 丙 (C)", "3 — 丁 (D)" };
+                                var currentText = Model.CorrectIndex >= 0 && Model.CorrectIndex < 4 ? opts[Model.CorrectIndex] : opts[0];
+                            }
+                            <button class="btn custom-select-btn dropdown-toggle w-100 d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="text-truncate" style="flex: 1; text-align: left; color: #B5495B; font-weight: bold;">@currentText</span>
+                            </button>
+                            <ul class="dropdown-menu w-100 custom-dropdown-menu shadow">
+                                @for (int i = 0; i < 4; i++)
+                                {
+                                    <li><a class="dropdown-item @(Model.CorrectIndex == i ? "active" : "")" href="#" data-value="@i">@opts[i]</a></li>
+                                }
+                            </ul>
+                        </div>
+                        <span asp-validation-for="CorrectIndex" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label asp-for="QuestionType" class="control-label">题目类型</label>
+                            <input asp-for="QuestionType" class="form-control" placeholder="如: 单选题" />
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label asp-for="Difficulty" class="control-label">难度系数 (1-5)</label>
+                            <input asp-for="Difficulty" class="form-control" type="number" step="0.1" placeholder="默认: 1.0" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="QuizQuestions" asp-route-id="@Model.CourseId" class="btn-cancel">取消返回</a>
+                <button type="submit" class="btn-save"><i class="bi bi-check2-circle"></i> 保存考题</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // 高级下拉菜单联动逻辑
+            $('.custom-form-dropdown .dropdown-item').on('click', function (e) {
+                e.preventDefault();
+                var val = $(this).data('value');
+                var text = $(this).text();
+
+                var $select = $(this).closest('.form-group').find('select');
+                $select.val(val).trigger('change');
+
+                var $btnSpan = $(this).closest('.custom-form-dropdown').find('.custom-select-btn span');
+                $btnSpan.text(text);
+
+                $(this).closest('.dropdown-menu').find('.dropdown-item').removeClass('active');
+                $(this).addClass('active');
+            });
+        });
+    </script>
+}

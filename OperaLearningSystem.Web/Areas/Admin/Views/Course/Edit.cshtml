@@ -1,0 +1,227 @@
+@model OperaLearningSystem.Web.Areas.Admin.ViewModels.CourseEditViewModel
+
+@{
+    ViewData["Title"] = "编辑课程 - " + Model.Name;
+    var hasSuccessMessage = TempData["SuccessMessage"] != null;
+    var hasErrorMessage = TempData["ErrorMessage"] != null;
+}
+
+<link rel="stylesheet" href="~/css/admin/course.css" asp-append-version="true" />
+
+<div id="course-edit-container">
+
+    <div class="page-title">
+        <i class="bi bi-pencil-square text-muted"></i> 编辑课程体系档案
+    </div>
+
+    @if (hasSuccessMessage)
+    {
+        <div id="sys-success-msg" style="display:none;">@TempData["SuccessMessage"]</div>
+    }
+    @if (hasErrorMessage)
+    {
+        <div id="sys-error-msg" style="display:none;">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="edit-card">
+        <form id="mainEditForm" asp-action="Edit" enctype="multipart/form-data" style="display: flex; flex-direction: column; flex: 1;">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="padding: 10px 25px 0;"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ExistingImageUrl" />
+
+            <div class="form-grid">
+                <div class="left-column">
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">课程名称 <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="CategoryId" class="control-label">所属剧种 <span class="text-danger">*</span></label>
+
+                        <select asp-for="CategoryId" class="form-select" asp-items="Model.CategoryOptions" style="display: none;"></select>
+
+                        <div class="custom-form-dropdown dropdown">
+                            @{
+                                var selectedText = "-- 请选择所属剧种 --";
+                                if (Model.CategoryOptions != null)
+                                {
+                                    var selectedItem = Model.CategoryOptions.FirstOrDefault(x => x.Value == Model.CategoryId.ToString());
+                                    if (selectedItem != null) selectedText = selectedItem.Text;
+                                }
+                            }
+                            <button class="btn custom-select-btn dropdown-toggle w-100 d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="text-truncate" style="flex: 1; text-align: left; color: @(selectedText.Contains("--") ? "#666" : "#333");">@selectedText</span>
+                            </button>
+                            <ul class="dropdown-menu w-100 custom-dropdown-menu shadow">
+                                <li><a class="dropdown-item @(Model.CategoryId == 0 ? "active" : "")" href="#" data-value="">-- 请选择所属剧种 --</a></li>
+                                @if (Model.CategoryOptions != null)
+                                {
+                                    foreach (var item in Model.CategoryOptions)
+                                    {
+                                        var isActive = item.Value == Model.CategoryId.ToString();
+                                        <li><a class="dropdown-item @(isActive ? "active" : "")" href="#" data-value="@item.Value">@item.Text</a></li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                        <span asp-validation-for="CategoryId" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                    <div class="form-group form-check form-switch custom-switch">
+                        <input class="form-check-input" type="checkbox" asp-for="IsFeatured" id="featuredSwitch" />
+                        <label class="form-check-label" for="featuredSwitch">设为「精选推荐」课程</label>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 25px;">
+                        <label class="control-label">课程封面展示图</label>
+                        <div class="image-preview-box landscape-preview">
+                            @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
+                            {
+                                <img src="@Model.ExistingImageUrl" alt="当前封面" />
+                            }
+                            else
+                            {
+                                <div class="image-preview-placeholder">
+                                    <i class="bi bi-image" style="font-size: 2rem; color: #ddd;"></i>
+                                    <span>暂无图片</span>
+                                </div>
+                            }
+                        </div>
+                        <label asp-for="ImageFile" class="control-label" style="font-size: 0.85rem; color: #666;">更换新封面（留空则不修改）</label>
+                        <input asp-for="ImageFile" class="form-control" type="file" accept="image/*" style="padding: 6px;" />
+                        <span asp-validation-for="ImageFile" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+                </div>
+
+                <div class="right-column" style="display: flex; flex-direction: column;">
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label asp-for="Description" class="control-label">课程简介</label>
+                        <textarea asp-for="Description" class="form-control" style="min-height: 180px;"></textarea>
+                        <span asp-validation-for="Description" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="VideoUrl" class="control-label">授课视频链接</label>
+                        <input asp-for="VideoUrl" class="form-control" />
+                        <span asp-validation-for="VideoUrl" class="text-danger" style="font-size: 0.85rem;"></span>
+                    </div>
+
+                    <div class="ai-magic-zone">
+                        <div class="ai-header">
+                            <i class="bi bi-robot"></i> 课程结业考卷（AI智能生成）
+                        </div>
+                        <p class="ai-desc">
+                            AI 将提取上方<strong>课程简介</strong>中的知识点为您生成专属单选题。
+                            <span style="color:#C94A4A;">注意：若简介有改动，请先点击底部「保存更改」后再生成。再次生成将覆盖旧题。</span>
+                        </p>
+                        <div class="ai-actions">
+                            <a asp-action="QuizQuestions" asp-route-id="@Model.Id" class="btn-outline-magic">
+                                <i class="bi bi-journal-text"></i> 查看专属题库
+                            </a>
+                            <button type="button" class="btn-magic ai-generate-btn">
+                                <i class="bi bi-stars"></i> 一键生成考卷
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-cancel">取消返回</a>
+                <button type="submit" form="mainEditForm" class="btn-save"><i class="bi bi-check2-circle"></i> 保存更改</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<form id="aiGenerateForm" asp-action="GenerateQuizWithAi" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+</form>
+
+@section Scripts {
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // 系统消息处理
+            var successMsgEl = document.getElementById('sys-success-msg');
+            if (successMsgEl) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#FAF6F7',
+                    color: '#333'
+                });
+                Toast.fire({ icon: 'success', title: successMsgEl.innerText });
+            }
+
+            var errorMsgEl = document.getElementById('sys-error-msg');
+            if (errorMsgEl) {
+                Swal.fire({
+                    icon: 'error', title: '操作失败', text: errorMsgEl.innerText,
+                    confirmButtonColor: '#B5495B', background: '#FAF6F7'
+                });
+            }
+
+            // AI 生成拦截提示 (防飘红安全版)
+            $('.ai-generate-btn').on('click', function (e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: '开始召唤 AI？',
+                    html: '确定根据当前<strong>已保存</strong>的课程简介生成考卷吗？<br><span style="color:#C94A4A; font-size: 0.9em;">继续操作将删除本课程旧的专属题目！</span>',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-stars"></i> 开始生成',
+                    cancelButtonText: '再想想',
+                    confirmButtonColor: '#4A7A8C',
+                    cancelButtonColor: '#999',
+                    background: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // 显示 loading 状态，因为 AI 生成比较慢
+                        Swal.fire({
+                            title: 'AI 正在奋笔疾书...',
+                            text: '提取知识点并出题中，请勿关闭页面。',
+                            allowOutsideClick: false,
+                            didOpen: () => { Swal.showLoading() }
+                        });
+                        $('#aiGenerateForm').submit();
+                    }
+                });
+            });
+
+            // 高级定制下拉菜单的联动赋值逻辑
+            $('.custom-form-dropdown .dropdown-item').on('click', function (e) {
+                e.preventDefault();
+                var val = $(this).data('value');
+                var text = $(this).text();
+
+                // 1. 将值塞给隐藏的原生 Select，保证后台能正常接收数据
+                var $select = $(this).closest('.form-group').find('select');
+                $select.val(val).trigger('change');
+
+                // 2. 更新外壳按钮的文字，并将颜色变深
+                var $btnSpan = $(this).closest('.custom-form-dropdown').find('.custom-select-btn span');
+                $btnSpan.text(text);
+                $btnSpan.css('color', val === '' ? '#666' : '#333');
+
+                // 3. 更新下拉列表里“胭脂红”的高亮位置
+                $(this).closest('.dropdown-menu').find('.dropdown-item').removeClass('active');
+                if (val !== "") {
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
+}

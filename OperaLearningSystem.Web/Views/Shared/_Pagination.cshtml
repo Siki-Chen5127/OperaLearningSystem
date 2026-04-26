@@ -1,0 +1,65 @@
+﻿@model dynamic
+
+@{
+    if (Model.TotalPages <= 1)
+    {
+        return; // 如果只有一页或没有内容，则不显示分页控件
+    }
+
+    var actionName = ViewContext.RouteData.Values["action"].ToString();
+    var controllerName = ViewContext.RouteData.Values["controller"].ToString();
+
+    // 定义要显示的页码范围
+    int startPage = Math.Max(1, Model.PageNumber - 2);
+    int endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+
+    if (endPage - startPage < 4)
+    {
+        if (startPage == 1)
+        {
+            endPage = Math.Min(Model.TotalPages, 5);
+        }
+        else if (endPage == Model.TotalPages)
+        {
+            startPage = Math.Max(1, Model.TotalPages - 4);
+        }
+    }
+}
+
+<nav aria-label="Page navigation" class="d-flex justify-content-center mt-5" data-aos="fade-up" data-aos-delay="200">
+    <ul class="pagination">
+        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+            <a class="page-link" asp-controller="@controllerName" asp-action="@actionName" asp-route-pageNumber="@(Model.PageNumber - 1)">&laquo;</a>
+        </li>
+
+        @if (startPage > 1)
+        {
+            <li class="page-item"><a class="page-link" asp-controller="@controllerName" asp-action="@actionName" asp-route-pageNumber="1">1</a></li>
+            @if (startPage > 2)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+        }
+
+        @for (var i = startPage; i <= endPage; i++)
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link" asp-controller="@controllerName" asp-action="@actionName" asp-route-pageNumber="@i">@i</a>
+            </li>
+        }
+
+        @if (endPage < Model.TotalPages)
+        {
+            @if (endPage < Model.TotalPages - 1)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+            <li class="page-item"><a class="page-link" asp-controller="@controllerName" asp-action="@actionName" asp-route-pageNumber="@Model.TotalPages">@Model.TotalPages</a></li>
+        }
+
+        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+            <a class="page-link" asp-controller="@controllerName" asp-action="@actionName" asp-route-pageNumber="@(Model.PageNumber + 1)">&raquo;</a>
+        </li>
+    </ul>
+</nav>
+

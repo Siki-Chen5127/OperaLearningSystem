@@ -1,0 +1,744 @@
+@model OperaLearningSystem.Web.ViewModels.AiRoleplay.AiRoleplayIndexViewModel
+@{
+    ViewData["Title"] = "梨园梦境 - 沉浸式演绎";
+}
+
+@section Styles {
+    <style>
+        /* --- 覆盖全局样式，打造全屏沉浸感 --- */
+        body {
+            overflow: hidden; /* 禁止整页滚动 */
+        }
+
+        footer {
+            display: none !important; /* 隐藏全局页脚 */
+        }
+
+        .transparent-nav-body main {
+            padding-top: 0 !important;
+        }
+
+        /* --- 梦境全屏容器 --- */
+        .dreamscape-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            padding-top: 45px; /* 适配面包屑高度 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* --- 梦幻模糊背景 --- */
+        .dreamscape-bg {
+            position: absolute;
+            top: -5%;
+            left: -5%;
+            width: 110%;
+            height: 110%;
+            /* 动态加载当前角色的专属背景图 */
+            background-image: url('@Model.ActiveCharacter?.BackgroundUrl');
+            background-size: cover;
+            background-position: center;
+            /* 核心梦幻特效：高斯模糊 + 压暗 */
+            filter: blur(15px) brightness(0.6) saturate(1.2);
+            z-index: -1;
+            transition: background-image 1.5s ease-in-out;
+            animation: breathe 15s infinite alternate ease-in-out;
+        }
+
+        /* 背景缓慢呼吸特效 */
+        @@keyframes breathe {
+            0%
+
+        {
+            transform: scale(1);
+        }
+
+        100% {
+            transform: scale(1.05);
+        }
+
+        }
+
+        /* --- 琉璃视窗 (主内容区) --- */
+        .dreamscape-glass-box {
+            width: 90%;
+            max-width: 1400px;
+            height: 85vh;
+            display: flex;
+            background: rgba(30, 20, 20, 0.45); /* 极暗的茶褐色半透明 */
+            backdrop-filter: blur(20px); /* 强力毛玻璃效果 */
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(212, 175, 55, 0.2);
+            overflow: hidden;
+        }
+
+        /* === 左侧：幻境名册 === */
+        .roster-panel {
+            width: 320px;
+            background: rgba(0, 0, 0, 0.2);
+            border-right: 1px solid rgba(212, 175, 55, 0.15); /* 极细金线 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .roster-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .roster-title {
+            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+            font-size: 2.2rem;
+            color: #E6C585; /* 淡雅金 */
+            letter-spacing: 4px;
+            margin: 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .roster-subtitle {
+            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 5px;
+        }
+
+        .roster-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            scrollbar-width: none; /* Firefox */
+        }
+
+            .roster-list::-webkit-scrollbar {
+                display: none;
+            }
+        /* Chrome */
+
+        /* 角色卡片 */
+        .character-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid transparent;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+            .character-card:hover {
+                background: rgba(255, 255, 255, 0.08);
+                transform: translateX(5px);
+                color: #fff;
+            }
+
+            /* 当前选中的角色卡片 */
+            .character-card.active {
+                background: linear-gradient(135deg, rgba(158, 42, 47, 0.6), rgba(90, 0, 0, 0.4));
+                border: 1px solid rgba(212, 175, 55, 0.4); /* 金色边框 */
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            }
+
+        .char-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.2);
+            margin-right: 15px;
+            transition: all 0.3s;
+        }
+
+        .character-card.active .char-avatar {
+            border-color: #D4AF37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .char-info h4 {
+            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+            font-size: 1.4rem;
+            margin: 0 0 4px 0;
+            color: #fff;
+        }
+
+        .char-info p {
+            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            margin: 0;
+            /* 超出单行省略号 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+
+        .character-card.active .char-info p {
+            color: rgba(255,255,255,0.9);
+        }
+
+
+        /* === 右侧：对谈剧场 === */
+        .theater-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* 顶部角色信息条 */
+        .theater-header {
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+            .theater-header .active-avatar {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                border: 2px solid #D4AF37;
+                box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                margin-right: 20px;
+            }
+
+        .theater-header-info h2 {
+            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+            color: #E6C585;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .theater-header-info p {
+            color: rgba(255,255,255,0.6);
+            margin: 5px 0 0 0;
+            font-family: 'ZCOOLXiaoWei', serif;
+            font-size: 0.9rem;
+        }
+
+        /* 聊天记录区 */
+        .chat-scroll-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(212, 175, 55, 0.3) transparent;
+        }
+
+        /* 古风对话气泡 */
+        .msg-line {
+            display: flex;
+            width: 100%;
+        }
+
+            .msg-line.ai-msg {
+                justify-content: flex-start;
+            }
+
+            .msg-line.user-msg {
+                justify-content: flex-end;
+            }
+
+        .bubble {
+            max-width: 70%;
+            padding: 15px 25px;
+            font-family: 'ZCOOLXiaoWei', serif;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        /* AI 气泡：幽白宣纸质感 */
+        .ai-msg .bubble {
+            background: rgba(250, 246, 247, 0.85); /* 宣纸白，透出一点点底色 */
+            color: #333;
+            border-top-left-radius: 2px;
+            border-left: 3px solid #9E2A2F; /* 左侧胭脂红强调线 */
+        }
+
+        /* 用户气泡：黛金/暗红质感 */
+        .user-msg .bubble {
+            background: linear-gradient(135deg, rgba(158, 42, 47, 0.8), rgba(90, 0, 0, 0.8));
+            color: #fff;
+            border-top-right-radius: 2px;
+            border: 1px solid rgba(212, 175, 55, 0.3); /* 细金边 */
+        }
+
+        /* 底部输入区 */
+        .input-forge {
+            padding: 20px 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+        }
+
+        .input-forge-inner {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 30px;
+            padding: 5px 5px 5px 25px;
+            transition: all 0.3s;
+        }
+
+            .input-forge-inner:focus-within {
+                border-color: rgba(212, 175, 55, 0.5);
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+            }
+
+        .ancient-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'ZCOOLXiaoWei', serif;
+            font-size: 1rem;
+            outline: none;
+        }
+
+            .ancient-input::placeholder {
+                color: rgba(255,255,255,0.4);
+            }
+
+        /* 极具古典韵味的发送按钮（印章样式） */
+        .btn-seal-send {
+            background: #9E2A2F;
+            color: #E6C585;
+            border: 1px solid #D4AF37;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-seal-send:hover {
+                background: #D4AF37;
+                color: #9E2A2F;
+                border-color: #9E2A2F;
+                transform: scale(1.05);
+            }
+
+        /*响应式布局*/
+        @@media (max-width: 992px) {
+            .dreamscape-glass-box
+
+        {
+            flex-direction: column; /* 核心：左右布局变成上下布局 */
+            height: 90vh; /* 手机上稍微拉高一点 */
+            width: 95%;
+            margin-top: 10px;
+        }
+
+        /* 1. 左侧名册变为：顶部横向滚动条 */
+        .roster-panel {
+            width: 100%;
+            flex-direction: row; /* 横向排列 */
+            align-items: center;
+            border-right: none;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 10px;
+        }
+
+        .roster-header {
+            padding: 5px 15px;
+            border-bottom: none;
+            border-right: 1px dashed rgba(255, 255, 255, 0.2);
+            min-width: max-content;
+        }
+
+        .roster-title {
+            font-size: 1.4rem;
+        }
+
+        .roster-subtitle {
+            display: none; /* 手机端隐藏副标题，节约空间 */
+        }
+
+        /* 角色列表横向滑动 */
+        .roster-list {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 5px 10px;
+            width: 100%;
+            white-space: nowrap; /* 强制不换行 */
+        }
+
+        .character-card {
+            margin-bottom: 0;
+            margin-right: 10px;
+            padding: 8px 15px;
+            min-width: max-content;
+        }
+
+        .char-avatar {
+            width: 40px;
+            height: 40px;
+            margin-right: 8px;
+        }
+
+        .char-info h4 {
+            font-size: 1.1rem;
+        }
+
+        .char-info p {
+            display: none; /* 手机端只显示名字，隐藏一句话简介 */
+        }
+
+        /* 2. 右侧聊天区适配 */
+        .theater-header {
+            padding: 10px 20px;
+        }
+
+            .theater-header .active-avatar {
+                width: 45px;
+                height: 45px;
+                margin-right: 15px;
+            }
+
+        .theater-header-info h2 {
+            font-size: 1.4rem;
+        }
+
+        .chat-scroll-area {
+            padding: 15px;
+            gap: 15px;
+        }
+
+        .bubble {
+            max-width: 85%; /* 手机屏幕窄，气泡允许稍微宽一点 */
+            font-size: 0.95rem;
+            padding: 12px 18px;
+        }
+
+        /* 3. 底部输入框适配 */
+        .input-forge {
+            padding: 10px 15px;
+        }
+
+        .btn-seal-send {
+            padding: 8px 15px;
+            font-size: 1rem;
+        }
+
+        }
+
+        /* 针对极窄屏幕 (如 iPhone SE) 的终极保护 */
+        @@media (max-width: 480px) {
+            .roster-header
+
+        {
+            display: none;
+        }
+        /* 极窄屏幕直接隐藏标题，只留头像列表 */
+        .bubble {
+            max-width: 95%;
+        }
+
+        }
+
+        /* 忘却前尘专属样式 */
+        .ancient-modal {
+            background: rgba(30, 20, 20, 0.85); /* 深褐色半透明 */
+            backdrop-filter: blur(15px); /* 毛玻璃 */
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 175, 55, 0.3); /* 细金边 */
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.05);
+        }
+
+        .ancient-modal-header {
+            border-bottom: 1px dashed rgba(212, 175, 55, 0.2);
+            justify-content: center; /* 标题居中 */
+            position: relative;
+            padding: 20px;
+        }
+
+            .ancient-modal-header .btn-close {
+                position: absolute;
+                right: 20px;
+                opacity: 0.5;
+            }
+
+        .ancient-modal-title {
+            font-family: 'ZCOOLXiaoWei', serif;
+            color: #E6C585; /* 黛金 */
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .ancient-modal-body {
+            font-family: 'SourceHanSerifSC', serif;
+            color: rgba(255,255,255,0.85);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            padding: 35px 20px;
+        }
+
+            .ancient-modal-body p {
+                margin-bottom: 5px;
+            }
+
+        .ancient-modal-footer {
+            border-top: none;
+            justify-content: center;
+            gap: 20px;
+            padding-bottom: 30px;
+        }
+
+        /* “再思量” 取消按钮 */
+        .btn-seal-outline {
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            padding: 8px 25px;
+            font-family: 'ZCOOLXiaoWei', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .btn-seal-outline:hover {
+                color: #E6C585;
+                border-color: #E6C585;
+                background: rgba(212, 175, 55, 0.1);
+            }
+    </style>
+}
+
+<div class="dreamscape-wrapper">
+    <div class="dreamscape-bg"></div>
+
+    <div class="dreamscape-glass-box">
+
+        <div class="roster-panel">
+            <div class="roster-header">
+                <h3 class="roster-title">梨园梦境</h3>
+                <p class="roster-subtitle">选择剧本，化身剧中人</p>
+                <p class="roster-subtitle" style="margin-top: 14px; margin-bottom: 0;">
+                    <a asp-controller="AiRoleplay" asp-action="Dresser" style="color: rgba(230,197,133,0.9); text-decoration: none; font-size: 0.95rem;">
+                        <i class="fas fa-arrow-left"></i> 返回西围房
+                    </a>
+                </p>
+            </div>
+
+            <div class="roster-list">
+                @foreach (var character in Model.Characters)
+                {
+                    var isActive = Model.ActiveCharacter?.Id == character.Id;
+                    <a asp-controller="AiRoleplay" asp-action="Index" asp-route-characterId="@character.Id"
+                       class="character-card @(isActive ? "active" : "")">
+                        <img src="@character.AvatarUrl" alt="@character.Name" class="char-avatar" />
+                        <div class="char-info">
+                            <h4>@character.Name</h4>
+                            <p>@character.Description</p>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="theater-panel">
+            @if (Model.ActiveCharacter != null)
+            {
+                <div class="theater-header">
+                    <img src="@Model.ActiveCharacter.AvatarUrl" class="active-avatar" alt="Avatar" />
+                    <div class="theater-header-info" style="flex: 1;">
+                        <h2>@Model.ActiveCharacter.Name</h2>
+                        <p>@Model.ActiveCharacter.Description</p>
+                        <input type="hidden" id="activeCharacterId" value="@Model.ActiveCharacter.Id" />
+                    </div>
+                    <button onclick="showForgetModal()" class="btn-seal-send" style="background: transparent; border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); font-size: 0.9rem; padding: 5px 15px;">
+                        <i class="fas fa-history"></i> 忘却前尘
+                    </button>
+                </div>
+
+                <div class="chat-scroll-area" id="dreamChatArea">
+                    <div class="msg-line ai-msg">
+                        <div class="bubble">@Html.Raw(Model.ActiveCharacter.GreetingMessage.Replace("\n", "<br/>"))</div>
+                    </div>
+
+                    @if (Model.ChatHistory != null)
+                    {
+                        foreach (var msg in Model.ChatHistory)
+                        {
+                            // 判断是 user 还是 assistant (大模型)
+                            var msgClass = msg.Role == "user" ? "user-msg" : "ai-msg";
+                            <div class="msg-line @msgClass">
+                                <div class="bubble">@Html.Raw(msg.Content.Replace("\n", "<br/>"))</div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="input-forge">
+                    <div class="input-forge-inner">
+                        <input type="text" id="dreamInput" class="ancient-input" placeholder="说出你的台词，或输入选项(A/B)..." ...>
+                        <button class="btn-seal-send" onclick="sendDreamMessage()">
+                            <i class="fas fa-feather-alt"></i> 传书
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="forgetModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content ancient-modal">
+            <div class="modal-header ancient-modal-header">
+                <h5 class="modal-title ancient-modal-title">忘却前尘</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center ancient-modal-body">
+                <p>一樽清酒祭前缘。</p>
+                <p>确认要饮下此杯，清空记忆，重新开始这段羁绊吗？</p>
+            </div>
+            <div class="modal-footer ancient-modal-footer">
+                <button type="button" class="btn-seal-outline" data-bs-dismiss="modal">再思量</button>
+                <button type="button" class="btn-seal-send" onclick="confirmClearHistory()">断前缘</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 1. 自动滚到底部
+        function scrollDreamToBottom() {
+            const chatArea = document.getElementById("dreamChatArea");
+            if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        document.addEventListener("DOMContentLoaded", scrollDreamToBottom);
+
+        // 2. 监听回车键
+        function handleDreamEnter(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // 防止表单乱提交
+                sendDreamMessage();
+            }
+        }
+
+        // 3. 核心发送逻辑
+        async function sendDreamMessage() {
+            const inputField = document.getElementById("dreamInput");
+            const charIdInput = document.getElementById("activeCharacterId");
+            const chatArea = document.getElementById("dreamChatArea");
+
+            if (!inputField || !charIdInput || !chatArea) {
+                console.error("找不到DOM元素，请检查HTML结构！");
+                return;
+            }
+
+            const text = inputField.value.trim();
+            const charId = charIdInput.value;
+
+            if (!text) return; // 空消息不发
+
+            // a. 立即把用户的话显示在界面上
+            appendBubble('user-msg', text);
+            inputField.value = ''; // 清空输入框
+
+            // b. 显示 AI 正在思考的加载动画
+            const loadingId = 'loading-' + Date.now();
+            appendBubble('ai-msg', '<i class="fas fa-spinner fa-spin"></i> 冥思中...', loadingId);
+
+            try {
+                // c. 呼叫后端接口
+                const response = await fetch('/AiRoleplay/SendMessage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ CharacterId: parseInt(charId), Message: text })
+                });
+
+                const data = await response.json();
+
+                // d. 移除加载动画
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+
+                if(response.ok) {
+                    // e. 显示真实回复 (简单处理换行)
+                    let replyHtml = data.reply.replace(/\n/g, '<br/>');
+                    appendBubble('ai-msg', replyHtml);
+                } else {
+                    appendBubble('ai-msg', '（叹息）时空交错，我似乎听不清你的的声音... ' + (data.message || ''));
+                }
+
+            } catch (err) {
+                console.error(err);
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+                appendBubble('ai-msg', '（断开连接）网线似乎被小猫绊断了...');
+            }
+        }
+
+        // 4. 气泡生成器
+        function appendBubble(roleClass, content, id = '') {
+            const chatArea = document.getElementById("dreamChatArea");
+            const div = document.createElement('div');
+            div.className = `msg-line ${roleClass}`;
+            if (id) div.id = id;
+            div.innerHTML = `<div class="bubble">${content}</div>`;
+            chatArea.appendChild(div);
+            scrollDreamToBottom();
+        }
+
+        // 5. 呼出“忘却前尘”弹窗
+        function showForgetModal() {
+            if (window.bootstrap) {
+                var myModal = new bootstrap.Modal(document.getElementById('forgetModal'));
+                myModal.show();
+            } else {
+                console.error("Bootstrap 尚未加载！");
+            }
+        }
+
+        // 6. 确认饮下孟婆汤，真正清空记忆
+        async function confirmClearHistory() {
+            const charId = document.getElementById("activeCharacterId").value;
+
+            // 可以把按钮上的文字变成“正在断绝...”之类的小细节
+            const btn = document.querySelector("#forgetModal .btn-seal-send");
+            if(btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 断绝中...';
+
+            try {
+                await fetch('/AiRoleplay/ClearHistory', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: charId
+                });
+
+                window.location.reload(); // 刷新页面重新开场
+            } catch (err) {
+                console.error("清理记忆失败", err);
+                alert("缘分未尽，清理失败...");
+            }
+        }
+    </script>
+}

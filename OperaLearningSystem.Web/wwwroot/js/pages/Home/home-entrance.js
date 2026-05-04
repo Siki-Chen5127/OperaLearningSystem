@@ -696,7 +696,7 @@ function goToScene(targetId, transition) {
     }
 }
 
-// ================== 视差（首页 + 三层福台；只绑定一次，避免重复监听拖慢帧率） ==================
+// ================== 视差==================
 var entranceParallaxBound = false;
 function bindEntranceParallaxOnce() {
     if (entranceParallaxBound) return;
@@ -1357,6 +1357,10 @@ const galleryPhotos = [
     "/images/entrance/changyinge/10.jpg",
     "/images/entrance/changyinge/11.jpg",
     "/images/entrance/changyinge/12.jpg",
+    "/images/entrance/changyinge/13.jpg",
+    "/images/entrance/changyinge/14.jpg",
+    "/images/entrance/changyinge/15.jpg",
+    "/images/entrance/changyinge/16.jpg",
 ];
 
 // 2. 记录当前显示的图片索引

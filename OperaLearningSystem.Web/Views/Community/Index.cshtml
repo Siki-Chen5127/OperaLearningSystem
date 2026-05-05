@@ -1,6 +1,6 @@
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{
-    ViewData["Title"] = "戏词雅集";
+    ViewData["Title"] = "雅集";
     var authed = User.Identity?.IsAuthenticated == true;
     var categories = ViewBag.Categories as SelectList;
     var qsYsl = string.Equals(Context.Request.Query["yueshilouReturn"].ToString(), "1", StringComparison.Ordinal);
@@ -8,85 +8,92 @@
 
 @section Styles {
     <style>
-        body { background-color: #f5f2ea; }
+        body > header, .border-bottom {
+            display: none !important;
+        }
+
+        main {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+
+        .container {
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
     </style>
-    <link rel="stylesheet" href="~/css/pages/Community/yaji-forum.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages/Community/index.css" asp-append-version="true" />
 }
 
-<div class="yaji-forum-body-wrap">
-    <div class="yaji-page">
-        <header class="yaji-hero" data-aos="fade-down">
-            <div class="yaji-hero-badge">
-                <i class="fas fa-seedling"></i> 阅是楼 · 雅集
-            </div>
-            <h1>戏词雅集</h1>
-            <p class="yaji-hero-sub">清谈戏曲、品鉴唱词 — 与同好共研一纸风华</p>
-            <div class="yaji-hero-links">
-                @if (qsYsl)
-                {
-                    <a asp-controller="Home" asp-action="Index" asp-route-yueshilouReturn="1" class="yaji-link-pill yaji-link-pill--primary"><i class="fas fa-book-open"></i> 返回阅是楼</a>
-                }
-                <a asp-controller="Community" asp-action="Checkin" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">戏台打卡</a>
-                <a asp-controller="Community" asp-action="Works" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">百宝阁</a>
-                <a asp-controller="QuoteBoard" asp-action="Index" asp-route-from="yaji" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">
-                    <i class="fas fa-fire-alt"></i> 梨园心灯
-                </a>
-                <a asp-controller="Home" asp-action="Index" class="yaji-link-pill">
-                    <i class="fas fa-torii-gate"></i> 梨园正门
-                </a>
-            </div>
-        </header>
+<!-- 1. 顶层画卷 (含弹幕区) -->
+<header class="yaji-hero">
+    <h1>雅集</h1>
+    <p class="yaji-hero-sub">左观行迹，右赏珍藏，共聚于此清谈品鉴。</p>
 
-        <div class="yaji-toolbar-wrap" data-aos="fade-up">
-            <div class="yaji-toolbar">
-                <div class="yaji-sort-group" id="yajiSortGroup" role="tablist" aria-label="排序">
-                    <button type="button" class="yaji-sort-btn active" data-sort="smart">智能</button>
-                    <button type="button" class="yaji-sort-btn" data-sort="time">最新</button>
-                    <button type="button" class="yaji-sort-btn" data-sort="hot">热议</button>
-                    <button type="button" class="yaji-sort-btn" data-sort="region">地域序</button>
-                </div>
-                <div class="yaji-search-wrap">
-                    <input type="search" id="yajiSearch" autocomplete="off" placeholder="搜标题、正文、标签…" aria-label="搜索帖子" />
-                    <span class="yaji-search-icon"><i class="fas fa-search"></i></span>
-                </div>
-                <input type="text" id="yajiRegion" placeholder="地域" title="只显示该地域相关帖" style="display:none;max-width:110px;border:none;border-bottom:2px solid #ddd;padding:8px 4px;font-size:0.85rem;background:transparent;" />
-                <button type="button" class="yaji-toolbar-compose" id="btnOpenLyricsCompose"><i class="fas fa-pen-fancy"></i> 提笔发帖</button>
-                <div class="yaji-toolbar-actions">
-                    <button type="button" class="yaji-icon-btn" id="yajiToggleRegion" title="按地域筛选">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </button>
-                    <button type="button" class="yaji-icon-btn" id="yajiRefresh" title="刷新">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <section class="yaji-wc-panel" data-aos="fade-up" data-aos-delay="80">
-            <div class="yaji-wc-head">
-                <h2 class="yaji-wc-title"><i class="fas fa-cloud"></i> 戏词云</h2>
-                <span class="yaji-wc-hint">点击词语可筛帖；再度点击取消</span>
-            </div>
-            <div class="yaji-wc-tags" id="yajiWordCloud">载入词云中…</div>
-        </section>
-
-        <div id="yajiFeedHost" class="yaji-feed" data-aos="fade-up" data-aos-delay="120">
-            <div class="yaji-loading"><i class="fas fa-circle-notch fa-spin"></i> 载入雅集…</div>
-        </div>
+    <!-- 全新水墨弹幕轨道 -->
+    <div class="yaji-danmaku-track">
+        <!-- 注意：这里 ID 不能变，底层 JS 会把词云生成在里面 -->
+        <div class="yaji-wc-tags" id="yajiWordCloud"></div>
     </div>
+
+    <div class="yaji-hero-links">
+        @if (qsYsl)
+        {
+            <a asp-controller="Home" asp-action="Index" asp-route-yueshilouReturn="1" class="yaji-link-pill">返回阅是楼</a>
+        }
+        <a asp-controller="QuoteBoard" asp-action="Index" asp-route-from="yaji" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">梨园心灯</a>
+        <a asp-controller="Home" asp-action="Index" class="yaji-link-pill">畅音正门</a>
+        <a asp-controller="Community" asp-action="Checkin" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">戏台打卡</a>
+        <a asp-controller="Community" asp-action="Works" asp-route-yueshilouReturn="@(qsYsl ? "1" : null)" class="yaji-link-pill">百宝阁</a>
+    </div>
+</header>
+
+<!-- 2. 三栏宏大布局 -->
+<div class="yaji-grand-board">
+
+    <!-- 左栏：打卡 -->
+    <aside class="yaji-col-left">
+        <div class="board-col-title">戏台行迹</div>
+        <div id="feed-daka" class="yaji-feed">
+            <div class="yaji-loading">行迹载入中...</div>
+        </div>
+    </aside>
+
+    <!-- 中栏：大型讨论区 -->
+    <main class="yaji-col-main">
+        <div class="board-col-title">雅集闲谈</div>
+
+        <div class="yaji-compose-box">
+            <button type="button" class="yaji-compose-btn" id="btnOpenLyricsCompose">
+                点此提笔，留下你的真知灼见...
+            </button>
+        </div>
+
+        <div id="feed-yaji" class="yaji-feed">
+            <div class="yaji-loading">闲谈载入中...</div>
+        </div>
+    </main>
+
+    <!-- 右栏：二创 -->
+    <aside class="yaji-col-right">
+        <div class="board-col-title">百宝珍藏</div>
+        <div id="feed-works" class="yaji-feed">
+            <div class="yaji-loading">珍藏载入中...</div>
+        </div>
+    </aside>
+
 </div>
 
+<!-- 3. 发帖弹窗 -->
 <div id="yajiLyricsModal" class="yaji-modal-root" aria-hidden="true">
-    <div class="yaji-modal-backdrop" onclick="yajiCloseModal('yajiLyricsModal')"></div>
-    <div class="yaji-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="yajiLyricsTitle">
+    <div class="yaji-modal-backdrop" id="bg-close-modal"></div>
+    <div class="yaji-modal-dialog">
         <div class="yaji-modal-head">
-            <h3 id="yajiLyricsTitle">提笔发帖</h3>
-            <button type="button" class="yaji-modal-close" onclick="yajiCloseModal('yajiLyricsModal')" aria-label="关闭">&times;</button>
+            <h3>提笔发帖</h3>
+            <button type="button" class="yaji-modal-close" id="btn-close-modal">&times;</button>
         </div>
         <div class="yaji-modal-body-scroll">
-            <label class="small text-muted d-block mb-1">标题</label>
-            <input type="text" id="ly-title" class="yaji-field" placeholder="帖子标题" maxlength="200" />
-            <label class="small text-muted d-block mb-1">所属分类</label>
+            <input type="text" id="ly-title" class="yaji-field" placeholder="请填入标题" maxlength="200" />
             <select id="ly-category" class="yaji-field" required>
                 <option value="">-- 请选择版块 --</option>
                 @if (categories != null)
@@ -97,10 +104,10 @@
                     }
                 }
             </select>
-            <label class="small text-muted d-block mb-1">正文</label>
             <textarea id="ly-content" class="yaji-field" placeholder="请挥毫泼墨…"></textarea>
+
             <div class="yaji-modal-actions">
-                <button type="button" class="yaji-btn-secondary" onclick="yajiCloseModal('yajiLyricsModal')">取消</button>
+                <button type="button" class="yaji-btn-secondary" id="btn-cancel-modal">收起</button>
                 <button type="button" class="yaji-submit" id="ly-submit">确认发布</button>
             </div>
         </div>
@@ -108,50 +115,101 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/yaji-compose-modal.js" asp-append-version="true"></script>
     <script src="~/js/community-yaji-feed.js" asp-append-version="true"></script>
     <script>
-        initYajiFeed({
-            postKind: 0,
-            reactionSet: 'full',
-            showMediaInFeed: false,
-            authed: @authed.ToString().ToLowerInvariant(),
-            emptyHtml: '<div class="yaji-empty" data-aos="fade-in"><i class="far fa-scroll"></i>暂无非符合条件的帖子<br/><small>试试换个词云或排序，或点击工具栏「提笔发帖」。</small></div>'
-        });
+        var authed = @authed.ToString().ToLowerInvariant();
 
-        (function () {
-            var authed = @authed.ToString().ToLowerInvariant();
-            document.getElementById('btnOpenLyricsCompose').addEventListener('click', function () {
-                if (!authed) {
-                    window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
-                    return;
-                }
-                yajiOpenModal('yajiLyricsModal');
+        if (window.initYajiFeed) {
+            // 1. 中栏：雅集闲谈 (绑定了弹幕词云)
+            initYajiFeed({
+                postKind: 0,
+                feedHostId: 'feed-yaji',
+                wcHostId: 'yajiWordCloud', // 词云绑定到中栏的实例上
+                sortGroupId: 'dummy-sort-1', searchId: 'dummy-search-1', regionInputId: 'dummy-reg-1', regionToggleId: 'dummy-regtog-1', refreshBtnId: 'dummy-ref-1',
+                reactionSet: 'full',
+                showMediaInFeed: true,
+                authed: authed,
+                emptyHtml: '<div class="yaji-empty">暂无相关闲谈记录。</div>'
             });
+
+            // 2. 左栏：戏台打卡
+            initYajiFeed({
+                postKind: 1, feedHostId: 'feed-daka', wcHostId: 'dummy-wc-2', sortGroupId: 'dummy-sort-2', searchId: 'dummy-search-2', regionInputId: 'dummy-reg-2', regionToggleId: 'dummy-regtog-2', refreshBtnId: 'dummy-ref-2',
+                reactionSet: 'checkin', showMediaInFeed: true, authed: authed, emptyHtml: '<div class="yaji-empty">暂无行迹打卡。</div>'
+            });
+
+            // 3. 右栏：百宝阁珍藏
+            initYajiFeed({
+                postKind: 2, feedHostId: 'feed-works', wcHostId: 'dummy-wc-3', sortGroupId: 'dummy-sort-3', searchId: 'dummy-search-3', regionInputId: 'dummy-reg-3', regionToggleId: 'dummy-regtog-3', refreshBtnId: 'dummy-ref-3',
+                reactionSet: 'full', showMediaInFeed: true, authed: authed, emptyHtml: '<div class="yaji-empty">暂无珍藏收录。</div>'
+            });
+        }
+
+        // ==========================================
+        // 词云转弹幕的核心魔法
+        // ==========================================
+        var wcContainer = document.getElementById('yajiWordCloud');
+        if (wcContainer) {
+            var observer = new MutationObserver(function(mutations) {
+                var spans = wcContainer.querySelectorAll('.yaji-wc-span');
+                spans.forEach(function(span) {
+                    // 如果已经处理过，就不再处理
+                    if (span.getAttribute('data-danmaku')) return;
+                    span.setAttribute('data-danmaku', '1');
+
+                    // 随机高度 (10% 到 85%)
+                    var randomTop = Math.floor(Math.random() * 75) + 10;
+                    span.style.top = randomTop + '%';
+
+                    // 随机飘移速度 (15秒到35秒)
+                    var randomDuration = Math.floor(Math.random() * 20) + 15;
+                    span.style.animationDuration = randomDuration + 's';
+
+                    // 随机延迟起步，防止它们挤在一起
+                    var randomDelay = Math.floor(Math.random() * 15);
+                    span.style.animationDelay = '-' + randomDelay + 's';
+                });
+            });
+            // 监控词云容器的子元素变化
+            observer.observe(wcContainer, { childList: true });
+        }
+
+        // 发帖弹窗逻辑
+        (function () {
+            var modalRoot = document.getElementById('yajiLyricsModal');
+            function openModal() {
+                if (!authed) { window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname); return; }
+                modalRoot.classList.add('show');
+            }
+            function closeModal() { modalRoot.classList.remove('show'); }
+
+            document.getElementById('btnOpenLyricsCompose').addEventListener('click', openModal);
+            document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+            document.getElementById('btn-cancel-modal').addEventListener('click', closeModal);
+            document.getElementById('bg-close-modal').addEventListener('click', closeModal);
 
             document.getElementById('ly-submit').addEventListener('click', async function () {
                 var title = document.getElementById('ly-title').value.trim();
                 var content = document.getElementById('ly-content').value.trim();
                 var cat = document.getElementById('ly-category').value;
-                if (!title || !content) { alert('请填写标题与正文'); return; }
-                if (!cat) { alert('请选择版块'); return; }
-                var r = await fetch('/api/community-feed/lyrics-post', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title: title, content: content, categoryId: parseInt(cat, 10) || 0 })
-                });
-                if (r.ok) {
-                    document.getElementById('ly-title').value = '';
-                    document.getElementById('ly-content').value = '';
-                    document.getElementById('ly-category').value = '';
-                    yajiCloseModal('yajiLyricsModal');
-                    if (window.yajiReloadFeed) window.yajiReloadFeed();
-                    alert('发布成功');
-                } else {
-                    var msg = (await r.text()) || '发布失败';
-                    alert(msg);
-                }
+                if (!title || !content) { alert('标题与正文不可留白'); return; }
+                if (!cat) { alert('请选取版块'); return; }
+
+                var btn = this; btn.disabled = true; btn.textContent = '装订中...';
+
+                try {
+                    var r = await fetch('/api/community-feed/lyrics-post', {
+                        method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: title, content: content, categoryId: parseInt(cat, 10) || 0 })
+                    });
+
+                    btn.disabled = false; btn.textContent = '确认发布';
+                    if (r.ok) {
+                        document.getElementById('ly-title').value = ''; document.getElementById('ly-content').value = ''; document.getElementById('ly-category').value = '';
+                        closeModal();
+                        alert('佳作已呈交'); window.location.reload();
+                    } else { alert('告示：' + (await r.text() || '呈交失败')); }
+                } catch(e) { btn.disabled = false; btn.textContent = '确认发布'; alert('网络未连通。'); }
             });
         })();
     </script>

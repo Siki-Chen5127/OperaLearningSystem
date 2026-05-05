@@ -32,7 +32,7 @@ body.transparent-nav-body { background: #000; }
     filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
 }
 
-/* ========== 门层（视频 + 画布擦除） ========== */
+/* ========== 视频 + 画布擦除 ========== */
 .door-layer {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background-size: cover; background-position: center;
@@ -52,9 +52,16 @@ body.transparent-nav-body { background: #000; }
     background: #0a0604;
 }
 .door-guest-bg {
-    background: linear-gradient(165deg, #1a1510 0%, #0a0604 45%, #14100c 100%);
-    filter: grayscale(100%);
-    z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    box-shadow: inset 0 0 0 2000px rgba(20, 15, 10, 0.55);
+    z-index: 10;
+    animation: bgBreathe 15s infinite alternate ease-in-out;
 }
 #scratch-canvas {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -63,23 +70,99 @@ body.transparent-nav-body { background: #000; }
     cursor: none;
 }
 
-/* ========== 未登录 ========== */
+/* ========== 未登录页面 ========== */
+/* 动画：从雾气中浮现 */
+@keyframes emergeFromFog {
+    0% {
+        opacity: 0;
+        transform: scale(1.05) translateY(20px);
+        filter: blur(12px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* 动画：背景轻微呼吸放大，模拟真实的镜头感 */
+@keyframes bgBreathe {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.04);
+    }
+}
 .unauth-modal {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 50;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
 }
 .unauth-box {
-    text-align: center;
-    background: linear-gradient(155deg, rgba(30, 24, 18, 0.95) 0%, rgba(12, 9, 6, 0.98) 100%);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    position: relative; padding: 60px 80px; border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8); overflow: hidden;
+    padding: 3px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(212, 175, 55, 0.1));
+    border-radius: 8px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    animation: emergeFromFog 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
 }
-.unauth-box::before { content:''; position:absolute; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); }
-.unauth-box h2 { position:relative; color:#e2c079; font-family:'Ma Shan Zheng',cursive; font-size:3rem; margin-bottom:30px; text-shadow:0 4px 10px #000; }
-.unauth-box .btn-enter { position:relative; background:#9E2A2F; color:#fff; border:none; padding:12px 40px; font-size:1.2rem; border-radius:30px; text-decoration:none; transition:all 0.3s; font-family:'Ma Shan Zheng',cursive; }
-.unauth-box .btn-enter:hover { background:#b5383e; box-shadow:0 5px 20px rgba(158,42,47,0.6); color:#ffd700; }
+/* 请柬主体*/
+.unauth-content {
+    background: rgba(26, 21, 16, 0.85); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    padding: 50px 80px;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+/* 文字排版*/
+.unauth-box h2 {
+    color: #d4af37;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: rem;
+    font-weight: 500;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.unauth-subtitle {
+    color: #a89f91;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    font-family: "KaiTi", "楷体", serif; 
+}
+/* 按钮设计*/
+.btn-enter {
+    display: inline-block;
+    padding: 12px 45px;
+    background-color: #8b1d1d; 
+    color: #f5f5f0;
+    font-size: 1.2rem;
+    letter-spacing: 6px;
+    text-decoration: none;
+    border-radius: 30px;
+    border: 1px solid #a32626;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 29, 29, 0.4);
+}
+
+    .btn-enter:hover {
+        background-color: #a32626;
+        color: #ffffff;
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 20px rgba(139, 29, 29, 0.6);
+    }
+
 
 /* ========== 提示语 ========== */
 .glowing-text {
@@ -95,7 +178,7 @@ body.transparent-nav-body { background: #000; }
 }
 
 /* ========== 叩门 ========== */
-#knock-point { position:absolute; top:50%;left:50%; transform:translate(-50%,-50%); width:86px;height:86px; z-index:30; display:flex; align-items:center;justify-content:center; cursor:pointer; }
+#knock-point { position:absolute; top:50%;left:47.5%; transform:translate(-50%,-50%); width:86px;height:86px; z-index:30; display:flex; align-items:center;justify-content:center; cursor:pointer; }
 .knock-pulse { position:absolute; width:100%;height:100%; background:rgba(226,192,121,0.4); border-radius:50%; animation:pulse 1.5s infinite ease-out; }
 .knock-text { position:relative; color:#fff; font-family:'Ma Shan Zheng',cursive; font-size:2rem; text-shadow:0 0 8px #000; }
 @keyframes pulse { 0%{transform:scale(0.8);opacity:1;border:2px solid #e2c079;} 100%{transform:scale(2.5);opacity:0;border:2px solid transparent;} }

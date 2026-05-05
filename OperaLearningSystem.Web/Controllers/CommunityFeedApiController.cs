@@ -31,7 +31,7 @@ public class CommunityFeedApiController : ControllerBase
         _cache = cache;
         _env = env;
     }
-
+    //广场接口
     [HttpGet("recommended")]
     public async Task<IActionResult> Recommended(
         [FromQuery] int kind = 0,
@@ -205,12 +205,78 @@ public class CommunityFeedApiController : ControllerBase
             }
             catch
             {
-                // fallback to split
             }
         }
 
         return raw.Split(new[] { '\n', '\r', ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries)
             .Select(s => s.Trim()).Where(s => s.Length > 0).Distinct().ToList();
+    }
+
+
+    /// <summary>
+    /// 获取用户专属记录（打卡/百宝阁）
+    /// URL: GET /api/community-feed/mine?kind=1
+    /// </summary>
+
+    /// <summary>
+    /// 删除自己的卷宗
+    /// URL: DELETE /api/community-feed/{id}
+    /// </summary>
+
+    [Authorize]
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteMyPost(int id, CancellationToken ct)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var post = await _db.CommunityPosts.FirstOrDefaultAsync(p => p.Id == id, ct);
+        if (post == null) return NotFound("该行迹已不存在");
+
+        // 越权校验：防止黑客调用接口删别人的帖子
+        if (post.AuthorId != user.Id && !User.IsInRole("Admin"))
+            return Forbid("无权焚毁他人的行迹");
+
+        // 级联删除相关的评论 (如果你配置了外键级联删除，这一步可省略，但手动删更稳妥)
+        var comments = _db.Comments.Where(c => c.PostId == id);
+        _db.Comments.RemoveRange(comments);
+
+        // 删除相关的点赞/收藏
+        var likes = _db.Likes.Where(l => l.CommunityPostId == id);
+        _db.Likes.RemoveRange(likes);
+
+        // 焚毁主帖
+        _db.CommunityPosts.Remove(post);
+        await _db.SaveChangesAsync(ct);
+
+        return Ok(new { success = true });
+    }
+    [Authorize]
+    [HttpGet("mine")]
+    public async Task<IActionResult> GetMyPosts([FromQuery] int kind = 1, CancellationToken ct = default)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var list = await _db.CommunityPosts.AsNoTracking()
+            .Where(p => p.PostKind == kind && p.AuthorId == user.Id)
+            .OrderByDescending(p => p.CreatedTime)
+            .Select(p => new
+            {
+                p.Id,
+                p.Title,
+                p.Content,
+                p.CreatedTime,
+                p.PostKind,
+                p.TopicTags,
+                p.RegionLabel,
+                mediaUrls = ParseMediaUrls(p.MediaUrls),
+                author = user.Nickname ?? user.UserName,
+                avatarUrl = string.IsNullOrWhiteSpace(user.AvatarUrl) ? "/images/default_avatar.png" : user.AvatarUrl
+            })
+            .ToListAsync(ct);
+
+        return Ok(list);
     }
 
     /// <summary>雅集发帖（PostKind 0）</summary>
@@ -287,6 +353,7 @@ public class CommunityFeedApiController : ControllerBase
         await _db.SaveChangesAsync(ct);
         return Ok(new { id = post.Id });
     }
+
 
     [Authorize]
     [HttpPost("react/{postId:int}")]

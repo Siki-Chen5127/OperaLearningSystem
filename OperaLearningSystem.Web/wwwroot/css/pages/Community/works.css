@@ -1,0 +1,511 @@
+/* 
+   百宝阁专属样式表 (完美适配版 - 等高网格)
+   */
+
+/* --- 1. 全局与画廊底色 --- */
+body {
+    margin: 0;
+    background-color: #fcfbf9 !important;
+    font-family: 'Noto Serif SC', '楷体', serif;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(42, 93, 103, 0.3);
+    border-radius: 10px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(42, 93, 103, 0.6);
+    }
+
+/* --- 2. 顶部画卷 --- */
+.works-hero {
+    background-image: linear-gradient(to bottom, rgba(252, 251, 249, 0.2), rgba(252, 251, 249, 1)), url('../../../images/entrance/baibaoge.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 100px 5% 40px;
+    text-align: center;
+    border-bottom: 1px solid #e6f0ef;
+}
+
+.works-hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border: 1px solid #2a5d67;
+    color: #2a5d67;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.works-hero h1 {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 3.5rem;
+    color: #1a3c42;
+    margin: 0 0 15px;
+    letter-spacing: 6px;
+}
+
+.works-hero-sub {
+    color: #4a6c72;
+    font-size: 1.05rem;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+}
+
+.works-hero-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.works-link-pill {
+    padding: 8px 24px;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    color: #2a5d67;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(42, 93, 103, 0.3);
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+    .works-link-pill:hover, .works-link-pill.active {
+        background: #2a5d67;
+        color: #fff;
+        box-shadow: 0 6px 15px rgba(42, 93, 103, 0.2);
+    }
+
+/* --- 3. 容器与工具栏 --- */
+.works-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 5% 60px;
+}
+
+.works-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    margin-bottom: 40px;
+    position: sticky;
+    top: 20px;
+    z-index: 50;
+    border: 1px solid #e6f0ef;
+}
+
+.btn-compose-work {
+    background: linear-gradient(135deg, #2a5d67 0%, #1a3c42 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+    .btn-compose-work:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(42, 93, 103, 0.4);
+    }
+
+/* --- 4. JS 渲染专用画廊网格 (精确覆盖类名) --- */
+#yajiFeedHost {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 25px !important;
+    align-items: stretch !important; /* 同行等高 */
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+    /* 单个卡片 */
+    #yajiFeedHost .yaji-row {
+        background: #fff !important;
+        border: 1px solid #e6f0ef !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        transition: transform 0.3s, box-shadow 0.3s !important;
+        overflow: hidden !important;
+    }
+
+        #yajiFeedHost .yaji-row:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 10px 25px rgba(42, 93, 103, 0.1) !important;
+        }
+
+    /* 头部头像：精确锁定 yaji-avatar */
+    #yajiFeedHost .yaji-avatar {
+        width: 45px !important;
+        height: 45px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        border: 1px solid #e6f0ef !important;
+        float: left !important;
+        margin-right: 15px !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* 主体容器 */
+    #yajiFeedHost .yaji-row-main {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-grow: 1 !important;
+        clear: none !important;
+    }
+
+    /* 标题与元数据 */
+    #yajiFeedHost .yaji-row-title-row {
+        border-bottom: 1px dashed #e6f0ef !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 12px !important;
+    }
+
+    #yajiFeedHost .yaji-row-title {
+        display: block !important;
+        font-weight: bold !important;
+        color: #1a3c42 !important;
+        font-size: 1.05rem !important;
+        text-decoration: none !important;
+        margin-bottom: 5px !important;
+    }
+
+    #yajiFeedHost .yaji-row-meta {
+        display: block !important;
+        font-size: 0.8rem !important;
+        color: #8bafa4 !important;
+    }
+
+    /* 正文 */
+    #yajiFeedHost .yaji-row-excerpt {
+        color: #4a6c72 !important;
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+        margin-bottom: 15px !important;
+        flex-grow: 1 !important;
+        word-wrap: break-word !important;
+    }
+
+    /* 重点：作品媒体缩略图 (精确锁定 js 里的 .yaji-feed-media-item) */
+    #yajiFeedHost .yaji-feed-media {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        margin-bottom: 15px !important;
+    }
+
+    #yajiFeedHost .yaji-feed-media-item {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 250px !important;
+        object-fit: cover !important;
+        border-radius: 8px !important;
+    }
+
+    /* 标签区 (精确锁定 js 里的 .yaji-chip) */
+    #yajiFeedHost .yaji-tag-row {
+        margin-bottom: 15px !important;
+    }
+
+    #yajiFeedHost .yaji-chip {
+        background: #f4f8f7 !important;
+        color: #2a5d67 !important;
+        padding: 4px 10px !important;
+        border-radius: 15px !important;
+        font-size: 0.75rem !important;
+        margin-right: 5px !important;
+        display: inline-block !important;
+        border: none !important;
+    }
+
+    /* 隐藏无关按钮、评论和原版动作条 */
+    #yajiFeedHost .yaji-actions,
+    #yajiFeedHost .yaji-thread {
+        display: none !important;
+    }
+
+    /* 底部右侧删除按钮的全新容器 (将在 cshtml 里动态插入) */
+    #yajiFeedHost .works-custom-actions {
+        display: flex !important;
+        justify-content: flex-end !important;
+        margin-top: auto !important;
+        padding-top: 15px !important;
+        border-top: 1px dashed #e6f0ef !important;
+    }
+
+.btn-delete-post {
+    background: transparent !important;
+    color: #d9534f !important;
+    border: 1px solid #f2dede !important;
+    padding: 6px 15px !important;
+    border-radius: 20px !important;
+    cursor: pointer !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s !important;
+}
+
+    .btn-delete-post:hover {
+        background: #d9534f !important;
+        color: #fff !important;
+        border-color: #d9534f !important;
+    }
+
+/* --- 5. 投稿与提示弹窗基础样式 --- */
+/* (投稿框) */
+.works-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(252, 251, 249, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 99998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.works-modal-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%);
+    width: 90%;
+    max-width: 600px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s;
+    border: 1px solid #e6f0ef;
+}
+
+.works-modal-root.show .works-modal-backdrop, .works-modal-root.show .works-modal-dialog {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.works-modal-root.show .works-modal-dialog {
+    transform: translate(-50%, -50%);
+}
+
+.works-modal-head {
+    background: #fbfaf8;
+    padding: 20px 30px;
+    border-bottom: 1px solid #e6f0ef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .works-modal-head h3 {
+        margin: 0;
+        color: #2a5d67;
+        font-size: 1.5rem;
+        font-weight: normal;
+    }
+
+.works-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
+}
+
+.works-modal-body {
+    padding: 30px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.works-field {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #e6f0ef;
+    padding: 12px 0;
+    font-size: 1.05rem;
+    margin-bottom: 20px;
+    outline: none;
+    background: transparent;
+    transition: border-color 0.3s;
+}
+
+    .works-field:focus {
+        border-bottom-color: #2a5d67;
+    }
+
+textarea.works-field {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.8;
+}
+
+.works-upload-area {
+    border: 2px dashed #cae0dc;
+    background: #fcfbf9;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+    .works-upload-area:hover {
+        border-color: #2a5d67;
+        background: #f4f8f7;
+    }
+
+    .works-upload-area input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+.works-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 10px;
+}
+/* (Toast) */
+.works-toast {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    background: #2a5d67;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: 1.05rem;
+    opacity: 0;
+    transition: all 0.4s;
+    z-index: 9999999;
+}
+
+    .works-toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+/* (确认弹窗) */
+.works-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(252, 251, 249, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 9999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+    .works-confirm-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+.works-confirm-box {
+    background: #fff;
+    border: 1px solid #e6f0ef;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    transform: translateY(20px);
+    transition: transform 0.3s;
+    overflow: hidden;
+}
+
+.works-confirm-overlay.show .works-confirm-box {
+    transform: translateY(0);
+}
+
+.works-confirm-header {
+    background: #fbfaf8;
+    border-bottom: 1px solid #e6f0ef;
+    padding: 15px 20px;
+    font-weight: bold;
+    color: #2a5d67;
+    font-size: 1.2rem;
+}
+
+.works-confirm-body {
+    padding: 24px 20px;
+    color: #4a6c72;
+    font-size: 0.95rem;
+}
+
+.works-confirm-footer {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: #fbfaf8;
+    border-top: 1px solid #e6f0ef;
+}
+
+    .works-confirm-footer button {
+        padding: 8px 18px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        border: none;
+        transition: 0.2s;
+    }
+
+.wk-btn-cancel {
+    background: transparent;
+    color: #666;
+    border: 1px solid #ccc !important;
+}
+
+    .wk-btn-cancel:hover {
+        background: #f0f0f0;
+    }
+
+.wk-btn-delete {
+    background: #d9534f;
+    color: #fff;
+}
+
+    .wk-btn-delete:hover {
+        background: #c9302c;
+    }

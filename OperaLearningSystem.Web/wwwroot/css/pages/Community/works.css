@@ -1,8 +1,8 @@
-/* ==========================================================================
-   百宝阁 (Works) 专属样式表 - 淡雅青白风
-   ========================================================================== */
+/* 
+   百宝阁专属样式表 (完美适配版 - 等高网格)
+   */
 
-/* 1. 全局底色与滚动条 */
+/* --- 1. 全局与画廊底色 --- */
 body {
     margin: 0;
     background-color: #fcfbf9 !important;
@@ -26,14 +26,13 @@ body {
         background: rgba(42, 93, 103, 0.6);
     }
 
-/* 2. 顶部巨幅画卷 */
+/* --- 2. 顶部画卷 --- */
 .works-hero {
     background-image: linear-gradient(to bottom, rgba(252, 251, 249, 0.2), rgba(252, 251, 249, 1)), url('../../../images/entrance/baibaoge.jpg');
     background-size: cover;
     background-position: center;
-    padding: 80px 5% 40px;
+    padding: 100px 5% 40px;
     text-align: center;
-    position: relative;
     border-bottom: 1px solid #e6f0ef;
 }
 
@@ -89,7 +88,7 @@ body {
         box-shadow: 0 6px 15px rgba(42, 93, 103, 0.2);
     }
 
-/* 3. 主体容器与工具栏 */
+/* --- 3. 容器与工具栏 --- */
 .works-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -120,7 +119,6 @@ body {
     border-radius: 30px;
     font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(42, 93, 103, 0.3);
     transition: all 0.3s;
 }
 
@@ -129,7 +127,154 @@ body {
         box-shadow: 0 6px 20px rgba(42, 93, 103, 0.4);
     }
 
-/* 4. 投稿弹窗基础样式 */
+/* --- 4. JS 渲染专用画廊网格 (精确覆盖类名) --- */
+#yajiFeedHost {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 25px !important;
+    align-items: stretch !important; /* 同行等高 */
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+    /* 单个卡片 */
+    #yajiFeedHost .yaji-row {
+        background: #fff !important;
+        border: 1px solid #e6f0ef !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        transition: transform 0.3s, box-shadow 0.3s !important;
+        overflow: hidden !important;
+    }
+
+        #yajiFeedHost .yaji-row:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 10px 25px rgba(42, 93, 103, 0.1) !important;
+        }
+
+    /* 头部头像：精确锁定 yaji-avatar */
+    #yajiFeedHost .yaji-avatar {
+        width: 45px !important;
+        height: 45px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        border: 1px solid #e6f0ef !important;
+        float: left !important;
+        margin-right: 15px !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* 主体容器 */
+    #yajiFeedHost .yaji-row-main {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-grow: 1 !important;
+        clear: none !important;
+    }
+
+    /* 标题与元数据 */
+    #yajiFeedHost .yaji-row-title-row {
+        border-bottom: 1px dashed #e6f0ef !important;
+        padding-bottom: 10px !important;
+        margin-bottom: 12px !important;
+    }
+
+    #yajiFeedHost .yaji-row-title {
+        display: block !important;
+        font-weight: bold !important;
+        color: #1a3c42 !important;
+        font-size: 1.05rem !important;
+        text-decoration: none !important;
+        margin-bottom: 5px !important;
+    }
+
+    #yajiFeedHost .yaji-row-meta {
+        display: block !important;
+        font-size: 0.8rem !important;
+        color: #8bafa4 !important;
+    }
+
+    /* 正文 */
+    #yajiFeedHost .yaji-row-excerpt {
+        color: #4a6c72 !important;
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+        margin-bottom: 15px !important;
+        flex-grow: 1 !important;
+        word-wrap: break-word !important;
+    }
+
+    /* 重点：作品媒体缩略图 (精确锁定 js 里的 .yaji-feed-media-item) */
+    #yajiFeedHost .yaji-feed-media {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        margin-bottom: 15px !important;
+    }
+
+    #yajiFeedHost .yaji-feed-media-item {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 250px !important;
+        object-fit: cover !important;
+        border-radius: 8px !important;
+    }
+
+    /* 标签区 (精确锁定 js 里的 .yaji-chip) */
+    #yajiFeedHost .yaji-tag-row {
+        margin-bottom: 15px !important;
+    }
+
+    #yajiFeedHost .yaji-chip {
+        background: #f4f8f7 !important;
+        color: #2a5d67 !important;
+        padding: 4px 10px !important;
+        border-radius: 15px !important;
+        font-size: 0.75rem !important;
+        margin-right: 5px !important;
+        display: inline-block !important;
+        border: none !important;
+    }
+
+    /* 隐藏无关按钮、评论和原版动作条 */
+    #yajiFeedHost .yaji-actions,
+    #yajiFeedHost .yaji-thread {
+        display: none !important;
+    }
+
+    /* 底部右侧删除按钮的全新容器 (将在 cshtml 里动态插入) */
+    #yajiFeedHost .works-custom-actions {
+        display: flex !important;
+        justify-content: flex-end !important;
+        margin-top: auto !important;
+        padding-top: 15px !important;
+        border-top: 1px dashed #e6f0ef !important;
+    }
+
+.btn-delete-post {
+    background: transparent !important;
+    color: #d9534f !important;
+    border: 1px solid #f2dede !important;
+    padding: 6px 15px !important;
+    border-radius: 20px !important;
+    cursor: pointer !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s !important;
+}
+
+    .btn-delete-post:hover {
+        background: #d9534f !important;
+        color: #fff !important;
+        border-color: #d9534f !important;
+    }
+
+/* --- 5. 投稿与提示弹窗基础样式 --- */
+/* (投稿框) */
 .works-modal-backdrop {
     position: fixed;
     top: 0;
@@ -157,13 +302,11 @@ body {
     z-index: 99999;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.4s;
     border: 1px solid #e6f0ef;
-    overflow: hidden;
 }
 
-.works-modal-root.show .works-modal-backdrop,
-.works-modal-root.show .works-modal-dialog {
+.works-modal-root.show .works-modal-backdrop, .works-modal-root.show .works-modal-dialog {
     opacity: 1;
     pointer-events: auto;
 }
@@ -184,8 +327,8 @@ body {
     .works-modal-head h3 {
         margin: 0;
         color: #2a5d67;
-        font-family: 'Ma Shan Zheng', cursive;
         font-size: 1.5rem;
+        font-weight: normal;
     }
 
 .works-modal-close {
@@ -210,7 +353,6 @@ body {
     font-size: 1.05rem;
     margin-bottom: 20px;
     outline: none;
-    font-family: inherit;
     background: transparent;
     transition: border-color 0.3s;
 }
@@ -258,8 +400,7 @@ textarea.works-field {
     gap: 15px;
     padding-top: 10px;
 }
-
-/* 5. 提示弹窗 (Toast) */
+/* (Toast) */
 .works-toast {
     position: fixed;
     top: 30px;
@@ -270,7 +411,6 @@ textarea.works-field {
     padding: 12px 28px;
     border-radius: 30px;
     font-size: 1.05rem;
-    box-shadow: 0 10px 30px rgba(42, 93, 103, 0.3);
     opacity: 0;
     transition: all 0.4s;
     z-index: 9999999;
@@ -280,162 +420,7 @@ textarea.works-field {
         transform: translateX(-50%) translateY(0);
         opacity: 1;
     }
-
-/* ==========================================================================
-   6. 终极防爆网格画廊布局
-   ========================================================================== */
-
-/* 强制覆盖底层 JS 注入的 feed 容器 */
-#yajiFeedHost {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
-    gap: 25px !important;
-    align-items: stretch !important; /* 强制同行卡片等高 */
-    padding: 0 !important;
-    background: transparent !important;
-    border: none !important;
-}
-
-    /* 独立卡片 */
-    #yajiFeedHost .yaji-row {
-        background: #fff !important;
-        border: 1px solid #e6f0ef !important;
-        border-radius: 12px !important;
-        padding: 20px !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important;
-        margin: 0 !important;
-        display: flex !important;
-        flex-direction: column !important; /* 让内部纵向排列 */
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-    }
-
-        #yajiFeedHost .yaji-row:hover {
-            transform: translateY(-5px) !important;
-            box-shadow: 0 10px 25px rgba(42, 93, 103, 0.1) !important;
-        }
-
-    /* 头部：头像与作者区域 */
-    #yajiFeedHost .yaji-author {
-        display: flex !important;
-        align-items: center !important;
-        margin-bottom: 15px !important;
-        padding-bottom: 12px !important;
-        border-bottom: 1px dashed #e6f0ef !important;
-    }
-
-        /* 【死锁】头像图片尺寸，绝不允许爆炸 */
-        #yajiFeedHost .yaji-author img {
-            width: 40px !important;
-            height: 40px !important;
-            min-width: 40px !important;
-            max-width: 40px !important;
-            min-height: 40px !important;
-            max-height: 40px !important;
-            border-radius: 50% !important;
-            object-fit: cover !important;
-            margin: 0 10px 0 0 !important;
-            border: 1px solid #e6f0ef !important;
-            display: block !important;
-        }
-
-    #yajiFeedHost .yaji-author-name {
-        font-weight: bold !important;
-        color: #1a3c42 !important;
-        font-size: 0.95rem !important;
-    }
-
-    #yajiFeedHost .yaji-author-meta {
-        font-size: 0.75rem !important;
-        color: #8bafa4 !important;
-        margin-left: auto !important;
-    }
-
-    /* 正文内容 */
-    #yajiFeedHost .yaji-content {
-        color: #4a6c72 !important;
-        font-size: 0.95rem !important;
-        line-height: 1.6 !important;
-        word-wrap: break-word !important;
-        margin-bottom: 15px !important;
-        flex-grow: 1 !important; /* 把底部按钮往下推 */
-    }
-
-        #yajiFeedHost .yaji-content strong {
-            color: #1a3c42 !important;
-            display: block !important;
-            margin-bottom: 5px !important;
-            font-size: 1.05rem !important;
-        }
-
-    /* 标签 */
-    #yajiFeedHost .yaji-tag-row {
-        margin-bottom: 15px !important;
-    }
-
-    #yajiFeedHost .yaji-tag {
-        background: #f4f8f7 !important;
-        color: #2a5d67 !important;
-        padding: 4px 10px !important;
-        border-radius: 15px !important;
-        font-size: 0.75rem !important;
-        margin-right: 5px !important;
-        display: inline-block !important;
-    }
-
-    /* 【死锁】作品图片尺寸限制 */
-    #yajiFeedHost .yaji-media-grid {
-        display: block !important;
-        width: 100% !important;
-        margin-bottom: 15px !important;
-    }
-
-        #yajiFeedHost .yaji-media-grid img,
-        #yajiFeedHost .yaji-media-grid video {
-            width: 100% !important;
-            max-width: 100% !important;
-            max-height: 250px !important; /* 封死最大高度 */
-            object-fit: cover !important;
-            border-radius: 8px !important;
-            display: block !important;
-            margin-bottom: 10px !important;
-        }
-
-    /* 隐藏无关元素 */
-    #yajiFeedHost .yaji-react,
-    #yajiFeedHost .yaji-thread,
-    #yajiFeedHost .yaji-thread-toggle,
-    #yajiFeedHost .yaji-stat-pill {
-        display: none !important;
-    }
-
-    /* 底部按钮对齐 */
-    #yajiFeedHost .yaji-actions {
-        display: flex !important;
-        justify-content: flex-end !important;
-        border-top: 1px dashed #e6f0ef !important;
-        padding-top: 15px !important;
-        margin-top: auto !important; /* 锁定在最底部 */
-    }
-
-    #yajiFeedHost .btn-delete-post {
-        background: transparent !important;
-        color: #d9534f !important;
-        border: 1px solid #f2dede !important;
-        padding: 6px 15px !important;
-        border-radius: 20px !important;
-        cursor: pointer !important;
-        font-size: 0.85rem !important;
-        transition: all 0.2s !important;
-    }
-
-        #yajiFeedHost .btn-delete-post:hover {
-            background: #d9534f !important;
-            color: #fff !important;
-            border-color: #d9534f !important;
-        }
-
-/* 7. 自定义删除确认弹窗 */
+/* (确认弹窗) */
 .works-confirm-overlay {
     position: fixed;
     top: 0;
@@ -479,7 +464,6 @@ textarea.works-field {
     padding: 15px 20px;
     font-weight: bold;
     color: #2a5d67;
-    font-family: 'Ma Shan Zheng', cursive;
     font-size: 1.2rem;
 }
 
@@ -525,14 +509,3 @@ textarea.works-field {
     .wk-btn-delete:hover {
         background: #c9302c;
     }
-
-
-.yaji-feed-media-item {
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 300px !important; /* 限制最高300像素，不准再霸屏 */
-    object-fit: cover !important; /* 裁切多余部分，保持比例不拉伸 */
-    border-radius: 8px !important;
-    display: block !important;
-    margin: 10px 0 !important;
-}

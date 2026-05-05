@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using OperaLearningSystem.Core.Entities;
 using OperaLearningSystem.Infrastructure.Data;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 
 namespace OperaLearningSystem.Web.Controllers
 {
@@ -23,8 +25,15 @@ namespace OperaLearningSystem.Web.Controllers
         // ================= 1. 页面路由 =================
 
         /// <summary>雅集 · 论坛主站</summary>
-        public IActionResult Index() => View();
+        public IActionResult Index()
+        {
+            // 1. 从数据库读取所有剧种分类 
+            var categoryList = _context.Categories.ToList();
 
+            ViewBag.Categories = new SelectList(categoryList, "Id", "Name");
+
+            return View();
+        }
         /// <summary>戏台打卡 · 行迹录</summary>
         [Authorize] // 强制登录才能看打卡页
         public IActionResult Checkin() => View();

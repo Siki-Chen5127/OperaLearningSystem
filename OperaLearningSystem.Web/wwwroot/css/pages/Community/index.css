@@ -1,264 +1,567 @@
-﻿/* --- 1. 背景与容器：茶馆氛围 --- */
+﻿/* ==========================================================================
+   戏词雅集 (大汇总看板) 专属样式表
+   主题：古典书院风 (水墨山水 + 宣纸白 + 茶褐字)
+   ========================================================================== */
+
+/* --- 1. 全局底色与字体 --- */
 body {
-    background-color: #f7f3e8; /* 米黄暖色 */
-    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4c5b0' fill-opacity='0.2' fill-rule='evenodd'%3E%3Cpath d='M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z'/%3E%3C/g%3E%3C/svg%3E");
-    font-family: 'Noto Serif SC', serif;
-}
-
-.tea-house-container {
-    padding-top: 140px;
-    padding-bottom: 80px;
-    position: relative;
-}
-
-/* --- 2. 头部：匾额与对联 --- */
-.tea-header-wrapper {
-    text-align: center;
-    margin-bottom: 60px;
-    position: relative;
-    padding: 0 40px;
-}
-
-.tea-plaque {
-    display: inline-block;
-    background-color: #3e2723; /* 深木色 */
-    padding: 15px 50px;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    border: 4px solid #8d6e63;
-    position: relative;
-}
-
-.tea-title {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 3.5rem;
-    color: #ffecb3; /* 金漆色 */
     margin: 0;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    /* 极浅的宣纸纹理底色 */
+    background-color: #fdfcf9 !important;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.03"/></svg>');
+    font-family: 'Noto Serif SC', '楷体', serif;
+    color: #4a453d;
 }
 
-/* 装饰性对联 (仅在大屏显示) */
-.couplet {
-    position: absolute;
-    top: 20px;
-    width: 50px;
-    background: #9E2A2F; /* 红纸 */
-    color: #333; /* 墨字 - 也可以用金字 */
-    color: #fffdf5;
-    padding: 20px 10px;
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 1.5rem;
-    line-height: 1.3;
+i.fas, i.far, i.fab {
+    display: none !important;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(139, 89, 73, 0.3);
+    border-radius: 10px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(139, 89, 73, 0.6);
+    }
+
+/* --- 2. 顶部大背景 (水墨山水画卷) --- */
+.yaji-hero {
+    /* 引入大气的水墨风背景图，叠加渐变让文字更清晰 */
+    background: linear-gradient(to bottom, rgba(253, 252, 249, 0.6), rgba(253, 252, 249, 1)), url('../../../images/community/1.jpg');
+    background-size: cover;
+    background-position: center 30%;
+    padding: 80px 5% 30px;
     text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border-radius: 4px;
-    writing-mode: vertical-rl; /* 竖排文字 */
-}
-
-    .couplet.left {
-        left: 0;
-    }
-
-    .couplet.right {
-        right: 0;
-    }
-
-/* --- 3. 工具栏：木台风格 --- */
-.tea-toolbar {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-bottom: 50px;
-}
-
-.wood-btn {
-    background: #fff;
-    border: 2px solid #8d6e63;
-    color: #5d4037;
-    padding: 12px 35px;
-    border-radius: 50px;
-    font-weight: bold;
-    text-decoration: none;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 0 #8d6e63; /* 模拟立体按键 */
-}
-
-    .wood-btn:hover {
-        transform: translateY(2px);
-        box-shadow: 0 2px 0 #8d6e63;
-        background: #fefeec;
-        color: #3e2723;
-    }
-
-    .wood-btn.primary {
-        background: #9E2A2F;
-        color: #fff;
-        border-color: #721c20;
-        box-shadow: 0 4px 0 #721c20;
-    }
-
-        .wood-btn.primary:hover {
-            background: #b53036;
-            box-shadow: 0 2px 0 #721c20;
-        }
-
-/* --- 4. 帖子列表：花笺 (Flower Paper Note) --- */
-.post-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* 宽卡片 */
-    gap: 30px;
-}
-
-.post-paper {
-    background: #fff;
+    border-bottom: 1px solid #eae3d8;
     position: relative;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    transition: all 0.4s ease;
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #efebe9;
     overflow: hidden;
 }
 
-    /* 悬停效果：轻微上浮 + 边框变色 */
-    .post-paper:hover {
-        transform: translateY(-8px) rotate(-1deg);
-        box-shadow: 0 15px 30px rgba(158, 42, 47, 0.1);
-        border-color: #9E2A2F;
+    .yaji-hero h1 {
+        font-family: 'Ma Shan Zheng', cursive;
+        font-size: 3.5rem;
+        color: #2c2825;
+        margin: 0 0 10px;
+        letter-spacing: 8px;
+        text-shadow: 0 2px 10px rgba(255,255,255,0.8);
     }
 
-    /* 左侧装饰条 (像书签) */
-    .post-paper::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 15px;
-        bottom: 15px;
-        width: 4px;
-        background-color: #D4AF37; /* 金色 */
-        border-radius: 0 4px 4px 0;
-        transition: background-color 0.3s;
-    }
+.yaji-hero-sub {
+    color: #5c554b;
+    font-size: 1.05rem;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+}
 
-    .post-paper:hover::before {
-        background-color: #9E2A2F;
-    }
-
-/* 发帖人信息 */
-.post-header-row {
+.yaji-hero-links {
     display: flex;
-    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+    z-index: 10;
+}
+
+.yaji-link-pill {
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    color: #4a453d;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #d9d0c3;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+    .yaji-link-pill:hover {
+        background: #8b1d1d;
+        color: #fff;
+        border-color: #8b1d1d;
+    }
+
+/* --- 3. 词云弹幕轨道 --- */
+.yaji-danmaku-track {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    margin: -10px auto 20px auto;
+    overflow: hidden;
+    /* 左右边缘羽化，让弹幕从无到有自然过渡 */
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+    .yaji-danmaku-track .yaji-wc-tags {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .yaji-danmaku-track .yaji-wc-span {
+        position: absolute;
+        left: 100%; /* 核心修复：强制所有的词从屏幕最右侧之外起跑！ */
+        white-space: nowrap;
+        color: #6b6357;
+        font-family: 'Ma Shan Zheng', cursive;
+        cursor: pointer;
+        animation: danmakuFloat linear infinite;
+        transition: color 0.3s;
+        user-select: none;
+    }
+
+        .yaji-danmaku-track .yaji-wc-span:hover {
+            color: #8b1d1d;
+            animation-play-state: paused;
+            z-index: 100;
+            text-decoration: underline;
+        }
+
+        .yaji-danmaku-track .yaji-wc-span.active {
+            color: #d9534f !important;
+            font-weight: bold;
+            border-bottom: 2px solid #d9534f;
+        }
+
+@keyframes danmakuFloat {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-150vw);
+    }
+    /* 核心修复：跑出至少 1.5 倍屏幕宽度，绝不半路消失 */
+}
+
+/* --- 4. 宏大的三栏布局 --- */
+.yaji-grand-board {
+    display: flex;
+    gap: 30px;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 10px 2% 40px;
+    align-items: flex-start;
+}
+
+.board-col-title {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.8rem;
+    color: #4a453d;
+    text-align: center;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eae3d8;
+    letter-spacing: 3px;
+    position: sticky;
+    top: 0;
+    background: #fdfcf9;
+    z-index: 10;
+}
+
+/* ================== 左栏与右栏 (深度阉割复杂按钮) ================== */
+.yaji-col-left {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.yaji-col-right {
+    width: 300px;
+    flex-shrink: 0;
+}
+
+#feed-daka .yaji-row, #feed-works .yaji-row {
+    background: #fff;
+    border: 1px solid #eae3d8;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+#feed-daka .yaji-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #eae3d8;
+    float: left;
+    margin: 0 10px 5px 0;
+}
+
+#feed-works .yaji-avatar {
+    display: none !important;
+}
+
+#feed-daka .yaji-row-title, #feed-works .yaji-row-title {
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #3a352d;
+    text-decoration: none;
+}
+
+#feed-daka .yaji-row-meta, #feed-works .yaji-row-meta {
+    display: block;
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 4px;
+}
+
+#feed-daka .yaji-feed-media-item {
+    height: 120px !important;
+    width: 100% !important;
+    object-fit: cover !important;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+#feed-works .yaji-feed-media-item {
+    height: 180px !important;
+    width: 100% !important;
+    object-fit: cover !important;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+/* 强制隐藏左右两边的操作按钮和茶叙区，只留最干净的展示 */
+#feed-daka .yaji-actions, #feed-daka .yaji-thread, #feed-works .yaji-actions, #feed-works .yaji-thread, #feed-works .yaji-row-excerpt {
+    display: none !important;
+}
+
+/* ================== 中栏：雅集闲谈 (精修按钮样式) ================== */
+.yaji-col-main {
+    flex-grow: 1;
+    min-width: 500px;
+}
+
+.yaji-compose-box {
+    background: #fff;
+    border: 1px solid #eae3d8;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.yaji-compose-btn {
+    width: 100%;
+    background: #fdfcf9;
+    border: 1px dashed #d9d0c3;
+    padding: 15px;
+    color: #887f73;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: center;
+    border-radius: 8px;
+}
+
+    .yaji-compose-btn:hover {
+        background: #f4efe6;
+        color: #3a352d;
+        border-color: #c9baa3;
+    }
+
+#feed-yaji .yaji-row {
+    background: #fff;
+    border: 1px solid #eae3d8;
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+#feed-yaji .yaji-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    float: left;
+    margin: 0 15px 10px 0;
+    border: 1px solid #eae3d8;
+}
+
+#feed-yaji .yaji-row-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2c2825;
+    text-decoration: none;
+    font-family: 'Ma Shan Zheng', cursive;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+#feed-yaji .yaji-row-meta {
+    display: block;
+    font-size: 0.8rem;
+    color: #887f73;
     margin-bottom: 15px;
 }
 
-.post-avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #eee;
-    margin-right: 12px;
+#feed-yaji .yaji-row-excerpt {
+    font-size: 1rem;
+    color: #4a453d;
+    line-height: 1.8;
+    text-align: justify;
+    word-wrap: break-word;
 }
 
-.post-author-info {
-    display: flex;
-    flex-direction: column;
+#feed-yaji .yaji-feed-media-item {
+    max-height: 350px !important;
+    max-width: 100% !important;
+    border-radius: 6px;
+    margin-top: 15px;
+    display: block;
 }
 
-.post-author-name {
-    font-weight: bold;
-    font-size: 0.95rem;
-    color: #3e2723;
+#feed-yaji .yaji-tag-row {
+    margin: 15px 0;
 }
 
-.post-time {
+#feed-yaji .yaji-chip {
+    background: #f9f6f0;
+    color: #6b6357;
+    padding: 4px 12px;
     font-size: 0.8rem;
-    color: #999;
+    margin-right: 8px;
+    border-radius: 12px;
+    border: 1px solid #eae3d8;
 }
 
-/* 帖子内容 */
-.post-title {
-    font-size: 1.3rem;
+/* 彻底修复中间栏的丑陋按钮 */
+#feed-yaji .yaji-actions {
+    display: flex;
+    gap: 10px;
+    border-top: 1px dashed #eae3d8;
+    padding-top: 15px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#feed-yaji .yaji-react, #feed-yaji .yaji-thread-toggle {
+    background: #fdfcf9;
+    border: 1px solid #d9d0c3;
+    color: #6b6357;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: 0.2s;
+}
+
+    #feed-yaji .yaji-react:hover, #feed-yaji .yaji-thread-toggle:hover {
+        background: #8b1d1d;
+        color: #fff;
+        border-color: #8b1d1d;
+    }
+
+    #feed-yaji .yaji-react.active {
+        background: #8b1d1d;
+        color: #fff;
+        border-color: #8b1d1d;
+        font-weight: bold;
+    }
+
+#feed-yaji .yaji-stat-pill {
+    margin-left: auto;
+    color: #aaa;
+    font-size: 0.8rem;
+}
+
+/* 彻底修复中间栏的评论输入框 */
+#feed-yaji .yaji-thread {
+    display: none;
+    margin-top: 15px;
+    background: #fdfcf9;
+    border: 1px solid #eae3d8;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+    #feed-yaji .yaji-thread.open {
+        display: block;
+    }
+
+#feed-yaji .yaji-cmt {
+    border-bottom: 1px dashed #eae3d8;
+    padding: 10px 0;
+    color: #555;
+}
+
+    #feed-yaji .yaji-cmt:last-child {
+        border-bottom: none;
+    }
+
+#feed-yaji .yaji-cmt-author {
     font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
-    font-family: 'Noto Serif SC', serif;
-    line-height: 1.4;
+    color: #2c2825;
+    margin-right: 10px;
 }
 
-.post-snippet {
-    font-size: 0.95rem;
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 20px;
-    /* 限制显示两行 */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+#feed-yaji .yaji-quick-cmt {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
 }
 
-/* 底部统计栏 */
-.post-footer {
-    margin-top: auto;
-    border-top: 1px dashed #e0e0e0;
-    padding-top: 12px;
+    #feed-yaji .yaji-quick-cmt input {
+        flex-grow: 1;
+        padding: 10px 15px;
+        border: 1px solid #d9d0c3;
+        background: #fff;
+        outline: none;
+        border-radius: 20px;
+        font-size: 0.95rem;
+    }
+
+    #feed-yaji .yaji-quick-cmt button {
+        background: #5c554b;
+        color: #fff;
+        border: none;
+        padding: 0 20px;
+        cursor: pointer;
+        transition: 0.2s;
+        border-radius: 20px;
+        font-size: 0.95rem;
+    }
+
+        #feed-yaji .yaji-quick-cmt button:hover {
+            background: #8b1d1d;
+        }
+
+/* --- 5. 发帖弹窗 --- */
+.yaji-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(253, 252, 249, 0.9);
+    z-index: 99998;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+}
+
+.yaji-modal-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%);
+    width: 90%;
+    max-width: 600px;
+    background: #fff;
+    border: 1px solid #eae3d8;
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.4s;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    border-radius: 12px;
+}
+
+.yaji-modal-root.show .yaji-modal-backdrop, .yaji-modal-root.show .yaji-modal-dialog {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.yaji-modal-root.show .yaji-modal-dialog {
+    transform: translate(-50%, -50%);
+}
+
+.yaji-modal-head {
+    padding: 20px;
+    border-bottom: 1px dashed #eae3d8;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.85rem;
-    color: #888;
 }
 
-.post-stats i {
-    margin-right: 5px;
-    color: #bcaaa4;
-}
-
-.post-paper:hover .post-stats i {
-    color: #9E2A2F;
-}
-
-.category-badge {
-    background: #f5f5f5;
-    padding: 2px 8px;
-    border-radius: 4px;
-    color: #666;
-}
-
-/* --- 装饰：角落印章 --- */
-.paper-seal {
-    position: absolute;
-    bottom: -10px;
-    right: -10px;
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 4rem;
-    color: rgba(158, 42, 47, 0.05);
-    pointer-events: none;
-    transform: rotate(-15deg);
-    transition: all 0.4s;
-}
-
-.post-paper:hover .paper-seal {
-    color: rgba(158, 42, 47, 0.1);
-    transform: rotate(-15deg) scale(1.1);
-}
-
-/* 响应式 */
-@media (max-width: 992px) {
-    .couplet {
-        display: none;
+    .yaji-modal-head h3 {
+        margin: 0;
+        color: #3a352d;
+        font-family: 'Ma Shan Zheng', cursive;
+        font-size: 1.5rem;
     }
-    /* 平板以下隐藏对联 */
-    .tea-title {
-        font-size: 2.5rem;
-    }
+
+.yaji-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
 }
 
+.yaji-modal-body-scroll {
+    padding: 25px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.yaji-field {
+    width: 100%;
+    border: 1px solid #eae3d8;
+    padding: 12px 15px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    outline: none;
+    box-sizing: border-box;
+    background: #fdfcf9;
+    transition: 0.3s;
+    font-family: inherit;
+    border-radius: 8px;
+}
+
+    .yaji-field:focus {
+        border-color: #6b6357;
+    }
+
+textarea.yaji-field {
+    min-height: 200px;
+    resize: vertical;
+    line-height: 1.8;
+}
+
+.yaji-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.yaji-btn-secondary {
+    background: #fff;
+    border: 1px solid #eae3d8;
+    padding: 8px 20px;
+    cursor: pointer;
+    color: #6b6357;
+    transition: 0.2s;
+    border-radius: 20px;
+}
+
+.yaji-submit {
+    background: #3a352d;
+    border: none;
+    padding: 8px 20px;
+    cursor: pointer;
+    color: #fff;
+    transition: 0.2s;
+    font-size: 1rem;
+    border-radius: 20px;
+}
+
+.yaji-loading, .yaji-empty {
+    text-align: center;
+    padding: 40px 10px;
+    color: #999;
+    font-size: 0.95rem;
+}

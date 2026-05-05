@@ -1,12 +1,12 @@
 @{
-    ViewData["Title"] = "百宝阁 - 二创与珍藏";
+    ViewData["Title"] = "百宝阁";
     var authed = User.Identity?.IsAuthenticated == true;
     var qsYsl = string.Equals(Context.Request.Query["yueshilouReturn"].ToString(), "1", StringComparison.Ordinal);
 }
 
 @section Styles {
     <style>
-        /* 彻底消除顶部白边与系统导航栏 */
+        /* 消除顶部系统导航条 */
         body > header, .border-bottom {
             display: none !important;
         }
@@ -20,17 +20,13 @@
             max-width: 100% !important;
             padding: 0 !important;
         }
-
-        .works-hero {
-            padding-top: 100px !important;
-        }
     </style>
     <link rel="stylesheet" href="~/css/pages/Community/works.css" asp-append-version="true" />
 }
 
 <header class="works-hero">
     <div class="works-hero-badge">个人展厅</div>
-    <h1>百宝阁</h1>
+    <h1 style="font-family: 'Ma Shan Zheng', cursive;">百宝阁</h1>
     <p class="works-hero-sub">沉香屑里觅余音，戏曲翻唱、手绘与本子珍藏于此。</p>
     <div class="works-hero-links">
         @if (qsYsl)
@@ -43,9 +39,7 @@
 
 <div class="works-container">
     <div class="works-toolbar">
-        <div style="font-family: 'Ma Shan Zheng', cursive; font-size: 1.4rem; color: #2a5d67;">
-            我的珍藏
-        </div>
+        <div style="font-size: 1.4rem; color: #2a5d67;">我的珍藏</div>
         <div>
             <button type="button" class="btn-compose-work" id="btnOpenWorksCompose">
                 录入新作
@@ -53,6 +47,7 @@
         </div>
     </div>
 
+    <!-- 列表挂载点 -->
     <div id="yajiFeedHost" class="yaji-feed">
         <div class="yaji-loading" style="text-align:center; padding: 50px; color: #8bafa4;">
             拂去灰尘，展出中...
@@ -60,6 +55,7 @@
     </div>
 </div>
 
+<!-- 弹窗：录入新作 -->
 <div id="yajiWorksModal" class="works-modal-root" aria-hidden="true">
     <div class="works-modal-backdrop" id="wk-close-bg"></div>
     <div class="works-modal-dialog">
@@ -70,30 +66,27 @@
         <div class="works-modal-body">
             <input type="text" id="wk-title" class="works-field" placeholder="作品名称 (如：翻唱《探清水河》)" />
             <input type="text" id="wk-tags" class="works-field" placeholder="标签 (用空格隔开，如：京剧 翻唱 手绘)" />
-
             <textarea id="wk-body" class="works-field" placeholder="写下创作心得或作品说明..."></textarea>
-
             <div class="works-upload-area">
                 <div style="color:#4a6c72; font-size:1.1rem; font-weight:bold; margin-bottom:10px;">上传影音或画作</div>
                 <div style="color:#4a6c72; font-size:0.95rem; margin-bottom:5px;">点击或拖拽文件至此区域</div>
                 <div style="color:#999; font-size:0.8rem;" id="wk-media-list">支持图片、音频、短视频</div>
                 <input type="file" id="wk-media-file" accept="image/*,video/*,audio/*" multiple />
             </div>
-
             <div class="works-modal-actions">
                 <button type="button" class="works-link-pill" id="wk-cancel-btn">收起</button>
-                <button type="button" class="btn-compose-work" id="wk-submit">
-                    落笔入阁
-                </button>
+                <button type="button" class="btn-compose-work" id="wk-submit">落笔入阁</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Toast 提示 -->
 <div id="works-toast" class="works-toast">
     <span id="works-toast-msg">提示内容</span>
 </div>
 
+<!-- 弹窗：确认删除 -->
 <div id="works-confirm-modal" class="works-confirm-overlay" aria-hidden="true">
     <div class="works-confirm-box">
         <div class="works-confirm-header">移出珍藏</div>
@@ -108,9 +101,6 @@
 @section Scripts {
     <script src="~/js/community-yaji-feed.js" asp-append-version="true"></script>
     <script>
-        // ==============================================================
-        // 1. 拦截请求：强行改为只看自己的作品 (kind = 2)
-        // ==============================================================
         var originalFetch = window.fetch;
         window.fetch = function() {
             var url = arguments[0];
@@ -120,9 +110,6 @@
             return originalFetch.apply(this, arguments);
         };
 
-        // ==============================================================
-        // 2. 基础配置与弹窗工具
-        // ==============================================================
         var authed = @authed.ToString().ToLowerInvariant();
         var workUploadUrls = [];
 
@@ -133,12 +120,9 @@
             setTimeout(function() { toast.classList.remove('show'); }, 3000);
         };
 
-        // ==============================================================
-        // 3. 初始化列表 (复用底层渲染引擎)
-        // ==============================================================
         if (window.initYajiFeed) {
             initYajiFeed({
-                postKind: 2, // 2代表二创作品
+                postKind: 2,
                 reactionSet: 'full',
                 showMediaInFeed: true,
                 authed: authed,
@@ -146,31 +130,18 @@
             });
         }
 
-        // ==============================================================
-        // 4. 模态框逻辑
-        // ==============================================================
         var modalRoot = document.getElementById('yajiWorksModal');
-
         function openModal() {
-            if (!authed) {
-                window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
-                return;
-            }
+            if (!authed) { window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname); return; }
             modalRoot.classList.add('show');
         }
-
-        function closeModal() {
-            modalRoot.classList.remove('show');
-        }
+        function closeModal() { modalRoot.classList.remove('show'); }
 
         document.getElementById('btnOpenWorksCompose').addEventListener('click', openModal);
         document.getElementById('wk-close-btn').addEventListener('click', closeModal);
         document.getElementById('wk-cancel-btn').addEventListener('click', closeModal);
         document.getElementById('wk-close-bg').addEventListener('click', closeModal);
 
-        // ==============================================================
-        // 5. 媒体文件上传纯文字提示
-        // ==============================================================
         document.getElementById('wk-media-file').addEventListener('change', async function () {
             var input = this;
             var listEl = document.getElementById('wk-media-list');
@@ -188,14 +159,11 @@
                         var j = await r.json();
                         if (j && j.url) workUploadUrls.push(j.url);
                     }
-                } catch(e) { console.error('上传失败', e); }
+                } catch(e) { }
             }
-            listEl.innerHTML = `<span style="color:#2a5d67; font-weight:bold;">已准备 ${workUploadUrls.length} 份影音文件，可继续落笔。</span>`;
+            listEl.innerHTML = '<span style="color:#2a5d67; font-weight:bold;">已准备 ' + workUploadUrls.length + ' 份影音文件，可继续落笔。</span>';
         });
 
-        // ==============================================================
-        // 6. 发布逻辑
-        // ==============================================================
         document.getElementById('wk-submit').addEventListener('click', async function () {
             var btn = this;
             var titleEl = document.getElementById('wk-title');
@@ -203,71 +171,60 @@
             var tagsEl = document.getElementById('wk-tags');
 
             var bodyObj = {
-                title: titleEl.value.trim(),
-                content: bodyEl.value.trim(),
-                categoryId: 0,
-                topicTags: tagsEl.value.trim(),
-                mediaUrlsJson: JSON.stringify(workUploadUrls)
+                title: titleEl.value.trim(), content: bodyEl.value.trim(), categoryId: 0,
+                topicTags: tagsEl.value.trim(), mediaUrlsJson: JSON.stringify(workUploadUrls)
             };
 
             if (!bodyObj.title || !bodyObj.content) { showToast('作品标题与说明不可为空。'); return; }
 
-            btn.disabled = true;
-            btn.innerHTML = '封卷中...';
+            btn.disabled = true; btn.innerHTML = '封卷中...';
 
             try {
                 var r = await fetch('/api/community-feed/work', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyObj)
+                    method: 'POST', credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyObj)
                 });
 
-                btn.disabled = false;
-                btn.innerHTML = '落笔入阁';
-
+                btn.disabled = false; btn.innerHTML = '落笔入阁';
                 if (r.ok) {
-                    // 清空状态
-                    workUploadUrls = [];
-                    titleEl.value = ''; bodyEl.value = ''; tagsEl.value = '';
+                    workUploadUrls = []; titleEl.value = ''; bodyEl.value = ''; tagsEl.value = '';
                     document.getElementById('wk-media-file').value = '';
                     document.getElementById('wk-media-list').innerHTML = '支持图片、音频、短视频';
-
                     closeModal();
                     if (window.yajiReloadFeed) window.yajiReloadFeed();
                     showToast('佳作已收入百宝阁！');
-                } else {
-                    showToast('发布失败：' + (await r.text()));
-                }
+                } else { showToast('发布失败。'); }
             } catch (e) {
-                btn.disabled = false;
-                showToast('网络波动，请稍后再试。');
+                btn.disabled = false; showToast('网络波动，请稍后再试。');
             }
         });
 
-        // 绑定删除按钮
+        // 绑定删除按钮 (注入专属的纯净行动栏)
         var feedHost = document.getElementById('yajiFeedHost');
         if (feedHost) {
             var observer = new MutationObserver(function() {
-                var rows = feedHost.querySelectorAll('.yaji-row');
-                rows.forEach(function(row) {
-                    var actionsDiv = row.querySelector('.yaji-actions');
-                    if (actionsDiv && !actionsDiv.querySelector('.btn-delete-post')) {
-                        var postId = row.getAttribute('data-id');
+                var rows = feedHost.querySelectorAll('.yaji-row-main');
+                rows.forEach(function(rowMain) {
+                    if (!rowMain.querySelector('.works-custom-actions')) {
+                        var article = rowMain.closest('article.yaji-row');
+                        var postId = article.getAttribute('data-id');
+
+                        var actionsDiv = document.createElement('div');
+                        actionsDiv.className = 'works-custom-actions';
+
                         var delBtn = document.createElement('button');
                         delBtn.className = 'btn-delete-post';
                         delBtn.innerHTML = '移出本阁';
                         delBtn.onclick = function() { window.deletePost(postId); };
+
                         actionsDiv.appendChild(delBtn);
+                        rowMain.appendChild(actionsDiv);
                     }
                 });
             });
             observer.observe(feedHost, { childList: true, subtree: true });
         }
 
-        // ==============================================================
-        // 7. 自定义弹窗封装与删除逻辑
-        // ==============================================================
         window.customWorksConfirm = function(message) {
             return new Promise(function(resolve) {
                 var overlay = document.getElementById('works-confirm-modal');
@@ -275,14 +232,11 @@
                 var btnDelete = document.getElementById('btn-wk-confirm-delete');
 
                 overlay.classList.add('show');
-
                 var cleanup = function(result) {
                     overlay.classList.remove('show');
-                    btnCancel.onclick = null;
-                    btnDelete.onclick = null;
+                    btnCancel.onclick = null; btnDelete.onclick = null;
                     resolve(result);
                 };
-
                 btnCancel.onclick = function() { cleanup(false); };
                 btnDelete.onclick = function() { cleanup(true); };
             });
@@ -290,19 +244,14 @@
 
         window.deletePost = async function(postId) {
             var confirmed = await window.customWorksConfirm();
-            if (!confirmed) return; // 点了再想想，直接退出
-
+            if (!confirmed) return;
             try {
                 var r = await fetch('/api/community-feed/' + postId, { method: 'DELETE', credentials: 'same-origin' });
                 if (r.ok) {
-                    showToast('作品已移出百宝阁。');
+                    showToast('作品已移出。');
                     if (window.yajiReloadFeed) window.yajiReloadFeed();
-                } else {
-                    showToast('移出失败，请稍后再试。');
-                }
-            } catch (e) {
-                showToast('网络波动，请稍后再试。');
-            }
+                } else { showToast('移出失败。'); }
+            } catch (e) { showToast('网络波动。'); }
         };
     </script>
 }

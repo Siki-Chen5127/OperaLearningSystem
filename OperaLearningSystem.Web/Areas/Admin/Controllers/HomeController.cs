@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace OperaLearningSystem.Web.Areas.Admin.Controllers
 {
@@ -13,7 +14,6 @@ namespace OperaLearningSystem.Web.Areas.Admin.Controllers
     {
         private readonly OperaDbContext _context;
 
-        // 注入数据库上下文
         public HomeController(OperaDbContext context)
         {
             _context = context;
@@ -24,7 +24,7 @@ namespace OperaLearningSystem.Web.Areas.Admin.Controllers
             // 1. 判断当前登录用户是否为超级管理员
             var isSuperAdmin = User.IsInRole("SuperAdmin");
 
-            // 2. 基础统计数据
+            // 2. 初始化 ViewModel
             var viewModel = new AdminHomeViewModel
             {
                 IsSuperAdmin = isSuperAdmin,
@@ -34,25 +34,27 @@ namespace OperaLearningSystem.Web.Areas.Admin.Controllers
                 CommunityPostCount = await _context.CommunityPosts.CountAsync()
             };
 
-            // 如果是超级管理员，额外查询待审核的申请数
+            // 3. 待审核统计（Status 为 int，假设 0 = Pending）
             if (isSuperAdmin)
             {
-                viewModel.PendingApplicationCount = await _context.AdminApplications.CountAsync();
+                viewModel.PendingApplicationCount = await _context.AdminApplications
+                    .Where(a => a.Status == 0) // 0 表示待审核
+                    .CountAsync();
             }
 
-            // 3. 底部列表数据 (拉取最新5条)
+            // 4. 底部最新动态 (拉取最新5条用户和帖子)
             viewModel.RecentUsers = await _context.Users
-                .OrderByDescending(u => u.CreatedAt) 
+                .OrderByDescending(u => u.CreatedAt)
                 .Take(5)
                 .ToListAsync();
 
             viewModel.RecentPosts = await _context.CommunityPosts
-                .Include(p => p.Author) // 联表拉取发帖人信息
+                .Include(p => p.Author)
                 .OrderByDescending(p => p.CreatedTime)
                 .Take(5)
                 .ToListAsync();
 
-            // 4. 左侧图表数据：剧种剧目占比 (南丁格尔玫瑰图)
+            // 5. 左侧图表：剧种剧目占比
             var categoryData = await _context.Plays
                 .Where(p => p.Category != null)
                 .GroupBy(p => p.Category.Name)
@@ -60,7 +62,7 @@ namespace OperaLearningSystem.Web.Areas.Admin.Controllers
                 .ToListAsync();
             viewModel.CategoryChartDataJson = JsonSerializer.Serialize(categoryData);
 
-            // 5. 右侧图表数据：近7天 AI 梦境沉浸频次走势
+            // 6. 右侧图表：近7天 AI 梦境沉浸频次
             var last7Days = Enumerable.Range(0, 7).Select(i => DateTime.Today.AddDays(-i)).Reverse().ToList();
             var aiData = await _context.AiChatMessages
                 .Where(m => m.CreatedAt >= DateTime.Today.AddDays(-7))
@@ -74,10 +76,11 @@ namespace OperaLearningSystem.Web.Areas.Admin.Controllers
             viewModel.AiActivityDatesJson = JsonSerializer.Serialize(aiDates);
             viewModel.AiActivityCountsJson = JsonSerializer.Serialize(aiCounts);
 
-            //6. 系统生态多维雷达图 (统计核心模块的总量)
+            // 7. 系统生态多维雷达图
             var courseCount = await _context.Courses.CountAsync();
             var masterCount = await _context.Masters.CountAsync();
-            var moduleStats = new List<int> {
+            var moduleStats = new List<int>
+            {
                 viewModel.PlayCount,
                 masterCount,
                 courseCount,
@@ -86,7 +89,7 @@ namespace OperaLearningSystem.Web.Areas.Admin.Controllers
             };
             viewModel.ModuleStatsJson = JsonSerializer.Serialize(moduleStats);
 
-            // 7. 用户互动行为环形图 (统计发帖、评论、收藏、点赞)
+            // 8. 用户互动环形图
             var commentCount = await _context.Comments.CountAsync();
             var favoriteCount = await _context.Favorites.CountAsync();
             var likeCount = await _context.Likes.CountAsync();

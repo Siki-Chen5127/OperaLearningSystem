@@ -1344,29 +1344,17 @@ async function hydrateTheaterCards() {
 }
 
 // ================== 高清建筑图片逻辑 ==================
-const galleryPhotos = [
-    "/images/entrance/changyinge/1.jpg",
-    "/images/entrance/changyinge/2.jpg",
-    "/images/entrance/changyinge/3.jpg",
-    "/images/entrance/changyinge/4.jpg",
-    "/images/entrance/changyinge/5.jpg",
-    "/images/entrance/changyinge/6.jpg",
-    "/images/entrance/changyinge/7.jpg",
-    "/images/entrance/changyinge/8.jpg",
-    "/images/entrance/changyinge/9.jpg",
-    "/images/entrance/changyinge/10.jpg",
-    "/images/entrance/changyinge/11.jpg",
-    "/images/entrance/changyinge/12.jpg",
-    "/images/entrance/changyinge/13.jpg",
-    "/images/entrance/changyinge/14.jpg",
-    "/images/entrance/changyinge/15.jpg",
-    "/images/entrance/changyinge/16.jpg",
-];
+// 1. 动态生成图片数组
+const totalPhotos = 39; // <--- 以后加了新图片，只需要改这个总数就行
+const galleryPhotos = [];
+for (let i = 1; i <= totalPhotos; i++) {
+    galleryPhotos.push(`/images/entrance/changyinge/${i}.jpg`);
+}
 
 // 2. 记录当前显示的图片索引
 let currentPhotoIndex = 0;
 
-// 打开画廊
+// 打开画廊 (后续逻辑完全不用动)
 window.openHighResPhotos = function (startIndex = 0) {
     var bd = document.getElementById('image-viewer-backdrop');
     var modal = document.getElementById('image-viewer-modal');
@@ -1374,15 +1362,12 @@ window.openHighResPhotos = function (startIndex = 0) {
 
     if (!bd || !modal || !img) return;
 
-    // --- 核心：在弹窗显示前，先塞入默认图片！---
     currentPhotoIndex = startIndex;
     updateGalleryContent(img);
 
-    // 显示容器
     bd.style.display = 'block';
     modal.style.display = 'flex';
 
-    // 触发动画类 (使用 setTimeout 确保 display 先生效)
     setTimeout(function () {
         bd.classList.add('open');
         modal.classList.add('open');

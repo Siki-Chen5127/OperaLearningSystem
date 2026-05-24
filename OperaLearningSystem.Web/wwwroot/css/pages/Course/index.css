@@ -1,109 +1,222 @@
-/* ============ 传习私塾 - 线卷书 + 三维旋转书架 ============ */
+/* ============ 传习私塾 - 终极拟真：皇家水墨藏经阁 (去塑料感，加文化底蕴) ============ */
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap');
 
-body { background: #1a1208; margin: 0; font-family: 'Noto Serif SC', serif; overflow-x: hidden; }
+/* --- 1. 全局：深沉、极具呼吸感的藏经阁底色 --- */
+body {
+    margin: 0;
+    /* 极深沉的乌木色，带极细微的纤维纹理感，营造静谧空间 */
+    background: #0d0a07 !important;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.04"/></svg>');
+    font-family: 'Noto Serif SC', serif;
+    overflow-x: hidden;
+    color: #eae1d2; /* 温和的古象牙色字体 */
+}
 
+/* 彻底隐藏 FontAwesome，使用纯文字古典风 */
+i.fas, i.far, i.fab {
+    display: none !important;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(163, 139, 116, 0.3);
+    border-radius: 10px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(163, 139, 116, 0.6);
+    }
+
+/* ================== 2. 顶部：皇家匾额区域 (去浮夸，留底蕴) ================== */
 .sishu-root {
-    min-height: 100vh; padding: 100px 40px 60px;
-    background: radial-gradient(ellipse at 50% 20%, #2e1f0f 0%, #1a1208 60%, #0e0a04 100%);
+    min-height: 100vh;
+    padding: 90px 2% 60px;
+    /* 中心亮，边缘极深的静谧渐变 */
+    background: radial-gradient(ellipse at 50% 15%, #2a1f14 0%, #0d0a07 70%, #030201 100%);
     position: relative;
 }
 
-/* 浮尘粒子 */
-.sishu-bg-particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+/* 浮尘粒子 -> 改为轻盈的、带金色的水墨浮尘感 */
+.sishu-bg-particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
 .bg-particle {
-    position: absolute; bottom: -10px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(226,192,121,0.6), transparent);
+    position: absolute;
+    bottom: -10px;
+    border-radius: 50%;
+    /* 淡雅的青色和金色混合 */
+    background: radial-gradient(circle, rgba(163, 139, 116, 0.4), rgba(163, 184, 169, 0.3), transparent);
     animation: floatUp linear infinite;
 }
+
 @keyframes floatUp {
-    0% { transform: translateY(0) translateX(0); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(-100vh) translateX(30px); opacity: 0; }
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-100vh) translateX(30px);
+        opacity: 0;
+    }
 }
 
-/* 匾额 */
-.sishu-header { text-align: center; margin-bottom: 50px; position: relative; z-index: 1; }
+/* 匾额 - 清新、极具国风修养处理 */
+.sishu-header {
+    text-align: center;
+    margin-bottom: 45px;
+    position: relative;
+    z-index: 10;
+}
+
 .sishu-plaque {
-    display: inline-flex; align-items: center; gap: 18px;
-    background: linear-gradient(145deg, #3a2a15, #2a1d0e);
-    border: 3px solid #8b6914; border-radius: 6px;
-    padding: 12px 48px; box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    /* 采用浅灰石材纹理色调，不再是廉价的塑料金 */
+    background: linear-gradient(145deg, #f2eee8, #e8e4db);
+    border: 2px solid #eae1d2;
+    border-radius: 8px;
+    padding: 10px 45px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.7);
     position: relative;
 }
-.sishu-plaque h1 {
-    margin: 0; font-family: 'Ma Shan Zheng', cursive; font-size: 3rem; color: #f5e6c8;
-    letter-spacing: 10px; text-shadow: 0 3px 10px rgba(0,0,0,0.5);
-}
+
+    .sishu-plaque h1 {
+        margin: 0;
+        font-family: 'Ma Shan Zheng', cursive;
+        font-size: 2.8rem;
+        /* 深墨色字体，letter-spacing 营造高级感 */
+        color: #33312e;
+        letter-spacing: 12px;
+        text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+
 .plaque-deco {
-    width: 20px; height: 20px; border-radius: 50%;
-    background: radial-gradient(circle, #d4af37 40%, #8b6914);
-    box-shadow: 0 0 8px rgba(212,175,55,0.5); flex-shrink: 0;
-}
-.sishu-subtitle {
-    color: rgba(245,230,200,0.5); font-size: 1rem; margin-top: 14px;
-    font-family: 'Ma Shan Zheng', cursive; letter-spacing: 4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    /* 淡雅的青瓷色装饰 */
+    background: radial-gradient(circle, #a3b8a9 40%, #7d9684);
+    box-shadow: 0 0 8px rgba(163, 184, 169, 0.3);
+    flex-shrink: 0;
 }
 
-/* 搜索 */
-.sishu-search { max-width: 540px; margin: 0 auto 50px; position: relative; z-index: 1; }
+.sishu-subtitle {
+    color: #eae1d2;
+    font-size: 1.05rem;
+    margin-top: 18px;
+    font-family: 'Noto Serif SC', serif;
+    letter-spacing: 6px;
+    opacity: 0.6;
+}
+
+/* 搜索框 - 线条圆润，药丸风格，融入深色背景 */
+.sishu-search {
+    max-width: 540px;
+    margin: 0 auto 50px;
+    position: relative;
+    z-index: 10;
+}
+
 .sishu-search-inner {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(212,175,55,0.25);
-    border-radius: 40px; padding: 6px 6px 6px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #d0cabc;
+    border-radius: 40px;
+    padding: 6px 6px 6px 20px;
     backdrop-filter: blur(10px);
 }
-.sishu-search-inner i { color: rgba(212,175,55,0.6); font-size: 0.9rem; }
-.sishu-search-inner input {
-    flex: 1; background: transparent; border: none; outline: none;
-    color: #f5e6c8; font-size: 1rem; padding: 8px 0;
-}
-.sishu-search-inner input::placeholder { color: rgba(245,230,200,0.35); }
-.sishu-search-inner button {
-    background: linear-gradient(135deg, #8b6914, #d4af37);
-    border: none; color: #1a1208; font-weight: bold; padding: 10px 24px;
-    border-radius: 30px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive;
-    font-size: 1rem; transition: all 0.3s;
-}
-.sishu-search-inner button:hover { filter: brightness(1.15); box-shadow: 0 4px 15px rgba(212,175,55,0.4); }
 
-/* 书架 */
-.bookshelf { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto 40px; }
+    .sishu-search-inner i {
+        color: #8c857b;
+        font-size: 0.9rem;
+    }
+
+    .sishu-search-inner input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #eae1d2;
+        font-size: 1rem;
+        padding: 8px 0;
+    }
+
+        .sishu-search-inner input::placeholder {
+            color: #8c857b;
+        }
+
+    .sishu-search-inner button {
+        /* 采用淡竹青色按钮，文字为深色墨迹 */
+        background: linear-gradient(135deg, #a3b8a9, #8da694);
+        border: none;
+        color: #3a352d;
+        font-weight: normal;
+        padding: 10px 24px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-family: 'Ma Shan Zheng', cursive;
+        font-size: 1.05rem;
+        transition: all 0.3s;
+        letter-spacing: 2px;
+    }
+
+        .sishu-search-inner button:hover {
+            filter: brightness(1.05);
+            box-shadow: 0 4px 15px rgba(163,184,169,0.3);
+        }
+
+/* ================== 3. 核心：书架与3D旋转 ================== */
+.bookshelf {
+    position: relative;
+    z-index: 5;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+}
+
 .shelf-top-shadow {
-    height: 12px; background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+    height: 12px;
+    /* 深色背景下极淡的阴影 */
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), transparent);
     border-radius: 8px 8px 0 0;
 }
 
-.carousel-hint {
+.carousel-hint, .shelf-search-hint {
     text-align: center;
-    color: rgba(212,175,55,0.55);
+    color: #8c857b;
     font-size: 0.88rem;
     margin: 0 0 10px;
     font-family: 'Ma Shan Zheng', cursive;
     letter-spacing: 2px;
 }
-.carousel-hint i { margin-right: 8px; opacity: 0.75; }
 
-.shelf-search-hint {
-    text-align: center;
-    color: rgba(212,175,55,0.55);
-    font-size: 0.88rem;
-    margin: 0 0 14px;
-    font-family: 'Ma Shan Zheng', cursive;
-    letter-spacing: 2px;
-}
-.shelf-search-hint i { margin-right: 8px; opacity: 0.75; }
-
-.shelf-row--grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    padding: 24px 20px 28px;
-    justify-content: center;
-    align-items: flex-end;
-    min-height: 180px;
-}
+    .carousel-hint i, .shelf-search-hint i {
+        margin-right: 8px;
+        color: #a3b8a9;
+        opacity: 0.8;
+    }
 
 .carousel-viewport {
     position: relative;
@@ -116,9 +229,11 @@ body { background: #1a1208; margin: 0; font-family: 'Noto Serif SC', serif; over
     cursor: grab;
     user-select: none;
     -webkit-user-select: none;
-    border-radius: 10px;
 }
-.carousel-viewport.carousel-dragging { cursor: grabbing; }
+
+    .carousel-viewport.carousel-dragging {
+        cursor: grabbing;
+    }
 
 .carousel-pivot {
     position: absolute;
@@ -145,54 +260,39 @@ body { background: #1a1208; margin: 0; font-family: 'Noto Serif SC', serif; over
     position: absolute;
     left: 0;
     top: 50%;
-    width: 48px;
-    height: 190px;
-    margin-left: -24px;
-    margin-top: -95px;
+    width: 50px;
+    height: 195px;
+    margin-left: -25px;
+    margin-top: -97.5px;
     transform-style: preserve-3d;
 }
 
-.carousel-cell .scroll-book--carousel3d {
-    width: 100%;
-    height: 100%;
-}
-
-/* 转到台后一侧：仅剧目名等渐变隐去，卷轴仍保持浅色纸感 */
-.scroll-book--carousel3d .spine-text,
-.scroll-book--carousel3d .spine-badge {
+/* 转到台后一侧：阉割图标，弱化光影 */
+.scroll-book--carousel3d .spine-text, .scroll-book--carousel3d .spine-badge {
     transition: opacity 0.42s ease;
 }
-.scroll-book--carousel3d .spine-text {
-    text-shadow: 0 1px 0 rgba(255,255,255,0.35), 0 2px 4px rgba(0,0,0,0.2);
-}
+
 .scroll-book--carousel3d .scroll-tooltip {
     transition: opacity 0.42s ease;
 }
-.carousel-cell--rear .spine-text,
-.carousel-cell--rear .spine-badge,
-.carousel-cell--rear .scroll-tooltip {
-    opacity: 0;
-    pointer-events: none;
+
+.carousel-cell--rear .spine-text, .carousel-cell--rear .spine-badge, .carousel-cell--rear .scroll-tooltip {
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
+/* 左右两侧淡出遮罩 */
 .carousel-viewport::after {
     content: "";
     position: absolute;
     inset: 0 0 16px 0;
     pointer-events: none;
-    background: linear-gradient(
-        90deg,
-        rgba(8,5,3,0.88) 0%,
-        rgba(14,10,6,0.25) 16%,
-        transparent 26%,
-        transparent 74%,
-        rgba(14,10,6,0.25) 84%,
-        rgba(8,5,3,0.88) 100%
-    );
+    background: linear-gradient(90deg, rgba(13,10,7,0.95) 0%, rgba(13,10,7,0.3) 15%, transparent 25%, transparent 75%, rgba(13,10,7,0.3) 85%, rgba(13,10,7,0.95) 100%);
     z-index: 3;
     border-radius: 10px;
 }
 
+/* 旋转地面反光 */
 .carousel-floor {
     position: absolute;
     left: 8%;
@@ -200,266 +300,510 @@ body { background: #1a1208; margin: 0; font-family: 'Noto Serif SC', serif; over
     bottom: 0;
     height: 64px;
     pointer-events: none;
-    background: radial-gradient(ellipse 92% 48% at 50% 12%, rgba(92,61,30,0.92), rgba(32,22,10,0.97));
+    /* 深灰色地面，柔和高光 */
+    background: radial-gradient(ellipse 92% 48% at 50% 12%, rgba(58,45,30,0.6), rgba(20,15,10,0.1));
     border-radius: 50%;
     transform: rotateX(71deg);
     transform-origin: 50% 0;
-    box-shadow:
-        0 20px 50px rgba(0,0,0,0.55),
-        inset 0 0 40px rgba(0,0,0,0.35);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
     z-index: 0;
 }
 
+/* 搜索结果网格页 */
 .shelf-row {
-    display: flex; flex-wrap: wrap; gap: 18px; padding: 30px 30px 24px;
-    justify-content: center; min-height: 200px; align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 30px 30px 24px;
+    justify-content: center;
+    min-height: 200px;
+    align-items: flex-end;
 }
-.shelf-row--empty { min-height: 160px; }
 
+.shelf-row--grid {
+    gap: 18px;
+    padding: 24px 20px 28px;
+    justify-content: center;
+}
+
+.shelf-row--empty {
+    min-height: 160px;
+}
+
+/* 书架隔板 */
 .shelf-board {
-    height: 22px;
-    background: linear-gradient(180deg, #5c3d1e 0%, #3a2512 50%, #2a1a0c 100%);
+    height: 18px;
+    /* 配合深色背景，调整为古旧木板色 */
+    background: linear-gradient(180deg, #3a2512 0%, #1e1a14 100%);
     border-radius: 0 0 4px 4px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.08);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
-/* 线卷书 */
+/* ================== 4. 关键：皇家水墨丝绸卷轴“绘画”定义 ================== */
 .scroll-book {
-    width: 48px; height: 190px; position: relative; cursor: pointer;
-    display: flex; flex-direction: column; align-items: center;
-    transition: transform 0.4s cubic-bezier(0.25,1,0.5,1), filter 0.3s, opacity 0.35s;
-    animation: bookAppear 0.5s ease-out backwards;
-}
-.scroll-book:not(.scroll-book--carousel3d):hover { transform: translateY(-18px) scale(1.08); filter: brightness(1.1); z-index: 10; }
-.scroll-book--carousel3d:hover {
-    filter: brightness(1.12) saturate(1.05) !important;
-    z-index: 50;
-}
-.scroll-book:hover .scroll-tooltip { opacity: 1; transform: translateX(-50%) translateY(-8px); pointer-events: auto; }
-@keyframes bookAppear {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-@keyframes bookAppearCarousel {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* 旋转木马卷轴：纸厚 + 轴高 + 接地点阴影 */
-.scroll-book--carousel3d {
-    animation: bookAppearCarousel 0.55s ease-out backwards;
-    transform-style: preserve-3d;
+    width: 50px;
+    height: 195px;
     position: relative;
-    align-items: stretch;
-}
-.scroll-book--carousel3d .scroll-ground-shadow {
-    position: absolute;
-    left: 50%;
-    bottom: -14px;
-    width: 160%;
-    height: 28px;
-    transform: translateX(-50%) rotateX(90deg);
-    transform-origin: center bottom;
-    background: radial-gradient(ellipse 55% 90% at 50% 50%, rgba(0,0,0,0.55), transparent 72%);
-    pointer-events: none;
-    z-index: 0;
-}
-.scroll-book--carousel3d .scroll-3d-stack {
-    position: relative;
-    flex: 1;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
-    min-height: 0;
-    width: 100%;
+    align-items: stretch;
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), filter 0.3s;
+    animation: bookAppear 0.5s ease-out backwards;
     transform-style: preserve-3d;
-    border-radius: 5px;
-    box-shadow:
-        0 1px 0 rgba(212,185,140,0.45),
-        0 3px 0 rgba(120,82,36,0.45),
-        0 6px 0 rgba(62,40,18,0.55),
-        0 10px 0 rgba(40,26,12,0.5),
-        0 20px 32px rgba(0,0,0,0.5),
-        0 0 0 1px rgba(212,175,55,0.28);
-    z-index: 1;
 }
-.scroll-book--carousel3d .scroll-thickness {
+    /* 鼠标悬浮：轻微上浮与整体提亮，不再有廉价的放大感 */
+    .scroll-book:not(.scroll-book--carousel3d):hover {
+        transform: translateY(-15px) translateZ(10px);
+        filter: brightness(1.1);
+        z-index: 10;
+    }
+
+.scroll-book--carousel3d:hover {
+    filter: brightness(1.1) !important;
+    z-index: 50;
+}
+
+.scroll-book:hover .scroll-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+    pointer-events: auto;
+}
+
+@keyframes bookAppear {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 接地点阴影 */
+.scroll-ground-shadow {
     position: absolute;
-    top: 11px;
-    bottom: 11px;
-    width: 7px;
-    z-index: 0;
+    left: 50%;
+    bottom: -12px;
+    width: 140%;
+    height: 25px;
+    transform: translateX(-50%) rotateX(90deg);
+    transform-origin: center bottom;
+    /* 极淡的弥散阴影 */
+    background: radial-gradient(ellipse 55% 90% at 50% 50%, rgba(0,0,0,0.25), transparent 72%);
     pointer-events: none;
-    border-radius: 2px;
-    transform-style: preserve-3d;
+    z-index: 0;
 }
-.scroll-book--carousel3d .scroll-thickness--left {
-    left: 0;
-    margin-left: -5px;
-    transform: rotateY(-58deg);
-    transform-origin: right center;
-    background: linear-gradient(90deg, #1e1308, #4a3018 55%, #5c3d20);
-    box-shadow: inset -3px 0 6px rgba(0,0,0,0.45);
+
+/* 皇家乌木轴头 - 去除塑料光泽，改为沉稳的亚光木质感 */
+.scroll-rod-t, .scroll-rod-b {
+    width: 100%;
+    height: 14px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    /* 皇家乌木色系，细腻的亚光渐变 */
+    background: linear-gradient(to right, #24180c, #3a2512 25%, #4e342e 50%, #3a2512 75%, #24180c);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    position: relative;
+    z-index: 2;
 }
-.scroll-book--carousel3d .scroll-thickness--right {
-    right: 0;
-    margin-right: -5px;
-    transform: rotateY(58deg);
-    transform-origin: left center;
-    background: linear-gradient(90deg, #5a4024, #3d2815 48%, #24180c);
-    box-shadow: inset 3px 0 6px rgba(0,0,0,0.4);
-}
-.scroll-book--carousel3d .scroll-3d-front {
+
+/* 核心重构：羊脂玉石书脊 (Spine) - 温润、拟真 */
+.scroll-spine {
     flex: 1;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    /* 1. 材质：皇家丝绸绢帛底色 */
+    background: linear-gradient(135deg, #f5e6c8, #e8d4a8, #f5e6c8);
+    /* 2. 拟真定义：通过极细腻的左右阴影，模拟纸张卷起时的物理厚度与弧度，去除硬边框 */
+    border-left: none;
+    border-right: none;
+    box-shadow: inset 10px 0 25px rgba(255,255,255,0.8), /* 左侧拟真高光 */
+    inset -10px 0 25px rgba(0,0,0,0.03), /* 右侧拟真背光阴影 */
+    0 4px 15px rgba(0,0,0,0.06); /* 整体自然下落阴影 */
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 0;
-    width: 100%;
-    border-radius: 4px;
+    justify-content: center;
+    padding: 10px 2px;
+}
+
+/* 书名文字 */
+.spine-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.05rem;
+    color: #3a2512; /* 茶褐色墨迹 */
+    letter-spacing: 3px;
+    line-height: 1.3;
+    text-align: center;
+    max-height: 155px;
     overflow: hidden;
-    transform: translateZ(5px);
+    text-overflow: ellipsis;
+}
+/* “精”字标签 - 换成淡雅的胭脂红印章感 */
+.spine-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #c27a7e;
+    color: #fff;
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Ma Shan Zheng', cursive;
+    box-shadow: 0 0 4px rgba(194,122,126,0.3);
+}
+
+/* 3D视图专属增强 - 去除原先丑陋的厚度定义，改用细腻的整体形变 */
+.scroll-book--carousel3d {
     transform-style: preserve-3d;
 }
-.scroll-book--carousel3d .scroll-rod-l,
-.scroll-book--carousel3d .scroll-rod-r {
-    box-shadow: 0 3px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
-}
-.scroll-book--carousel3d .scroll-spine {
-    position: relative;
-    background: linear-gradient(105deg,
-        rgba(255,252,238,0.97) 0%,
-        #f0e2c4 18%,
-        #e8d4a8 45%,
-        #dcc89a 72%,
-        rgba(255,248,228,0.92) 100%);
-    border-left: 3px solid #a08030;
-    border-right: 3px solid #6b5220;
-    box-shadow:
-        inset 5px 0 14px rgba(255,255,255,0.38),
-        inset -6px 0 18px rgba(0,0,0,0.12),
-        inset 0 0 20px rgba(139,105,20,0.06);
-}
+    /* 鼠标悬浮：在3D空间中前进，而不是单纯变大 */
+    .scroll-book--carousel3d:hover {
+        transform: translateZ(25px) rotateX(2deg) !important;
+    }
 
-.scroll-rod-l, .scroll-rod-r {
-    width: 100%; height: 12px; border-radius: 6px; flex-shrink: 0;
-    background: linear-gradient(to right, #5a3a1a, #8b6914, #d4af37, #8b6914, #5a3a1a);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-}
-
-.scroll-spine {
-    flex: 1; width: 100%; position: relative; overflow: hidden;
-    background: linear-gradient(135deg, #f5e6c8, #e8d4a8, #f5e6c8);
-    border-left: 3px solid #8b6914; border-right: 3px solid #8b6914;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 8px 2px;
-    box-shadow: inset 2px 0 8px rgba(0,0,0,0.1), inset -2px 0 8px rgba(0,0,0,0.1);
-}
-.spine-text {
-    writing-mode: vertical-rl; text-orientation: mixed;
-    font-family: 'Ma Shan Zheng', cursive; font-size: 0.95rem; color: #3a2512;
-    letter-spacing: 3px; line-height: 1.3; text-align: center;
-    max-height: 150px; overflow: hidden; text-overflow: ellipsis;
-}
-.spine-badge {
-    position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
-    width: 18px; height: 18px; border-radius: 50%;
-    background: #9E2A2F; color: #fff; font-size: 0.55rem;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Ma Shan Zheng', cursive; box-shadow: 0 0 6px rgba(158,42,47,0.6);
-}
-
+/* 提示框 - 精致化，药丸风格，亮色底 */
 .scroll-tooltip {
-    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(0);
-    background: rgba(20,15,10,0.95); border: 1px solid rgba(212,175,55,0.4);
-    border-radius: 8px; padding: 10px 14px; white-space: nowrap; text-align: center;
-    opacity: 0; transition: all 0.3s ease; pointer-events: none;
-    backdrop-filter: blur(10px); margin-bottom: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
-.scroll-tooltip strong,
-.scroll-tooltip .tooltip-title { display: block; color: #f5e6c8; font-size: 0.9rem; margin-bottom: 4px; }
-.scroll-tooltip .tooltip-cat { display: block; color: #d4af37; font-size: 0.72rem; margin-bottom: 4px; }
-.scroll-tooltip .tooltip-hint { display: block; color: rgba(255,255,255,0.4); font-size: 0.65rem; }
-
-.shelf-empty { text-align: center; color: rgba(245,230,200,0.4); padding: 40px; width: 100%; }
-.shelf-empty i { font-size: 2rem; display: block; margin-bottom: 10px; color: rgba(212,175,55,0.3); }
-
-/* 飞行动画 */
-.scroll-book-flying { pointer-events: none !important; }
-.scroll-book-flying .scroll-tooltip { display: none; }
-
-/* 书案 */
-.sishu-desk {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    z-index: 50; text-align: center; transition: all 0.4s;
-}
-.sishu-desk.active { transform: translateX(-50%) scale(1.05); }
-.desk-surface {
-    min-width: 240px; min-height: 60px; padding: 12px 32px;
-    background: linear-gradient(180deg, #6d4c41 0%, #4e342e 100%);
-    border-radius: 8px; border: 2px solid #3e2723;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-    position: relative; overflow: hidden;
-}
-.desk-label {
-    font-family: 'Ma Shan Zheng', cursive; color: rgba(245,230,200,0.6);
-    font-size: 0.9rem; margin-top: 4px; letter-spacing: 4px;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #e1d6c3;
+    border-radius: 8px;
+    padding: 10px 14px;
+    white-space: nowrap;
+    text-align: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    margin-bottom: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
 }
 
-.desk-scroll-open {
-    opacity: 0; transform: scaleY(0); transition: all 0.5s cubic-bezier(0.25,1,0.5,1);
-    transform-origin: top center;
-}
-.desk-scroll-open.open { opacity: 1; transform: scaleY(1); }
-.desk-scroll-rod { height: 6px; border-radius: 3px; background: linear-gradient(to right, #8b6914, #d4af37, #8b6914); }
-.desk-scroll-body {
-    background: linear-gradient(to bottom, #f5e6c8, #ede0c0);
-    padding: 8px 16px; text-align: center;
-}
-.desk-scroll-body p {
-    margin: 0; font-family: 'Ma Shan Zheng', cursive; color: #3a2512; font-size: 1rem;
+    .scroll-tooltip strong, .scroll-tooltip .tooltip-title {
+        display: block;
+        color: #3a352d;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+
+    .scroll-tooltip .tooltip-cat {
+        display: block;
+        color: #a3b8a9;
+        font-size: 0.75rem;
+        margin-bottom: 5px;
+    }
+
+    .scroll-tooltip .tooltip-hint {
+        display: block;
+        color: rgba(0,0,0,0.4);
+        font-size: 0.7rem;
+    }
+
+/* 书架空空状态 */
+.shelf-empty {
+    text-align: center;
+    color: #8c857b;
+    padding: 50px 20px;
+    width: 100%;
 }
 
-/* 分页 */
-.sishu-pagination { text-align: center; margin-top: 40px; position: relative; z-index: 1; }
-.sishu-pagination ul { list-style: none; display: inline-flex; gap: 6px; padding: 0; margin: 0; }
-.sishu-pagination li a {
-    display: block; padding: 8px 16px; border-radius: 6px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(212,175,55,0.2);
-    color: #d4af37; text-decoration: none; font-size: 0.9rem;
+    .shelf-empty i {
+        font-size: 2.2rem;
+        display: block;
+        margin-bottom: 12px;
+        color: #5c3d1e;
+    }
+
+/* 飞行动画时的临时类名，用于隐藏无关元素 */
+.scroll-book-flying {
+    pointer-events: none !important;
+}
+
+    .scroll-book-flying .scroll-tooltip {
+        display: none !important;
+    }
+
+
+/* ================== 5. 其他区：分页与返回 (去塑料感，融入亮色) ================== */
+.sishu-pagination {
+    text-align: center;
+    margin-top: 40px;
+    position: relative;
+    z-index: 5;
+}
+
+    .sishu-pagination ul {
+        list-style: none;
+        display: inline-flex;
+        gap: 8px;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sishu-pagination li a {
+        display: block;
+        padding: 8px 16px;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(212,175,55,0.2);
+        color: #eae1d2;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+
+        .sishu-pagination li a:hover {
+            background: rgba(212,175,55,0.15);
+        }
+
+    .sishu-pagination li.active a {
+        background: rgba(212,175,55,0.2);
+        border-color: #d4af37;
+        color: #d4af37;
+    }
+
+    .sishu-pagination li.disabled a {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+.sishu-back {
+    text-align: center;
+    margin-top: 30px;
+    position: relative;
+    z-index: 5;
+}
+
+    .sishu-back a {
+        color: #8c857b;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.3s;
+        padding: 0 10px;
+    }
+
+        .sishu-back a:hover {
+            color: #d4af37;
+        }
+
+
+/* ================== 6. 展卷弹层样式 (精修：去硬边框，融入亮色) ================== */
+.scroll-overlay-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 80000;
+    /* 宣纸白色半透明遮罩 */
+    background: rgba(253, 250, 245, 0.88);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+}
+
+    .scroll-overlay-backdrop.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+.scroll-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scaleX(0);
+    transform-origin: left center;
+    z-index: 80001;
+    display: flex;
+    align-items: stretch;
+    max-width: 700px;
+    width: 90vw;
+    max-height: 80vh;
+    transition: transform 0.7s cubic-bezier(0.22,1,0.36,1);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+}
+
+.scroll-overlay-backdrop.open .scroll-overlay {
+    transform: translate(-50%, -50%) scaleX(1);
+}
+
+/* 弹层轴杆 - 同样换成沉香乌木 */
+.scroll-rod {
+    width: 16px;
+    min-height: 100%;
+    background: linear-gradient(180deg, #3a2512, #24180c, #3a2512);
+    border-radius: 8px;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+    z-index: 2;
+}
+
+.scroll-paper {
+    flex: 1;
+    /* 素雅纸色，轻微水墨晕染感 */
+    background: linear-gradient(135deg, #ffffff, #fdfcf9);
+    padding: 40px 35px;
+    overflow-y: auto;
+    box-shadow: inset 0 0 25px rgba(0,0,0,0.02);
+    border-top: 1px solid #eae3d8;
+    border-bottom: 1px solid #eae3d8;
+    position: relative;
+}
+
+    .scroll-paper h2 {
+        font-family: 'Ma Shan Zheng', cursive;
+        font-size: 2.2rem;
+        color: #3a352d;
+        margin: 0 0 10px;
+        text-align: center;
+    }
+
+    .scroll-paper .sp-cat {
+        text-align: center;
+        color: #a3b8a9;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+    }
+
+    .scroll-paper .sp-desc {
+        color: #55534e;
+        line-height: 1.8;
+        font-size: 1rem;
+        margin-bottom: 35px;
+        text-align: justify;
+        word-wrap: break-word;
+    }
+
+    .scroll-paper .sp-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+/* 弹层按钮：药丸形，清新淡竹色，深色墨迹 */
+.sp-btn {
+    padding: 12px 32px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1.1rem;
     transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    letter-spacing: 1px;
 }
-.sishu-pagination li a:hover { background: rgba(212,175,55,0.15); }
-.sishu-pagination li.active a { background: rgba(212,175,55,0.25); border-color: #d4af37; }
-.sishu-pagination li.disabled a { opacity: 0.3; pointer-events: none; }
 
-/* 返回 */
-.sishu-back { text-align: center; margin-top: 30px; position: relative; z-index: 1; }
-.sishu-back a {
-    color: rgba(245,230,200,0.45); text-decoration: none; font-size: 0.9rem;
-    transition: color 0.3s;
+.sp-btn-primary {
+    background: linear-gradient(135deg, #a3b8a9, #7d9684);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(163,184,169,0.3);
 }
-.sishu-back a:hover { color: #d4af37; }
 
-/* 响应式 */
+    .sp-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(163,184,169,0.4);
+        color: #fff;
+    }
+
+.sp-btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #dcd4c6;
+    color: #3a352d;
+}
+
+    .sp-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #1a1208;
+    }
+
+.sp-close {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2.2rem;
+    color: #d0cabc;
+    cursor: pointer;
+    z-index: 10;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+    .sp-close:hover {
+        color: #c27a7e;
+    }
+
+/* 响应式调整 */
 @media (max-width: 768px) {
-    .sishu-root { padding: 90px 16px 60px; }
-    .sishu-plaque { padding: 10px 24px; }
-    .sishu-plaque h1 { font-size: 2rem; letter-spacing: 5px; }
-    .shelf-row { gap: 12px; padding: 20px 15px; }
-    .shelf-row--grid { gap: 12px; padding: 18px 12px 22px; }
-    .scroll-book { width: 40px; height: 160px; }
-    .scroll-book--carousel3d .scroll-3d-front { transform: translateZ(4px); }
+    .sishu-root {
+        padding: 90px 16px 60px;
+    }
+
+    .sishu-plaque {
+        padding: 10px 24px;
+    }
+
+        .sishu-plaque h1 {
+            font-size: 2rem;
+            letter-spacing: 6px;
+        }
+
+    .shelf-row {
+        gap: 12px;
+        padding: 20px 15px;
+    }
+
+    .shelf-row--grid {
+        gap: 12px;
+        padding: 18px 12px 22px;
+    }
+
+    .scroll-book {
+        width: 40px;
+        height: 160px;
+    }
+
     .carousel-viewport {
         perspective: 880px;
         height: min(280px, 58vw);
     }
-    .carousel-axis { height: 180px; }
+
+    .carousel-axis {
+        height: 180px;
+    }
+
     .carousel-cell {
         width: 40px;
         height: 160px;
         margin-left: -20px;
         margin-top: -80px;
     }
-    .carousel-hint { font-size: 0.8rem; padding: 0 8px; line-height: 1.45; }
+
+    .scroll-paper {
+        padding: 30px 25px;
+    }
+
+        .scroll-paper h2 {
+            font-size: 1.8rem;
+        }
+
+    .scroll-rod-t, .scroll-rod-b {
+        height: 12px;
+    }
 }

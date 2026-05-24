@@ -115,16 +115,16 @@
                 <span class="nav-overlay-title">畅音雅韵</span>
             </div>
             <div class="nav-overlay-links">
-                <a href="/" class="nav-overlay-link"><i class="fas fa-torii-gate"></i> 回到畅音阁</a>
-                <a asp-controller="Play" asp-action="Index" class="nav-overlay-link"><i class="fas fa-theater-masks"></i> 品鉴剧目</a>
-                <a asp-controller="Master" asp-action="Index" class="nav-overlay-link"><i class="fas fa-user-tie"></i> 名家风采</a>
-                <a asp-controller="Category" asp-action="Index" class="nav-overlay-link"><i class="fas fa-search"></i> 探索剧种</a>
-                <a asp-controller="Course" asp-action="Index" class="nav-overlay-link"><i class="fas fa-book-open"></i> 传习私塾</a>
-                <a asp-controller="Community" asp-action="Index" class="nav-overlay-link"><i class="fas fa-comments"></i> 戏词雅集</a>
-                <a asp-controller="Community" asp-action="Checkin" class="nav-overlay-link"><i class="fas fa-map-marker-alt"></i> 戏台打卡</a>
-                <a asp-controller="Community" asp-action="Works" class="nav-overlay-link"><i class="fas fa-gem"></i> 百宝阁</a>
-                <a asp-controller="QuoteBoard" asp-action="Index" class="nav-overlay-link"><i class="fas fa-feather-alt"></i> 梨园心灯</a>
-                <a asp-controller="AiRoleplay" asp-action="Dresser" class="nav-overlay-link"><i class="fas fa-moon"></i> 梨园梦境</a>
+                <a href="/" class="nav-overlay-link">回到畅音阁</a>
+                <a asp-controller="Play" asp-action="Index" class="nav-overlay-link">品鉴剧目</a>
+                <a asp-controller="Master" asp-action="Index" class="nav-overlay-link">名家风采</a>
+                <a asp-controller="Category" asp-action="Index" class="nav-overlay-link">探索剧种</a>
+                <a asp-controller="Course" asp-action="Index" class="nav-overlay-link">传习私塾</a>
+                <a asp-controller="Community" asp-action="Index" class="nav-overlay-link">戏词雅集</a>
+                <a asp-controller="Community" asp-action="Checkin" class="nav-overlay-link">戏台打卡</a>
+                <a asp-controller="Community" asp-action="Works" class="nav-overlay-link">百宝阁</a>
+                <a asp-controller="QuoteBoard" asp-action="Index" class="nav-overlay-link">梨园心灯</a>
+                <a asp-controller="AiRoleplay" asp-action="Dresser" class="nav-overlay-link">梨园梦境</a>
             </div>
             <div class="nav-overlay-user">
                 @if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -132,24 +132,24 @@
                     var currentUser = await UserManager.GetUserAsync(User);
                     var displayName = currentUser?.Nickname ?? User.Identity?.Name?.Split('@')[0] ?? "戏友";
                     <a asp-controller="Account" asp-action="UserCenter" class="nav-overlay-user-link">
-                        <i class="fas fa-user-circle"></i> 欢迎，@displayName
+                        欢迎，@displayName
                     </a>
                     @if (User.IsInRole("SuperAdmin"))
                     {
-                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-overlay-user-link"><i class="fas fa-crown"></i> 管理后台</a>
-                        <a asp-controller="Audit" asp-action="Index" class="nav-overlay-user-link"><i class="fas fa-gavel"></i> 审核大厅</a>
+                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-overlay-user-link">管理后台</a>
+                        <a asp-controller="Audit" asp-action="Index" class="nav-overlay-user-link">审核大厅</a>
                     }
                     else if (User.IsInRole("Admin"))
                     {
-                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-overlay-user-link"><i class="fas fa-cog"></i> 管理后台</a>
+                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-overlay-user-link">管理后台</a>
                     }
                     <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                        <button type="submit" class="nav-overlay-logout"><i class="fas fa-sign-out-alt"></i> 退出梨园</button>
+                        <button type="submit" class="nav-overlay-logout">退出梨园</button>
                     </form>
                 }
                 else
                 {
-                    <a href="/Account/Login" class="nav-overlay-user-link"><i class="fas fa-sign-in-alt"></i> 登录 / 注册</a>
+                    <a href="/Account/Login" class="nav-overlay-user-link">登录 / 注册</a>
                 }
             </div>
         </div>
@@ -196,7 +196,7 @@
     <div id="aiWidget" class="companion-widget" style="@(hideXiaoli ? "display:none;" : "")">
         <div id="aiChatBox" class="chat-bubble-container">
             <div class="chat-header">
-                <span class="chat-title">🍐 梨园书童 · 小梨</span>
+                <span class="chat-title">梨园书童 · 小梨</span>
                 <span class="chat-close" onclick="toggleCompanion(event)">&times;</span>
             </div>
             <div class="chat-messages" id="aiMsgList"></div>

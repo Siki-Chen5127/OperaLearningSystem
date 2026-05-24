@@ -11,24 +11,25 @@
 
 @* Fix #6: 防闪烁内联脚本 *@
 <script>
-(function(){
-    var qs = '';
-    try { qs = window.location.search || ''; } catch (e) {}
-    var yslBack = qs.indexOf('yueshilouReturn=1') >= 0;
-    if (yslBack) try { sessionStorage.setItem('door_opened', 'true'); } catch (e2) {}
-    var d = sessionStorage.getItem('door_opened') === 'true';
-    if(d) {
-        document.write('<style>#doorLayer,#scratch-canvas,#instruction-hint{display:none!important}#inner-stage-scene{opacity:1!important;transform:none!important;z-index:40!important}</style>');
-    } else {
-        document.write('<style>#aiWidget{display:none!important}</style>');
-    }
-})();
+    (function(){
+        var qs = '';
+        try { qs = window.location.search || ''; } catch (e) {}
+        var yslBack = qs.indexOf('yueshilouReturn=1') >= 0;
+        if (yslBack) try { sessionStorage.setItem('door_opened', 'true'); } catch (e2) {}
+        var d = sessionStorage.getItem('door_opened') === 'true';
+        if(d) {
+            document.write('<style>#doorLayer,#scratch-canvas,#instruction-hint{display:none!important}#inner-stage-scene{opacity:1!important;transform:none!important;z-index:40!important}</style>');
+        } else {
+            document.write('<style>#aiWidget{display:none!important}</style>');
+        }
+    })();
 </script>
 
 <div id="entrance-container">
     @if (!isAuthenticated)
     {
-        <div class="door-layer door-guest-bg" aria-hidden="true" style="background-image: url('@Url.Content("~/images/entrance/guest_bg.jpg")');"></div>        <div class="unauth-modal">
+        <div class="door-layer door-guest-bg" aria-hidden="true" style="background-image: url('@Url.Content("~/images/entrance/guest_bg.jpg")');"></div>
+        <div class="unauth-modal">
             <div class="unauth-box">
                 <div class="unauth-content">
                     <h2>畅音圣境</h2>
@@ -99,195 +100,228 @@
             <div id="scene-floor1" class="scene-layer" style="display:none;">
                 <div id="floor1-outer" class="floor1-substage">
                     <img src="~/images/entrance/stage_first_floor.png" alt="" class="scene-bg" />
+
+                    <!-- 一层查看按钮 -->
+                    <div class="floor2-view-knock"
+                         style="position:absolute; top:22%; left:50%; transform:translateX(-50%); z-index:9999999; cursor:pointer;"
+                         onclick="openFloor1Paibian()">
+                        <div class="knock-pulse"></div>
+                        <span class="knock-text">查看</span>
+                    </div>
+
                     <div id="floor1-enter-inner-btn" class="floor1-enter-knock" onclick="enterFloor1Inner()">
                         <div class="knock-pulse"></div>
                         <span class="knock-text">进入内部</span>
                     </div>
                 </div>
-                <div id="floor1-inner" class="floor1-substage" style="display:none;">
-                    <img src="~/images/entrance/stage_first_floor_in.png" alt="" class="scene-bg" />
-                    <img src="~/images/entrance/table.png" alt="桌子" class="floor1-table" />
-                    <img src="~/images/entrance/actor1.png" alt="" class="floor1-actor1" />
-                    <img src="~/images/entrance/actor2.png" alt="" class="floor1-actor2" />
-                    <img src="~/images/entrance/xizhezi.png" alt="戏折子" class="floor1-xizhezi" id="floor1-xizhezi-img" role="button" tabindex="0"
-                         onclick="openFloor1BookFromScript()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFloor1BookFromScript();}" />
-                </div>
-                <div id="floor1-nav-outer" class="scene-nav">
-                    <button class="scene-nav-btn" onclick="goToScene('main','zoomOut')"><i class="fas fa-arrow-left"></i> 退回主页</button>
-                    <button class="scene-nav-btn" onclick="goToScene('floor2','zoomCenter')"><i class="fas fa-arrow-up"></i> 去往二层 · 禄台</button>
-                </div>
-                <div id="floor1-nav-inner" class="scene-nav" style="display:none;">
-                    <button type="button" class="scene-nav-btn" onclick="backToFloor1Outer()"><i class="fas fa-sign-out-alt"></i> 返回寿台外部</button>
-                </div>
-            </div>
 
-            <!-- ========== 场景：二层 禄台 ========== -->
-            <div id="scene-floor2" class="scene-layer" style="display:none;">
-                <div id="floor2-outer" class="floor1-substage">
-                    <img src="~/images/entrance/stage_second_floor.jpg" alt="" class="scene-bg" />
-                    <div id="floor2-view-paibian-btn" class="floor2-view-knock" role="button" tabindex="0"
-                         onclick="openFloor2PaibianModal()"
-                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFloor2PaibianModal();}">
+                <!--默认 100% 隐藏，绝对不会自动弹出 -->
+                <div id="floor1PaibianModal" style="display:none !important; visibility:hidden !important; opacity:0 !important;">
+                    <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:99999999; display:flex; align-items:center; justify-content:center;">
+                        <div style="position:relative; width:75%; height:75%;">
+                            <span onclick="closeFloor1Paibian()"
+                                  style="position:absolute; top:-30px; right:0; color:#fff; font-size:28px; font-weight:bold; cursor:pointer; z-index:99999;">
+                                ×
+                            </span>
+                            <img src="~/images/entrance/stage_frist_floor_paibian.png"
+                                 alt="寿台牌匾"
+                                 style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="floor1-inner" class="floor1-substage" style="display:none;">
+                        <img src="~/images/entrance/stage_first_floor_in.png" alt="" class="scene-bg" />
+                        <img src="~/images/entrance/table.png" alt="桌子" class="floor1-table" />
+                        <img src="~/images/entrance/actor1.png" alt="" class="floor1-actor1" />
+                        <img src="~/images/entrance/actor2.png" alt="" class="floor1-actor2" />
+                        <img src="~/images/entrance/xizhezi.png" alt="戏折子" class="floor1-xizhezi" id="floor1-xizhezi-img" role="button" tabindex="0"
+                             onclick="openFloor1BookFromScript()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFloor1BookFromScript();}" />
+                    </div>
+                    <div id="floor1-nav-outer" class="scene-nav">
+                        <button class="scene-nav-btn" onclick="goToScene('main','zoomOut')"><i class="fas fa-arrow-left"></i> 退回主页</button>
+                        <button class="scene-nav-btn" onclick="goToScene('floor2','zoomCenter')"><i class="fas fa-arrow-up"></i> 去往二层 · 禄台</button>
+                    </div>
+                    <div id="floor1-nav-inner" class="scene-nav" style="display:none;">
+                        <button type="button" class="scene-nav-btn" onclick="backToFloor1Outer()"><i class="fas fa-sign-out-alt"></i> 返回寿台外部</button>
+                    </div>
+                </div>
+
+                <!-- ========== 场景：二层 禄台 ========== -->
+                <div id="scene-floor2" class="scene-layer" style="display:none;">
+                    <div id="floor2-outer" class="floor1-substage">
+                        <img src="~/images/entrance/stage_second_floor.jpg" alt="" class="scene-bg" />
+                        <div id="floor2-view-paibian-btn" class="floor2-view-knock" role="button" tabindex="0"
+                             onclick="openFloor2PaibianModal()"
+                             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFloor2PaibianModal();}">
+                            <div class="knock-pulse"></div>
+                            <span class="knock-text">查看</span>
+                        </div>
+                        <div id="floor2-enter-inner-btn" class="floor1-enter-knock floor2-enter-inner-knock" onclick="enterFloor2Inner()">
+                            <div class="knock-pulse"></div>
+                            <span class="knock-text">进入内部</span>
+                        </div>
+                    </div>
+                    <div id="floor2-inner" class="floor1-substage" style="display:none;">
+                        <img src="~/images/entrance/stage_second_floor_in.png" alt="" class="scene-bg" />
+                        <button type="button" id="floor2-roof-3d-btn" class="floor2-roof-seal-btn" style="left: 33%;" onclick="open3DViewer()" aria-label="查看 3D 构造">
+                            <span class="floor2-roof-seal-icon" aria-hidden="true"></span>
+                            <span class="floor2-roof-seal-tooltip">查看 3D 构造</span>
+                        </button>
+                        <button type="button" id="floor2-photo-btn" class="floor2-roof-seal-btn" style="left: 65%;" onclick="openHighResPhotos()" aria-label="查看高清建筑照">
+                            <span class="floor2-roof-seal-icon" aria-hidden="true"></span>
+                            <span class="floor2-roof-seal-tooltip">查看高清建筑照</span>
+                        </button>
+                    </div>
+                    <div id="floor2-hd-backdrop" class="floor2-paibian-backdrop" style="display:none;" onclick="if(event.target===this)closeFloor2HDModal()" aria-hidden="true"></div>
+                    <div id="floor2-hd-modal" class="floor2-paibian-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="floor2-hd-title">
+                        <h2 id="floor2-hd-title" class="visually-hidden">高清建筑图</h2>
+                        <button type="button" id="floor2-hd-img-btn" class="floor2-roof-seal-btn" style="left: 58%;" onclick="window.openHighResPhotos()" aria-label="查看高清建筑图">
+                            <span class="floor2-roof-seal-icon" aria-hidden="true" style="display:flex; align-items:center; justify-content:center;">
+                                <i class="fas fa-image" style="color:rgba(212,175,55,0.8); font-size:1.4rem; transform:rotate(14deg);"></i>
+                            </span>
+                            <span class="floor2-roof-seal-tooltip">查看建筑图</span>
+                        </button>
+                        <img src="~/images/entrance/your_hd_blueprint.jpg" alt="禄台建筑图" class="floor2-paibian-img" style="background: rgba(255,255,255,0.9);" />
+                    </div>
+                    <div id="floor2-nav-outer" class="scene-nav">
+                        <button class="scene-nav-btn" onclick="goToScene('floor1','zoomCenter')"><i class="fas fa-arrow-down"></i> 返回一层 · 寿台</button>
+                        <button class="scene-nav-btn" onclick="goToScene('main','zoomOut')"><i class="fas fa-home"></i> 退回主页</button>
+                        <button class="scene-nav-btn" onclick="goToScene('floor3','zoomCenter')"><i class="fas fa-arrow-up"></i> 去往三层 · 福台</button>
+                    </div>
+                    <div id="floor2-nav-inner" class="scene-nav" style="display:none;">
+                        <button type="button" class="scene-nav-btn" onclick="backToFloor2Outer()"><i class="fas fa-sign-out-alt"></i> 返回禄台外部</button>
+                    </div>
+                </div>
+
+                <!-- ========== 场景：三层 福台 ========== -->
+                <div id="scene-floor3" class="scene-layer scene-floor3-layer" style="display:none;">
+                    <div id="floor3-outer" class="floor1-substage">
+                        <div class="floor3-bg-frame" aria-hidden="true">
+                            <img src="~/images/entrance/stage_third_floor.jpg" alt="" class="floor3-bg-img"
+                                 onerror="this.onerror=null;this.src='@Url.Content("~/images/entrance/stage_third_floor.png")'" />
+                        </div>
+                        <div id="floor3-view-paibian-btn" class="floor2-view-knock floor3-paibian-knock" role="button" tabindex="0"
+                             onclick="openFloor3PaibianModal()"
+                             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFloor3PaibianModal();}">
+                            <div class="knock-pulse"></div>
+                            <span class="knock-text">查看</span>
+                        </div>
+                        <div id="floor3-more-theaters-btn" class="floor2-view-knock floor3-paibian-knock floor3-more-theaters-knock" role="button" tabindex="0"
+                             onclick="openFloor3ScrollsModal()"
+                             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFloor3ScrollsModal();}">
+                            <div class="knock-pulse"></div>
+                            <span class="knock-text">更多戏楼</span>
+                        </div>
+                    </div>
+                    <div class="scene-nav">
+                        <button class="scene-nav-btn" onclick="goToScene('floor2','zoomCenter')"><i class="fas fa-arrow-down"></i> 返回二层 · 禄台</button>
+                        <button class="scene-nav-btn" onclick="goToScene('main','zoomOut')"><i class="fas fa-home"></i> 退回主页</button>
+                    </div>
+                </div>
+
+                <!-- ========== 场景：阅是楼外观 ========== -->
+                <div id="scene-yueshilou" class="scene-layer" style="display:none;">
+                    <img src="~/images/entrance/yueshilou.png" class="scene-bg" />
+                    <div id="yueshilou-view-paibian-btn" class="floor2-view-knock yueshilou-view-knock" role="button" tabindex="0"
+                         onclick="openYueshilouPaibianModal()"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openYueshilouPaibianModal();}">
                         <div class="knock-pulse"></div>
                         <span class="knock-text">查看</span>
                     </div>
-                    <div id="floor2-enter-inner-btn" class="floor1-enter-knock floor2-enter-inner-knock" onclick="enterFloor2Inner()">
-                        <div class="knock-pulse"></div>
-                        <span class="knock-text">进入内部</span>
+                    <div class="hotzone yueshilou-enter" onclick="goToScene('yueshilou-in','zoomCenter')">
+                        <div class="hz-beacon"></div>
+                        <span class="hz-label">进入阅是楼</span>
+                    </div>
+                    <div class="scene-nav">
+                        <button class="scene-nav-btn" onclick="goToScene('main','turnBack')">回到主页</button>
                     </div>
                 </div>
-                <div id="floor2-inner" class="floor1-substage" style="display:none;">
-                    <img src="~/images/entrance/stage_second_floor_in.png" alt="" class="scene-bg" />
 
-                    <button type="button" id="floor2-roof-3d-btn" class="floor2-roof-seal-btn" style="left: 33%;" onclick="open3DViewer()" aria-label="查看 3D 构造">
-                        <span class="floor2-roof-seal-icon" aria-hidden="true"></span>
-                        <span class="floor2-roof-seal-tooltip">查看 3D 构造</span>
-                    </button>
-
-                    <button type="button" id="floor2-photo-btn" class="floor2-roof-seal-btn" style="left: 65%;" onclick="openHighResPhotos()" aria-label="查看高清建筑照">
-                        <span class="floor2-roof-seal-icon" aria-hidden="true"></span>
-                        <span class="floor2-roof-seal-tooltip">查看高清建筑照</span>
-                    </button>
-                </div>
-                <div id="floor2-hd-backdrop" class="floor2-paibian-backdrop" style="display:none;" onclick="if(event.target===this)closeFloor2HDModal()" aria-hidden="true"></div>
-
-                <div id="floor2-hd-modal" class="floor2-paibian-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="floor2-hd-title">
-                    <h2 id="floor2-hd-title" class="visually-hidden">高清建筑图</h2>
-                    <button type="button" id="floor2-hd-img-btn" class="floor2-roof-seal-btn" style="left: 58%;" onclick="window.openHighResPhotos()" aria-label="查看高清建筑图">
-                        <span class="floor2-roof-seal-icon" aria-hidden="true" style="display:flex; align-items:center; justify-content:center;">
-                            <i class="fas fa-image" style="color:rgba(212,175,55,0.8); font-size:1.4rem; transform:rotate(14deg);"></i>
-                        </span>
-                        <span class="floor2-roof-seal-tooltip">查看建筑图</span>
-                    </button>
-                    <img src="~/images/entrance/your_hd_blueprint.jpg" alt="禄台建筑图" class="floor2-paibian-img" style="background: rgba(255,255,255,0.9);" />
-                </div>
-
-                <div id="floor2-nav-outer" class="scene-nav">
-                    <button class="scene-nav-btn" onclick="goToScene('floor1','zoomCenter')"><i class="fas fa-arrow-down"></i> 返回一层 · 寿台</button>
-                    <button class="scene-nav-btn" onclick="goToScene('main','zoomOut')"><i class="fas fa-home"></i> 退回主页</button>
-                    <button class="scene-nav-btn" onclick="goToScene('floor3','zoomCenter')"><i class="fas fa-arrow-up"></i> 去往三层 · 福台</button>
-                </div>
-                <div id="floor2-nav-inner" class="scene-nav" style="display:none;">
-                    <button type="button" class="scene-nav-btn" onclick="backToFloor2Outer()"><i class="fas fa-sign-out-alt"></i> 返回禄台外部</button>
-                </div>
-            </div>
-
-            <!-- ========== 场景：三层 福台 ========== -->
-            <div id="scene-floor3" class="scene-layer scene-floor3-layer" style="display:none;">
-                <div id="floor3-outer" class="floor1-substage">
-                    <div class="floor3-bg-frame" aria-hidden="true">
-                        <img src="~/images/entrance/stage_third_floor.jpg" alt="" class="floor3-bg-img"
-                             onerror="this.onerror=null;this.src='@Url.Content("~/images/entrance/stage_third_floor.png")'" />
+                <!-- ========== 场景：阅是楼室内 ========== -->
+                <div id="scene-yueshilou-in" class="scene-layer" style="display:none;">
+                    <img src="~/images/entrance/yueshilou_in.jpg" class="scene-bg" />
+                    <div class="hotzone ysl-book" onclick="navigateWithTransition('/Community?yueshilouReturn=1')">
+                        <div class="hz-beacon"></div>
+                        <span class="hz-label">雅集</span>
                     </div>
-                    <div id="floor3-view-paibian-btn" class="floor2-view-knock floor3-paibian-knock" role="button" tabindex="0"
-                         onclick="openFloor3PaibianModal()"
-                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFloor3PaibianModal();}">
-                        <div class="knock-pulse"></div>
-                        <span class="knock-text">查看</span>
+                    <div class="hotzone ysl-lamp" onclick="navigateWithTransition('/QuoteBoard?yueshilouReturn=1')">
+                        <div class="hz-beacon"></div>
+                        <span class="hz-label">梨园心灯</span>
                     </div>
-                    <div id="floor3-more-theaters-btn" class="floor2-view-knock floor3-paibian-knock floor3-more-theaters-knock" role="button" tabindex="0"
-                         onclick="openFloor3ScrollsModal()"
-                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFloor3ScrollsModal();}">
-                        <div class="knock-pulse"></div>
-                        <span class="knock-text">更多戏楼</span>
+                    <div class="hotzone ysl-screen" onclick="navigateWithTransition('/Community/Checkin?yueshilouReturn=1')">
+                        <div class="hz-beacon"></div>
+                        <span class="hz-label">戏台打卡</span>
+                    </div>
+                    <div class="hotzone ysl-cabinet" onclick="navigateWithTransition('/Community/Works?yueshilouReturn=1')">
+                        <div class="hz-beacon"></div>
+                        <span class="hz-label">百宝阁</span>
+                    </div>
+                    <div class="scene-nav">
+                        <button class="scene-nav-btn" onclick="goToScene('yueshilou','zoomOut')">退出阅是楼</button>
                     </div>
                 </div>
-                <div class="scene-nav">
-                    <button class="scene-nav-btn" onclick="goToScene('floor2','zoomCenter')"><i class="fas fa-arrow-down"></i> 返回二层 · 禄台</button>
-                    <button class="scene-nav-btn" onclick="goToScene('main','zoomOut')"><i class="fas fa-home"></i> 退回主页</button>
-                </div>
-            </div>
 
-            <!-- ========== 场景：阅是楼外观 ========== -->
-            <div id="scene-yueshilou" class="scene-layer" style="display:none;">
-                <img src="~/images/entrance/yueshilou.png" class="scene-bg" />
-                <div id="yueshilou-view-paibian-btn" class="floor2-view-knock yueshilou-view-knock" role="button" tabindex="0"
-                     onclick="openYueshilouPaibianModal()"
-                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openYueshilouPaibianModal();}">
-                    <div class="knock-pulse"></div>
-                    <span class="knock-text">查看</span>
+                <!-- ========== 场景：东围房 ========== -->
+                <div id="scene-dongweifang" class="scene-layer" style="display:none;">
+                    <img src="~/images/entrance/dongweifang.png" class="scene-bg" />
+                    <div class="hotzone dongwei-enter" onclick="navigateWithTransition('/Course')">
+                        <div class="hz-beacon"></div>
+                        <span class="hz-label">进入传习私塾</span>
+                    </div>
+                    <div class="scene-nav">
+                        <button class="scene-nav-btn" onclick="goToScene('main','slideRight')"><i class="fas fa-arrow-right"></i> 回到主页</button>
+                    </div>
                 </div>
-                <div class="hotzone yueshilou-enter" onclick="goToScene('yueshilou-in','zoomCenter')">
-                    <div class="hz-beacon"></div>
-                    <span class="hz-label">进入阅是楼</span>
-                </div>
-                <div class="scene-nav">
-                    <button class="scene-nav-btn" onclick="goToScene('main','turnBack')">回到主页</button>
-                </div>
-            </div>
 
-            <!-- ========== 场景：阅是楼室内 ========== -->
-            <div id="scene-yueshilou-in" class="scene-layer" style="display:none;">
-                <img src="~/images/entrance/yueshilou_in.jpg" class="scene-bg" />
-                <!-- 4个交互光圈 -->
-                <div class="hotzone ysl-book" onclick="navigateWithTransition('/Community?yueshilouReturn=1')">
-                    <div class="hz-beacon"></div>
-                    <span class="hz-label">雅集</span>
-                </div>
-                <div class="hotzone ysl-lamp" onclick="navigateWithTransition('/QuoteBoard?yueshilouReturn=1')">
-                    <div class="hz-beacon"></div>
-                    <span class="hz-label">梨园心灯</span>
-                </div>
-                <div class="hotzone ysl-screen" onclick="navigateWithTransition('/Community/Checkin?yueshilouReturn=1')">
-                    <div class="hz-beacon"></div>
-                    <span class="hz-label">戏台打卡</span>
-                </div>
-                <div class="hotzone ysl-cabinet" onclick="navigateWithTransition('/Community/Works?yueshilouReturn=1')">
-                    <div class="hz-beacon"></div>
-                    <span class="hz-label">百宝阁</span>
-                </div>
-                <div class="scene-nav">
-                    <button class="scene-nav-btn" onclick="goToScene('yueshilou','zoomOut')">退出阅是楼</button>
+                <!-- ========== 场景：西围房 ========== -->
+                <div id="scene-xiweifang" class="scene-layer" style="display:none;">
+                    <img src="~/images/entrance/xiweifang.png" class="scene-bg" />
+                    <div class="hotzone xiwei-enter" onclick="navigateWithTransition('/AiRoleplay/Dresser')">
+                        <div class="hz-beacon"></div>
+                        <span class="hz-label">进入梨园梦境</span>
+                    </div>
+                    <div class="scene-nav">
+                        <button class="scene-nav-btn" onclick="goToScene('main','slideLeft')"><i class="fas fa-arrow-left"></i> 回到主页</button>
+                    </div>
                 </div>
             </div>
+        }
+    </div>
 
-            <!-- ========== 场景：东围房 ========== -->
-            <div id="scene-dongweifang" class="scene-layer" style="display:none;">
-                <img src="~/images/entrance/dongweifang.png" class="scene-bg" />
-                <div class="hotzone dongwei-enter" onclick="navigateWithTransition('/Course')">
-                    <div class="hz-beacon"></div>
-                    <span class="hz-label">进入传习私塾</span>
-                </div>
-                <div class="scene-nav">
-                    <button class="scene-nav-btn" onclick="goToScene('main','slideRight')"><i class="fas fa-arrow-right"></i> 回到主页</button>
-                </div>
-            </div>
+    <!-- 过渡遮罩 -->
+    <div id="transition-overlay" class="transition-overlay"></div>
 
-            <!-- ========== 场景：西围房 ========== -->
-            <div id="scene-xiweifang" class="scene-layer" style="display:none;">
-                <img src="~/images/entrance/xiweifang.png" class="scene-bg" />
-                <div class="hotzone xiwei-enter" onclick="navigateWithTransition('/AiRoleplay/Dresser')">
-                    <div class="hz-beacon"></div>
-                    <span class="hz-label">进入梨园梦境</span>
-                </div>
-                <div class="scene-nav">
-                    <button class="scene-nav-btn" onclick="goToScene('main','slideLeft')"><i class="fas fa-arrow-left"></i> 回到主页</button>
-                </div>
-            </div>
-        </div>
+    @await Html.PartialAsync("_Modal_3DViewer")
+    @await Html.PartialAsync("_Modal_FloorInteract")
+
+    @section Scripts {
+        <script>
+            // 打开一层牌匾弹窗（只有点击查看才执行）
+            function openFloor1Paibian() {
+                const modal = document.getElementById('floor1PaibianModal');
+                modal.style.display = 'block';
+                modal.style.visibility = 'visible';
+                modal.style.opacity = '1';
+            }
+
+            // 关闭弹窗（只点右上角叉）
+            function closeFloor1Paibian() {
+                const modal = document.getElementById('floor1PaibianModal');
+                modal.style.display = 'none !important';
+                modal.style.visibility = 'hidden';
+                modal.style.opacity = '0';
+            }
+
+            window.OperaPageConfig = {
+                isAuthenticated: @(isAuthenticated.ToString().ToLower()),
+                roofModelUrls: {
+                    fast: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Content("~/models/top-superlite/scene-compat.glb"))),
+                    balanced: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Content("~/models/top-lite/scene-balanced.glb"))),
+                    ultra: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Content("~/models/top/scene.gltf")))
+                },
+                floor3StageRegionsUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Content("~/api/opera/stage-regions")))
+            };
+        </script>
+        <script src="~/js/pages/Home/home-entrance.js" asp-append-version="true"></script>
     }
-</div>
-
-<!-- 过渡遮罩 -->
-<div id="transition-overlay" class="transition-overlay"></div>
-
-<!-- 3D模型查看器气泡窗、高清图片气泡图 -->
-@await Html.PartialAsync("_Modal_3DViewer")
-
-<!-- 牌扁大图、全国戏台、戏折子、笔刷 -->
-@await Html.PartialAsync("_Modal_FloorInteract")
-
-@section Scripts {
-    <script>
-        window.OperaPageConfig = {
-            isAuthenticated: @(isAuthenticated.ToString().ToLower()),
-            roofModelUrls: {
-                fast: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Content("~/models/top-superlite/scene-compat.glb"))),
-                balanced: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Content("~/models/top-lite/scene-balanced.glb"))),
-                ultra: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Content("~/models/top/scene.gltf")))
-            },
-            floor3StageRegionsUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Content("~/api/opera/stage-regions")))
-        };
-    </script>
-    <script src="~/js/pages/Home/home-entrance.js" asp-append-version="true"></script>
-}

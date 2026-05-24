@@ -3,7 +3,7 @@
 @model PagedResult<OperaLearningSystem.Core.Entities.Course>
 
 @{
-    ViewData["Title"] = "传习私塾";
+    ViewData["Title"] = "传习私塾 - 拟真水墨丝绸卷轴";
     var searchString = ViewData["CurrentFilter"] as string;
     var categoryId = ViewData["CategoryId"] as int?;
     var modeFlag = ViewData["CourseBrowseMode"] as string;
@@ -16,73 +16,7 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/pages/Course/index.css" />
-    <style>
-        .scroll-overlay-backdrop {
-            position: fixed; inset: 0; z-index: 80000;
-            background: rgba(5,3,2,0.7); backdrop-filter: blur(4px);
-            opacity: 0; pointer-events: none; transition: opacity 0.4s;
-        }
-        .scroll-overlay-backdrop.open { opacity: 1; pointer-events: auto; }
-
-        .scroll-overlay {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scaleX(0);
-            transform-origin: left center;
-            z-index: 80001; display: flex; align-items: stretch;
-            max-width: 700px; width: 90vw; max-height: 80vh;
-            transition: transform 0.7s cubic-bezier(0.22,1,0.36,1);
-        }
-        .scroll-overlay-backdrop.open .scroll-overlay {
-            transform: translate(-50%, -50%) scaleX(1);
-        }
-
-        .scroll-rod {
-            width: 18px; min-height: 100%;
-            background: linear-gradient(180deg, #8b6914, #4a3a10, #8b6914);
-            border-radius: 9px; box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-            flex-shrink: 0;
-        }
-        .scroll-paper {
-            flex: 1; background: linear-gradient(135deg, #f5e6c8, #e8d5b0);
-            padding: 32px 28px; overflow-y: auto;
-            box-shadow: inset 0 0 30px rgba(139,105,20,0.15);
-            border: 1px solid rgba(139,105,20,0.3);
-        }
-        .scroll-paper h2 {
-            font-family: 'Ma Shan Zheng', cursive; font-size: 1.8rem;
-            color: #4a2a10; margin: 0 0 6px; text-align: center;
-        }
-        .scroll-paper .sp-cat {
-            text-align: center; color: #8b6914; font-size: 0.85rem; margin-bottom: 16px;
-        }
-        .scroll-paper .sp-desc {
-            color: #5a4020; line-height: 1.8; font-size: 0.92rem; margin-bottom: 24px;
-        }
-        .scroll-paper .sp-actions {
-            display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
-        }
-        .sp-btn {
-            padding: 10px 28px; border-radius: 24px; border: none; cursor: pointer;
-            font-family: 'Ma Shan Zheng', cursive; font-size: 1.05rem;
-            transition: all 0.3s; text-decoration: none; display: inline-block;
-        }
-        .sp-btn-primary {
-            background: linear-gradient(135deg, #9E2A2F, #6e1d21); color: #f5e6c8;
-            box-shadow: 0 4px 16px rgba(158,42,47,0.3);
-        }
-        .sp-btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(158,42,47,0.5); color: #fff; }
-        .sp-btn-secondary {
-            background: rgba(74,58,16,0.15); color: #4a3a10;
-            border: 1px solid rgba(139,105,20,0.4);
-        }
-        .sp-btn-secondary:hover { background: rgba(74,58,16,0.3); }
-        .sp-close {
-            position: absolute; top: 8px; right: 28px; background: none; border: none;
-            font-size: 1.5rem; color: #8b6914; cursor: pointer; z-index: 10;
-        }
-        .sp-close:hover { color: #9E2A2F; }
-    </style>
+    <link rel="stylesheet" href="~/css/pages/Course/index.css" asp-append-version="true" />
 }
 
 <div class="sishu-root">
@@ -104,19 +38,20 @@
         }
         <div class="sishu-search-inner">
             <i class="fas fa-search"></i>
-            <input type="text" name="searchString" placeholder="寻觅课程..." value="@searchString" />
+            <input type="text" name="searchString" placeholder="寻觅雅集课程..." value="@searchString" />
             <button type="submit">搜索</button>
         </div>
     </form>
 
     <div class="bookshelf" id="bookshelf" data-browse-mode="@browseMode">
         <div class="shelf-top-shadow"></div>
+
         @if (Model.Items.Any())
         {
             if (isSpotlight)
             {
-                <p class="carousel-hint"><i class="fas fa-hand-paper"></i> 左右拖动或滑动书架翻看课程，点击书卷即可开始学习；也可通过搜索查看全部匹配课程。</p>
-                <div class="carousel-viewport" id="carouselViewport" role="application" aria-label="课程三维旋转书架">
+                <p class="carousel-hint">左右拨动书架翻看，点击书卷展卷研习</p>
+                <div class="carousel-viewport" id="carouselViewport" role="application" aria-label="3D旋转木马书架">
                     <div class="carousel-pivot">
                         <div class="carousel-axis" id="carouselAxis">
                             @foreach (var item in Model.Items)
@@ -125,25 +60,23 @@
                                     <div class="scroll-book scroll-book--carousel3d" data-course-id="@item.Id"
                                          data-study-url="@Url.Action("Study", "Course", new { id = item.Id })">
                                         <span class="scroll-ground-shadow" aria-hidden="true"></span>
-                                        <div class="scroll-3d-stack">
-                                            <span class="scroll-thickness scroll-thickness--left" aria-hidden="true"></span>
-                                            <span class="scroll-thickness scroll-thickness--right" aria-hidden="true"></span>
-                                            <div class="scroll-3d-front">
-                                                <div class="scroll-rod-l"></div>
-                                                <div class="scroll-spine">
-                                                    <span class="spine-text">@item.Name</span>
-                                                    @if (item.IsFeatured)
-                                                    {
-                                                        <span class="spine-badge">精</span>
-                                                    }
-                                                </div>
-                                                <div class="scroll-rod-r"></div>
-                                            </div>
+
+                                        <div class="scroll-rod-t"></div>
+
+                                        <div class="scroll-spine">
+                                            <span class="spine-text">@item.Name</span>
+                                            @if (item.IsFeatured)
+                                            {
+                                                <span class="spine-badge">精</span>
+                                            }
                                         </div>
+
+                                        <div class="scroll-rod-b"></div>
+
                                         <div class="scroll-tooltip">
                                             <strong class="tooltip-title">@item.Name</strong>
                                             <span class="tooltip-cat">@(item.Category?.Name ?? "未分类")</span>
-                                            <span class="tooltip-hint">点击展卷修习</span>
+                                            <span class="tooltip-hint">点击展卷研习</span>
                                         </div>
                                     </div>
                                 </div>
@@ -155,13 +88,14 @@
             }
             else
             {
-                <p class="shelf-search-hint"><i class="fas fa-list"></i> 以下为搜索结果，横排陈列；换条件可重新搜索。</p>
+                <p class="shelf-search-hint"><i class="fas fa-list"></i> 以下为寻得的雅集课程</p>
                 <div class="shelf-row shelf-row--grid">
                     @foreach (var item in Model.Items)
                     {
                         <div class="scroll-book" data-course-id="@item.Id"
                              data-study-url="@Url.Action("Study", "Course", new { id = item.Id })">
-                            <div class="scroll-rod-l"></div>
+                            <div class="scroll-rod-t"></div>
+
                             <div class="scroll-spine">
                                 <span class="spine-text">@item.Name</span>
                                 @if (item.IsFeatured)
@@ -169,11 +103,13 @@
                                     <span class="spine-badge">精</span>
                                 }
                             </div>
-                            <div class="scroll-rod-r"></div>
+
+                            <div class="scroll-rod-b"></div>
+
                             <div class="scroll-tooltip">
                                 <strong class="tooltip-title">@item.Name</strong>
                                 <span class="tooltip-cat">@(item.Category?.Name ?? "未分类")</span>
-                                <span class="tooltip-hint">点击展卷修习</span>
+                                <span class="tooltip-hint">点击展卷研习</span>
                             </div>
                         </div>
                     }
@@ -185,10 +121,11 @@
             <div class="shelf-row shelf-row--empty">
                 <div class="shelf-empty">
                     <i class="fas fa-scroll"></i>
-                    <p>书架空空，未寻得相关课程。</p>
+                    <p>书架空空，未寻得相关课程残卷。</p>
                 </div>
             </div>
         }
+
         <div class="shelf-board"></div>
     </div>
 
@@ -215,13 +152,12 @@
     <div class="sishu-back">
         @if (categoryId.HasValue && categoryId.Value > 0)
         {
-            <a asp-controller="Category" asp-action="Details" asp-route-id="@categoryId.Value" class="me-3"><i class="fas fa-arrow-left"></i> 返回剧种方志</a>
+            <a asp-controller="Category" asp-action="Details" asp-route-id="@categoryId.Value">返回剧种方志</a>
         }
-        <a asp-controller="Home" asp-action="Index"><i class="fas fa-torii-gate"></i> 返回首页</a>
+        <a asp-controller="Home" asp-action="Index">返回首页</a>
     </div>
 </div>
 
-<!-- Scroll unfurl overlay -->
 <div class="scroll-overlay-backdrop" id="scrollOverlay">
     <div class="scroll-overlay">
         <div class="scroll-rod"></div>
@@ -231,8 +167,8 @@
             <div class="sp-cat" id="spCat"></div>
             <div class="sp-desc" id="spDesc"></div>
             <div class="sp-actions">
-                <a class="sp-btn sp-btn-primary" id="spStudyBtn">进入传习考校</a>
-                <a class="sp-btn sp-btn-secondary" id="spDetailsBtn" href="#">进入课程详情</a>
+                <a class="sp-btn sp-btn-primary" id="spStudyBtn">研习此卷</a>
+                <a class="sp-btn sp-btn-secondary" id="spDetailsBtn" href="#">残卷详情</a>
             </div>
         </div>
         <div class="scroll-rod"></div>
@@ -240,235 +176,5 @@
 </div>
 
 @section Scripts {
-<script>
-(function () {
-    var suppressBookClickUntil = 0;
-    var browseMode = '@browseMode';
-    var axis = document.getElementById('carouselAxis');
-    var viewport = document.getElementById('carouselViewport');
-
-    if (browseMode === 'spotlight' && axis && viewport) {
-        var cells = axis.querySelectorAll('.carousel-cell');
-        var n = cells.length;
-        var radius =
-            n <= 1 ? 0 : Math.max(200, Math.min(360, (58 * n) / (2 * Math.PI) * 1.22));
-        var angle = 0;
-        var vel = 0;
-        var dragging = false;
-        var lastX = 0;
-        var totalDrag = 0;
-        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var autoSpeed = reducedMotion ? 0 : 0.11;
-
-        function normDeg(d) {
-            d = d % 360;
-            if (d > 180) d -= 360;
-            if (d < -180) d += 360;
-            return d;
-        }
-
-        function layoutRing() {
-            if (n <= 1) {
-                cells.forEach(function (cell, i) {
-                    if (i === 0) {
-                        cell.style.opacity = '1';
-                        cell.style.pointerEvents = '';
-                        cell.style.transform =
-                            'rotateY(0deg) translateZ(' + (radius + 36) + 'px) rotateY(0deg)';
-                    } else {
-                        cell.style.opacity = '0';
-                        cell.style.pointerEvents = 'none';
-                        cell.style.transform = 'scale(0)';
-                    }
-                    cell.classList.remove('carousel-cell--rear');
-                });
-                return;
-            }
-            applyRingTransforms();
-        }
-
-        /** 整圈公转角度在 yaw = slotDeg + angle；再用 rotateY(-yaw) 把卷面始终扳向镜头 */
-        function applyRingTransforms() {
-            if (n <= 1) return;
-            cells.forEach(function (cell, i) {
-                cell.style.opacity = '1';
-                var slotDeg = (360 / n) * i;
-                var yaw = slotDeg + angle;
-                cell.style.transform =
-                    'rotateY(' +
-                    yaw +
-                    'deg) translateZ(' +
-                    radius +
-                    'px) rotateY(' +
-                    -yaw +
-                    'deg)';
-            });
-        }
-
-        function updateRearFaces() {
-            if (n <= 1) return;
-            cells.forEach(function (cell, i) {
-                var rel = normDeg((360 / n) * i + angle);
-                var rear = Math.abs(rel) > 82;
-                cell.classList.toggle('carousel-cell--rear', rear);
-                cell.style.pointerEvents = rear ? 'none' : '';
-                var z = 20 - Math.abs(rel) / 90 * 8;
-                cell.style.zIndex = String(Math.round(z));
-            });
-        }
-
-        function tick() {
-            if (!dragging) {
-                if (Math.abs(vel) > 0.02) {
-                    angle += vel;
-                    vel *= 0.93;
-                } else {
-                    vel = 0;
-                    angle += autoSpeed;
-                }
-            }
-            axis.style.transform = 'translateZ(-56px) rotateX(6deg)';
-            applyRingTransforms();
-            updateRearFaces();
-            requestAnimationFrame(tick);
-        }
-
-        function onDown(x) {
-            dragging = true;
-            lastX = x;
-            totalDrag = 0;
-            vel = 0;
-            viewport.classList.add('carousel-dragging');
-        }
-        function onMove(x) {
-            if (!dragging) return;
-            var dx = x - lastX;
-            lastX = x;
-            totalDrag += Math.abs(dx);
-            angle += dx * 0.38;
-            vel = dx * 0.38;
-        }
-        function onUp() {
-            if (!dragging) return;
-            dragging = false;
-            viewport.classList.remove('carousel-dragging');
-            window.removeEventListener('pointermove', onWindowPointerMove);
-            window.removeEventListener('pointerup', onWindowPointerUp);
-            window.removeEventListener('pointercancel', onWindowPointerUp);
-            if (totalDrag > 12) {
-                suppressBookClickUntil = Date.now() + 400;
-            }
-        }
-        function onWindowPointerMove(e) {
-            onMove(e.clientX);
-        }
-        function onWindowPointerUp() {
-            onUp();
-        }
-
-        layoutRing();
-        axis.querySelectorAll('.scroll-book').forEach(function (book, idx) {
-            book.style.animationDelay = idx * 0.045 + 's';
-        });
-        tick();
-
-        /** 勿对 viewport 使用 setPointerCapture，否则会吃掉子元素的 click，展卷弹层打不开 */
-        viewport.addEventListener('pointerdown', function (e) {
-            if (e.button !== undefined && e.button !== 0) return;
-            onDown(e.clientX);
-            window.addEventListener('pointermove', onWindowPointerMove);
-            window.addEventListener('pointerup', onWindowPointerUp);
-            window.addEventListener('pointercancel', onWindowPointerUp);
-        });
-
-        viewport.addEventListener(
-            'wheel',
-            function (e) {
-                angle += e.deltaY * 0.09;
-                vel = e.deltaY * 0.06;
-                suppressBookClickUntil = Date.now() + 200;
-            },
-            { passive: true }
-        );
-    }
-
-    var overlay = document.getElementById('scrollOverlay');
-    var closeBtn = document.getElementById('scrollClose');
-    var detailsBtn = document.getElementById('spDetailsBtn');
-
-    var bookshelf = document.getElementById('bookshelf');
-    if (bookshelf) {
-        bookshelf.addEventListener('click', function (e) {
-            var book = e.target.closest('.scroll-book');
-            if (!book || !bookshelf.contains(book)) return;
-            if (browseMode === 'spotlight' && book.closest('.carousel-cell--rear')) return;
-            if (Date.now() < suppressBookClickUntil) return;
-            var courseId = book.getAttribute('data-course-id');
-            if (!courseId) return;
-            var studyUrl = book.getAttribute('data-study-url');
-            var tipT = book.querySelector('.tooltip-title');
-            var spine = book.querySelector('.spine-text');
-            var name = (tipT && tipT.textContent) || (spine && spine.textContent) || '';
-
-            var rect = book.getBoundingClientRect();
-            var ghost = book.cloneNode(true);
-            ghost.classList.add('scroll-book-flying');
-            ghost.style.cssText = 'position:fixed;left:' + rect.left + 'px;top:' + rect.top + 'px;width:' + rect.width + 'px;height:' + rect.height + 'px;z-index:99999;pointer-events:none;';
-            document.body.appendChild(ghost);
-
-            var cx = window.innerWidth / 2 - rect.left - rect.width / 2;
-            var cy = window.innerHeight / 2 - rect.top - rect.height / 2;
-            requestAnimationFrame(function () {
-                ghost.style.transition = 'transform 0.7s cubic-bezier(0.22,1,0.36,1), opacity 0.7s';
-                ghost.style.transform = 'translate(' + cx + 'px,' + cy + 'px) scale(0.15) rotate(-8deg)';
-                ghost.style.opacity = '0.3';
-            });
-
-            setTimeout(function () { ghost.remove(); }, 700);
-
-            setTimeout(function () {
-                document.getElementById('spTitle').textContent = name;
-                document.getElementById('spCat').textContent = '';
-                document.getElementById('spDesc').textContent = '加载中...';
-                document.getElementById('spStudyBtn').href = studyUrl;
-                if (detailsBtn) detailsBtn.href = '/Course/Details/' + courseId;
-                overlay.classList.add('open');
-
-                fetch('/Course/DetailsJson/' + courseId)
-                    .then(function (r) { return r.json(); })
-                    .then(function (d) {
-                        document.getElementById('spTitle').textContent = d.name;
-                        document.getElementById('spCat').textContent = d.category ? ('分类：' + d.category) : '';
-                        document.getElementById('spDesc').textContent = d.description || '暂无介绍';
-                        document.getElementById('spStudyBtn').href = d.studyUrl;
-                        if (detailsBtn && d.detailsUrl) detailsBtn.href = d.detailsUrl;
-                    })
-                    .catch(function () {
-                        document.getElementById('spDesc').textContent = '获取课程信息失败';
-                    });
-            }, 500);
-        });
-    }
-
-    function closeOverlay() {
-        overlay.classList.remove('open');
-    }
-    closeBtn.addEventListener('click', closeOverlay);
-    overlay.addEventListener('click', function (e) {
-        if (e.target === overlay) closeOverlay();
-    });
-
-    var canvas = document.getElementById('bgParticles');
-    for (var i = 0; i < 18; i++) {
-        var p = document.createElement('div');
-        p.className = 'bg-particle';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.animationDelay = Math.random() * 8 + 's';
-        p.style.animationDuration = (6 + Math.random() * 10) + 's';
-        p.style.opacity = (0.15 + Math.random() * 0.25).toString();
-        p.style.width = p.style.height = (3 + Math.random() * 5) + 'px';
-        canvas.appendChild(p);
-    }
-})();
-</script>
+    <script src="~/js/pages/Course/index.js" asp-append-version="true"></script>
 }
